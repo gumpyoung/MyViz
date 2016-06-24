@@ -33,7 +33,7 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 
 		var now = new Date();
 		self.last_updated(now.toLocaleTimeString());
-	}
+	};
 
 	this.type = ko.observable();
 	this.type.subscribe(function(newValue)
@@ -98,13 +98,29 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 		{
 			self.datasourceInstance.updateNow();
 		}
-	}
+	};
+
+	this.stop = function()
+	{
+		if(!_.isUndefined(self.datasourceInstance) && _.isFunction(self.datasourceInstance.updateNow))
+		{
+			self.datasourceInstance.stop();
+		}
+	};
+
+	this.start = function()
+	{
+		if(!_.isUndefined(self.datasourceInstance) && _.isFunction(self.datasourceInstance.updateNow))
+		{
+			self.datasourceInstance.stop();
+		}
+	};
 
 	this.dispose = function()
 	{
 		disposeDatasourceInstance();
-	}
-}
+	};
+};
 
 DeveloperConsole = function(theFreeboardModel)
 {
@@ -297,7 +313,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 				widget.processDatasourceUpdate(datasourceName);
 			});
 		});
-	}
+	};
 
 	this._datasourceTypes = ko.observable();
 	this.datasourceTypes = ko.computed({
@@ -532,7 +548,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			alert('Unable to load a file in this browser.');
 		}
-	}
+	};
 
 	this.saveDashboardClicked = function(){
 		var target = $(event.currentTarget);
@@ -572,7 +588,17 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		delete self.datasourceData[datasource.name()];
 		datasource.dispose();
 		self.datasources.remove(datasource);
-	}
+	};
+
+	this.stopDatasource = function(datasource)
+	{
+		datasource.stop();
+	};
+
+	this.startDatasource = function(datasource)
+	{
+		datasource.start();
+	};
 
 	this.createPane = function()
 	{
@@ -2242,17 +2268,17 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				self.processCalculatedSetting(settingName);
 			});
 		}
-	}
+	};
 
 	this.callValueFunction = function (theFunction) {
 		return theFunction.call(undefined, theFreeboardModel.datasourceData);
-	}
+	};
 
 	this.processSizeChange = function () {
 		if (!_.isUndefined(self.widgetInstance) && _.isFunction(self.widgetInstance.onSizeChanged)) {
 			self.widgetInstance.onSizeChanged();
 		}
-	}
+	};
 
 	this.processCalculatedSetting = function (settingName) {
 		if (_.isFunction(self.calculatedSettingScripts[settingName])) {
@@ -2279,7 +2305,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				}
 			}
 		}
-	}
+	};
 
 	this.updateCalculatedSettings = function () {
 		self.datasourceRefreshNotifications = {};
@@ -2984,6 +3010,24 @@ var freeboard = (function()
                 return null;
             }
         },
+        getDatasourceType : function(datasourceName)
+        {
+            var datasources = theFreeboardModel.datasources();
+
+            // Find the datasource with the name specified
+            var datasource = _.find(datasources, function(datasourceModel){
+                return (datasourceModel.name() === datasourceName);
+            });
+
+            if(datasource)
+            {
+                return datasource.type();
+            }
+            else
+            {
+                return null;
+            }
+        },
         setDatasourceSettings : function(datasourceName, settings)
         {
             var datasources = theFreeboardModel.datasources();
@@ -3001,6 +3045,40 @@ var freeboard = (function()
 
             var combinedSettings = _.defaults(settings, datasource.settings());
             datasource.settings(combinedSettings);
+        },
+        getDatasourceData : function(datasourceName)
+        {
+            var datasources = theFreeboardModel.datasources();
+
+            // Find the datasource with the name specified
+            var datasource = _.find(datasources, function(datasourceModel){
+                return (datasourceModel.name() === datasourceName);
+            });
+
+            if(datasource) {
+				return datasource.latestData();
+            }
+            else {
+                return null;
+            }
+        },
+        setDatasourceData : function(datasourceName, key, data)
+        {
+            var datasources = theFreeboardModel.datasources();
+
+            // Find the datasource with the name specified
+            var datasource = _.find(datasources, function(datasourceModel){
+                return (datasourceModel.name() === datasourceName);
+            });
+
+            if(!datasource)
+            {
+                console.log("Datasource not found");
+                return;
+            }
+
+            datasource.latestData()[key] = data;
+            datasource.updateNow();
         },
 		getStyleString      : function(name)
 		{
