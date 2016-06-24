@@ -14,7 +14,6 @@
     <script type="text/javascript">
     	var refreshIntervals = [];
 		if (typeof(require) != "undefined") {			
-			//console.log(JSON.stringify(process.env, null, 4));
 			
 			var dir = require('node-dir');
 			
@@ -22,7 +21,6 @@
 			
 	        // Pack all js files of plugins in one js file
 	        var listExtensions = ["js/freeboard.js"];
-	        console.log('File list 1:', listExtensions);
 	        dir.readFiles(extensionsPath, {
 	            match: /.js$/,
 	            exclude: /^\./,
@@ -30,15 +28,11 @@
 	                if (err) {
 	                    throw err;
 	                }
-	                console.log('processing file ', filename);
 	                listExtensions.push(filename);
-	                console.log('File list 2:', listExtensions);
 	                next();
 	            },
 	            function(err, files){
 	                if (err) throw err;
-	                console.log('finished reading files:',files);
-	                console.log('File list:', listExtensions);
 
 	                            
 			        head.js(// *** Load more plugins here ***
@@ -68,7 +62,6 @@
 								
 		    var os = require('os');
 		    var ipAddress = os.networkInterfaces();
-		    console.log(JSON.stringify(ipAddress, null, 4));
 		    
 		}
 		else {
