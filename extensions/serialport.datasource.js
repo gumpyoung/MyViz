@@ -29,8 +29,6 @@
 			console.log("Serial port socket connected");
 			
 			socket.on(event, function (msg) {
-				console.log("msg: ", msg);
-				console.log("JSON.parse(msg): ", JSON.parse(msg));
 				// Extract variable name from, for example,
 				// currentSettings.value = [datasources["datasourcename"]["variablename1"], datasources["datasourcename"]["variablename2"]]
 				var variableName = (_.keys(JSON.parse(msg))[0]).split('"')[3];
@@ -123,7 +121,6 @@
 					// Write data to the serial port
 					currentTime = new Date();
 					if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
-						console.log("dataToSend serialPort: ", dataToSend);
 						serialPort.write(dataToSend, function (error) {
 							if (error) {
 						    	console.log("Error writing to the serial port: ", error);

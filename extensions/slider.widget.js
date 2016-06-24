@@ -69,7 +69,6 @@ window.sliderID = 0;
 			toSend = {};
 			var formula = (_.isUndefined(currentSettings.formula) ? "x" : currentSettings.formula);
 			toSend[currentSettings.variable] = eval(formula.replace("x", sliderValue));
-			console.log("toSend[currentSettings.variable]: ", toSend[currentSettings.variable]);
 			socket.emit(event, JSON.stringify(toSend));
  		};
  		        
