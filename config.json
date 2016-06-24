@@ -1,0 +1,13 @@
+{
+  "name": "MyViz",
+  "version": "0.0.9",
+  "description": "MyViz",
+  "src": "/media/sf_ShareVirtualBox/MyViz/Projects/MyViz",
+  "nwjsVersion": "0.12.3",
+  "iconPath": "/media/sf_ShareVirtualBox/MyViz/Developpement/Desktop/Outputs/MyViz/myviz.png",
+  "windowsIconPath": "/media/sf_ShareVirtualBox/MyViz/Developpement/Desktop/Outputs/MyViz/myviz.ico",
+  "osxIconPath": "/media/sf_ShareVirtualBox/MyViz/Developpement/Desktop/Outputs/MyViz/myviz.png",
+  "osxBgPath": "/media/sf_ShareVirtualBox/MyViz/Developpement/Desktop/Outputs/MyViz/myviz.png",
+  "CFBundleIdentifier": "com.myviz.app",
+  "license": "/media/sf_ShareVirtualBox/MyViz/Developpement/Desktop/Outputs/MyViz/license.txt"
+}
