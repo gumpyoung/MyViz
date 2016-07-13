@@ -121,8 +121,9 @@ window.sliderID = 0;
 			});
 			
 			slider.noUiSlider.on('update', function( values, handle ) {
-				sliderInput.value = values[handle];
-				sliderValue = values[handle];
+				var value = (Number(values[handle])).toFixed(currentSettings.resolution);
+				sliderInput.value = value;
+				sliderValue = value;
 				sendData();
 			});
 			

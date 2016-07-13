@@ -42,10 +42,10 @@
 				crcValue = 0;
 				for (var d in dataObj) {
 					if (d != '_crc') {
-						if (currentSettings.checksum = "sum") {
+						if (currentSettings.checksum == "sum") {
 							crcValue += Number(dataObj[d]);
 						}
-						else if (currentSettings.checksum = "concat") {
+						else if (currentSettings.checksum == "concat") {
 							crcValue += dataObj[d];
 						}
 					}
@@ -56,10 +56,18 @@
 				for (var i = 0; i < listVariablesToSend.length; i++) {
 					dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
 				}
-				dataToSend += crcValue;
+				
+				if (currentSettings.checksum == "none") {
+					// Remove last separator
+					dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
+				}
+				else {
+					dataToSend += crcValue;
+				}
 				
 				// Very important ! Don't forget
 				dataToSend += "\r";
+				
 				
 				// When data arrives (from a slider, for example), send it
 				// "immediately" (not faster than every 100 ms)
@@ -113,7 +121,7 @@
 			}
 			refreshIntervals = [];
 			
-			// When not data is received (slider is not moved, for example),
+			// When no data is received (slider is not moved, for example),
 			// send it every second: the receiving program may have a safety timeout
 			// in case it doesn't receive data
 	        refreshInterval = setInterval(
@@ -212,6 +220,7 @@
             }
             else if (newSettings.variables_to_send != currentSettings.variables_to_send) {
             	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(currentSettings.separator);
+            	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
             	listVariables = _.union(listVariablesToRead, listVariablesToSend);
             }
             else if (newSettings.separator != currentSettings.separator) {
@@ -220,7 +229,34 @@
             	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(currentSettings.separator);
             	listVariables = _.union(listVariablesToRead, listVariablesToSend);
             }
+            else if (newSettings.refresh_rate != currentSettings.refresh_rate) {
+				for (r in refreshIntervals) {
+				    clearInterval(refreshIntervals[r]);
+				}
+				refreshIntervals = [];
+				
+				// When no data is received (slider is not moved, for example),
+				// send it every second: the receiving program may have a safety timeout
+				// in case it doesn't receive data
+		        refreshInterval = setInterval(
+		        	function(){
+						// Write data to the serial port
+						currentTime = new Date();
+						if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
+							serialPort.write(dataToSend, function (error) {
+								if (error) {
+							    	console.log("Error writing to the serial port: ", error);
+							    }
+							});
+						}
+		        	},
+		        	newSettings.refresh_rate
+		        );
+		        refreshIntervals.push(refreshInterval);
+            }
+            
             currentSettings = newSettings;
+
 		};
 		
 		initializeDataSource();
@@ -263,6 +299,14 @@
 				description: "Name of the variables to send, separated by comma"
 			},
 			{
+				name: "refresh_rate",
+				display_name: "Refresh rate for sending data",
+				type: "text",
+				"required" : false,
+				default_value: 500,
+				description: "Refresh rate (in milliseconds) for sending data. Data will be sent even if control values are not changed"
+			},
+			{
 				name: "separator",
 				display_name: "Separator",
 				type: "text",
@@ -275,6 +319,10 @@
                 type: "option",
                 description: "If values are sent, a checksum will be automatically added in variable '_crc', computed from the other values.",
                 options: [
+                    {
+                        name: "None",
+                        value: "none"
+                    },
                     {
                         name: "Sum",
                         value: "sum"

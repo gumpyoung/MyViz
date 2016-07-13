@@ -18,12 +18,11 @@ window.plotID = 0;
 	    var yDataArray = [];
 	    var ymin, ymax;
 	    var last_ymin, last_ymax, center;
-	    var legendArray;
 	    var lastDate = initialDate;
 	    var lastPlot = -1000000;
 
         var currentSettings = settings;
-	    var legendArray = (currentSettings.legendStr).split(",");
+	    var legendArray = (_.isUndefined(currentSettings.legendStr) || !currentSettings.include_legend ? [] : (currentSettings.legendStr).split(","));
         
         function setYaxisRange() {
             if ((_.isUndefined(currentSettings.y_axis_min_range)) || ((currentSettings.y_axis_min_range).indexOf(",") === -1)) {
@@ -167,8 +166,12 @@ window.plotID = 0;
                 setYaxisRange();
                 createPlot();
             }
-            else if (newSettings.legendStr != currentSettings.legendStr) {
-                legendArray = (newSettings.legendStr).split(",");
+            else if (newSettings.legendStr != currentSettings.legendStr
+            		|| newSettings.include_legend != currentSettings.include_legend) {
+                legendArray = (_.isUndefined(newSettings.legendStr) || !newSettings.include_legend ? [] : (newSettings.legendStr).split(","));
+                rendered = false;
+                plotdata = [];
+                yDataArray = [];
                 createPlot();
             }
 			currentSettings = newSettings;
