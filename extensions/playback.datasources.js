@@ -80,30 +80,30 @@
 
 	freeboard.loadDatasourcePlugin({
 		"type_name": "playback",
-		"display_name": "Playback",
+		"display_name": _t("Playback"),
 		"settings": [
 			{
 				"name": "datafile",
-				"display_name": "Data File URL",
+				"display_name": _t("Data File URL"),
 				"type": "text",
-				"description": "A link to a JSON array of data."
+				"description": _t("A link to a JSON array of data.")
 			},
 			{
 				name: "is_jsonp",
-				display_name: "Is JSONP",
+				display_name: _t("Is JSONP"),
 				type: "boolean"
 			},
 			{
 				"name": "loop",
-				"display_name": "Loop",
+				"display_name": _t("Loop"),
 				"type": "boolean",
-				"description": "Rewind and loop when finished"
+				"description": _t("Rewind and loop when finished")
 			},
 			{
 				"name": "refresh",
-				"display_name": "Refresh Every",
+				"display_name": _t("Refresh Every"),
 				"type": "number",
-				"suffix": "seconds",
+				"suffix": _t("seconds"),
 				"default_value": 5
 			}
 		],

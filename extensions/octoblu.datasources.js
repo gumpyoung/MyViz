@@ -31,7 +31,7 @@ freeboard.loadDatasourcePlugin({
 				// **default_value** : A default value for this setting.
 				"default_value": "device uuid",
 				// **description** : Text that will be displayed below the setting to give the user any extra information.
-				"description"  : "your device UUID",
+				"description"  : _t("your device UUID"),
                 // **required** : Set to true if this setting is required for the datasource to be created.
                 "required" : true
 			},
@@ -45,7 +45,7 @@ freeboard.loadDatasourcePlugin({
 				// **default_value** : A default value for this setting.
 				"default_value": "device token",
 				// **description** : Text that will be displayed below the setting to give the user any extra information.
-				"description"  : "your device TOKEN",
+				"description"  : _t("your device TOKEN"),
                 // **required** : Set to true if this setting is required for the datasource to be created.
                 "required" : true
 			},
@@ -53,13 +53,13 @@ freeboard.loadDatasourcePlugin({
 				// **name** (required) : The name of the setting. This value will be used in your code to retrieve the value specified by the user. This should follow naming conventions for javascript variable and function declarations.
 				"name"         : "server",
 				// **display_name** : The pretty name that will be shown to the user when they adjust this setting.
-				"display_name" : "Server",
+				"display_name" : _t("Server"),
 				// **type** (required) : The type of input expected for this setting. "text" will display a single text box input. Examples of other types will follow in this documentation.
 				"type"         : "text",
 				// **default_value** : A default value for this setting.
 				"default_value": "meshblu.octoblu.com",
 				// **description** : Text that will be displayed below the setting to give the user any extra information.
-				"description"  : "your server",
+				"description"  : _t("your server"),
                 // **required** : Set to true if this setting is required for the datasource to be created.
                 "required" : true
 			},
@@ -67,13 +67,13 @@ freeboard.loadDatasourcePlugin({
 				// **name** (required) : The name of the setting. This value will be used in your code to retrieve the value specified by the user. This should follow naming conventions for javascript variable and function declarations.
 				"name"         : "port",
 				// **display_name** : The pretty name that will be shown to the user when they adjust this setting.
-				"display_name" : "Port",
+				"display_name" : _t("Port"),
 				// **type** (required) : The type of input expected for this setting. "text" will display a single text box input. Examples of other types will follow in this documentation.
 				"type"         : "number",
 				// **default_value** : A default value for this setting.
 				"default_value": 80,
 				// **description** : Text that will be displayed below the setting to give the user any extra information.
-				"description"  : "server port",
+				"description"  : _t("server port"),
                 // **required** : Set to true if this setting is required for the datasource to be created.
                 "required" : true
 			}

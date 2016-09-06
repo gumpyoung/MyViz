@@ -4,13 +4,14 @@ window.plotID = 0;
         var self = this;
         var thisplotID = "plot-" + window.plotID++;
         var titleElement = $('<h2 class="section-title"></h2>');
-        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:150px"></div>');
+        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:95%"></div>');
 		//var legendElement = $('<div id="chartLegend"></div>');
 
         var plotObject;
         var opts;
         var options;
         var rendered = false;
+        var plotCreated = false;
 	    var plotdata = [];
 	    
 	    var initialDate = new Date();
@@ -24,12 +25,12 @@ window.plotID = 0;
         var currentSettings = settings;
 	    var legendArray = (_.isUndefined(currentSettings.legendStr) || !currentSettings.include_legend ? [] : (currentSettings.legendStr).split(","));
         
-        function setYaxisRange() {
-            if ((_.isUndefined(currentSettings.y_axis_min_range)) || ((currentSettings.y_axis_min_range).indexOf(",") === -1)) {
+        function setYaxisRange(mySettings) {
+            if ((_.isUndefined(mySettings.y_axis_min_range)) || ((mySettings.y_axis_min_range).indexOf(",") === -1)) {
             	y_axis_min_range_array = [-10,10];
             }
             else {
-            	y_axis_min_range_array = ((currentSettings.y_axis_min_range).split(",")).map(parseFloat);
+            	y_axis_min_range_array = ((mySettings.y_axis_min_range).split(",")).map(parseFloat);
            	}
         	ymin = Math.min.apply(null, y_axis_min_range_array);
         	last_ymin = ymin;
@@ -38,14 +39,14 @@ window.plotID = 0;
         	center = (ymin + ymax)/2;
         }
 
-        function createPlot() {
+        function createPlot(mySettings) {
             if (!rendered) {
                 return;
             }
 
             plotElement.empty();
 
-	        plotdata.push({ label: "", data: [] });
+	        //plotdata.push({ label: "", data: [] });
 	        
         	options = {
 	            series: {
@@ -62,7 +63,7 @@ window.plotID = 0;
 	            },
 	            xaxis: { 
 	                min: 0,
-	                max: (_.isUndefined(currentSettings.time_window) ? 10 : currentSettings.time_window)
+	                max: (_.isUndefined(mySettings.time_window) ? 10 : mySettings.time_window)
 	            },
 	            xaxis: {
 					show: true
@@ -147,14 +148,16 @@ window.plotID = 0;
 					})
 				);
 			});
+			
+			plotCreated = true;
         }
 
         this.render = function (element) {
             rendered = true;
             //$(element).append(titleElement).append(plotElement).append(legendElement);
             $(element).append(titleElement).append(plotElement);
-            setYaxisRange();
-            createPlot();
+            setYaxisRange(currentSettings);
+            createPlot(currentSettings);
         };
 
         this.onSettingsChanged = function (newSettings) {
@@ -162,100 +165,105 @@ window.plotID = 0;
             	|| newSettings.xaxis != currentSettings.xaxis
             	|| newSettings.time != currentSettings.time
             	|| newSettings.value != currentSettings.value
+            	|| newSettings.height != currentSettings.height
             	|| newSettings.y_axis_min_range != currentSettings.y_axis_min_range) {
-                setYaxisRange();
-                createPlot();
+            	plotCreated = false;
+                setYaxisRange(newSettings);
+                createPlot(newSettings);
             }
-            else if (newSettings.legendStr != currentSettings.legendStr
+            if (newSettings.legendStr != currentSettings.legendStr
             		|| newSettings.include_legend != currentSettings.include_legend) {
+            	plotCreated = false;
                 legendArray = (_.isUndefined(newSettings.legendStr) || !newSettings.include_legend ? [] : (newSettings.legendStr).split(","));
-                rendered = false;
+                //rendered = false;
                 plotdata = [];
                 yDataArray = [];
-                createPlot();
+                createPlot(newSettings);
             }
+            
 			currentSettings = newSettings;
 
             titleElement.html(newSettings.title);
         };
 
         this.onCalculatedValueChanged = function (settingName, newValue) {
-            if (!_.isUndefined(plotObject)) {
+            if (!_.isUndefined(plotObject) && plotCreated) {
 	        	
             	if (settingName == "time") {
             		xData = Number(newValue);
             	}
-	        	
-	        	// If multiple values, extends plotdata
-	        	for (var i=plotdata.length; i<newValue.length; i++) {
-	        		plotdata.push({ label: legendArray[i], data: [] });
-	        	}
-	        	
-	        	for (var i=0; i<newValue.length; i++) {
-	        		
-	                if (currentSettings.xaxis == "seconds_from_start") {
-	                	yData = Number(newValue[i]);
-	                	yDataArray.push(yData);
-	                	xData = (new Date() - initialDate)/1000;
-	                }
-	                else {
-	                	if (settingName == "value") {
+	        	else {
+		        	// If multiple values, extends plotdata
+		        	for (var i=plotdata.length; i<newValue.length; i++) {
+		        		plotdata.push({ label: legendArray[i], data: [] });
+		        	}
+		        	
+		        	for (var i=0; i<newValue.length; i++) {
+		        		
+		                if (currentSettings.xaxis == "seconds_from_start") {
 		                	yData = Number(newValue[i]);
-		                	yDataArray.push(yData);		                		
-	                	}
-	                }
-	                
-	                // First point of a new serie
-		            if ((!_.isUndefined(xData)) && (!_.isUndefined(yData))) {
-		            	if (xData < lastDate) {
-		            		if (i===0) {
-		            			plotdata = [{ label: legendArray[i], data: [] }];
-		           			}
-		           			else {
-		           				plotdata.push({ label: legendArray[i], data: [] });
-		           			}
-		            		yDataArray = [];
-		            		lastPlot = -1000000;
-		            	}
-		            	lastDate = xData;
-			            (plotdata[i].data).push([xData, yData]);
-			            
-			            // Remove old data out of time window
-			            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
-			            	(plotdata[i].data).shift();
-			            	yDataArray.shift();
+		                	yDataArray.push(yData);
+		                	xData = (new Date() - initialDate)/1000;
+		                }
+		                else {
+		                	if (settingName == "value") {
+			                	yData = Number(newValue[i]);
+			                	yDataArray.push(yData);		                		
+		                	}
+		                }
+		                
+		                // First point of a new serie
+			            if ((!_.isUndefined(xData)) && (!_.isUndefined(yData))) {
+			            	if (xData < lastDate) {
+			            		if (i===0) {
+			            			plotdata = [{ label: legendArray[i], data: [] }];
+			           			}
+			           			else {
+			           				plotdata.push({ label: legendArray[i], data: [] });
+			           			}
+			            		yDataArray = [];
+			            		lastPlot = -1000000;
+			            	}
+			            	lastDate = xData;
+				            (plotdata[i].data).push([xData, yData]);
+				            
+				            // Remove old data out of time window
+				            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
+				            	(plotdata[i].data).shift();
+				            	yDataArray.shift();
+				            }
+				            last_ymin = Math.min.apply(null, yDataArray);
+				            last_ymax = Math.max.apply(null, yDataArray);
+				            
+			                plotObject.setData(plotdata);	                
+			                
+			                opts = plotObject.getOptions();
+			                var nbData = (plotdata[i].data).length;
+			                opts.xaxes[0].max = ((plotdata[i].data)[nbData-1])[0];
+			                opts.xaxes[0].min = Math.max(0, opts.xaxes[0].max - Number(currentSettings.time_window));
+			                
+			                if (last_ymin < opts.yaxes[0].min) {
+			                	opts.yaxes[0].min = center - 2 * (center - last_ymin);
+			                }
+			                else if (last_ymin > (opts.yaxes[0].min / 2)) {
+			                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
+			                }
+			                
+			                if (last_ymax > opts.yaxes[0].max) {
+			                	opts.yaxes[0].max = center + 2 * (last_ymax - center);
+			                }
+			                else if (last_ymax < (opts.yaxes[0].max / 2)) {
+			                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
+			                }
+			                // Max plot frequency: 100 ms
+			                if ((lastDate - lastPlot) > 0.1) {
+				                plotObject.setupGrid();
+				                plotObject.draw();
+				                lastPlot = lastDate;
+				            }
 			            }
-			            last_ymin = Math.min.apply(null, yDataArray);
-			            last_ymax = Math.max.apply(null, yDataArray);
-			            
-		                plotObject.setData(plotdata);	                
-		                
-		                opts = plotObject.getOptions();
-		                var nbData = (plotdata[i].data).length;
-		                opts.xaxes[0].max = ((plotdata[i].data)[nbData-1])[0];
-		                opts.xaxes[0].min = Math.max(0, opts.xaxes[0].max - Number(currentSettings.time_window));
-		                
-		                if (last_ymin < opts.yaxes[0].min) {
-		                	opts.yaxes[0].min = center - 2 * (center - last_ymin);
-		                }
-		                else if (last_ymin > (opts.yaxes[0].min / 2)) {
-		                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
-		                }
-		                
-		                if (last_ymax > opts.yaxes[0].max) {
-		                	opts.yaxes[0].max = center + 2 * (last_ymax - center);
-		                }
-		                else if (last_ymax < (opts.yaxes[0].max / 2)) {
-		                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
-		                }
-		                // Max plot frequency: 100 ms
-		                if ((lastDate - lastPlot) > 0.1) {
-			                plotObject.setupGrid();
-			                plotObject.draw();
-			                lastPlot = lastDate;
-			            }
-		            }
-			    }
+				    }
+				}
             }
         };
 
@@ -263,7 +271,7 @@ window.plotID = 0;
         };
 
         this.getHeight = function () {
-            return 3;
+            return Number(currentSettings.height);
         };
 
         this.onSettingsChanged(settings);
@@ -271,7 +279,7 @@ window.plotID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "plot",
-        display_name: "Plot",
+        display_name: _t("Plot"),
         "external_scripts" : [
             "extensions/thirdparty/flot/jquery.flot.js",
             "extensions/thirdparty/flot/jquery.flot.time.js",
@@ -281,62 +289,69 @@ window.plotID = 0;
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "xaxis",
-                display_name: "X axis",
+                display_name: _t("X axis"),
                 type: "option",
                 options: [
                     {
-                        name: "Seconds from start",
+                        name: _t("Seconds from start"),
                         value: "seconds_from_start"
                     },
                     {
-                        name: "Column of datasource",
+                        name: _t("Column of datasource"),
                         value: "datasource_column"
                     }
                 ],
-                description: 'When choosing "Seconds from start", the data are timestamped when they are received'
+                description: _t('When choosing "Seconds from start", the data are timestamped when they are received')
             },
             {
                 name: "time",
-                display_name: "Time (X axis)",
+                display_name: _t("Time (X axis)"),
                 type: "calculated",
-                description: 'Fill only if you chose "Column of datasource" above.'
+                description: _t('Fill only if you chose "Column of datasource" above.')
             },
             {
                 name: "time_window",
-                display_name: "Time Window",
+                display_name: _t("Time Window"),
                 type: "text",
                 default_value: 10,
-                description: "Length (in seconds) of sliding time window"
+                description: _t("Length (in seconds) of sliding time window")
             },
             {
                 name: "value",
-                display_name: "Value",
+                display_name: _t("Value"),
                 type: "calculated",
                 multi_input: "true"
             },
             {
                 name: "y_axis_min_range",
-                display_name: "Y axis minimum range",
+                display_name: _t("Y axis minimum range"),
                 type: "text",
                 default_value: "-10,10",
-                description: "Two values separated by a comma. This range will be automatically extended if necessary, but it will not be reduced."
+                description: _t("Two values separated by a comma. This range will be automatically extended if necessary, but it will not be reduced.")
             },
 			{
 				name: "include_legend",
-				display_name: "Include Legend",
+				display_name: _t("Include Legend"),
 				type: "boolean"
 			},
 			{
 				name: "legendStr",
-				display_name: "Legend",
+				display_name: _t("Legend"),
 				type: "text",
-				description: "Comma-separated for multiple plots"
-			}
+				description: _t("Comma-separated for multiple plots")
+			},
+            {
+                name: "height",
+                display_name: _t("Height Blocks"),
+                type: "number",
+                default_value: 3,
+                description: _t("A height block is around 60 pixels")
+            }
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new plotWidget(settings));

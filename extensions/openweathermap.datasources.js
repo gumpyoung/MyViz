@@ -72,35 +72,35 @@
 
 	freeboard.loadDatasourcePlugin({
 		type_name: "openweathermap",
-		display_name: "Open Weather Map API",
+		display_name: _t("Open Weather Map API"),
 		settings: [
 			{
 				name: "location",
-				display_name: "Location",
+				display_name: _t("Location"),
 				type: "text",
-				description: "Example: London, UK"
+				description: _t("Example: London, UK")
 			},
 			{
 				name: "units",
-				display_name: "Units",
+				display_name: _t("Units"),
 				type: "option",
-				default: "imperial",
+				default: "metric",
 				options: [
 					{
-						name: "Imperial",
-						value: "imperial"
+						name: _t("Metric"),
+						value: "metric"
 					},
 					{
-						name: "Metric",
-						value: "metric"
+						name: _t("Imperial"),
+						value: "imperial"
 					}
 				]
 			},
 			{
 				name: "refresh",
-				display_name: "Refresh Every",
+				display_name: _t("Refresh Every"),
 				type: "number",
-				suffix: "seconds",
+				suffix: _t("seconds"),
 				default_value: 5
 			}
 		],

@@ -39,21 +39,21 @@ window.textareaID = 0;
 				pause = true;
 				$("#pauseresume-" + thistextareaID).removeClass("icon-pause");
 				$("#pauseresume-" + thistextareaID).addClass("icon-play");
-				$("#labelpauseresume-" + thistextareaID).html("Play");
+				$("#labelpauseresume-" + thistextareaID).html(_t("Play"));
 			}
 			else {
 				pause = false;
 				resume = true;
 				$("#pauseresume-" + thistextareaID).removeClass("icon-play");
 				$("#pauseresume-" + thistextareaID).addClass("icon-pause");
-				$("#labelpauseresume-" + thistextareaID).html("Pause");
+				$("#labelpauseresume-" + thistextareaID).html(_t("Pause"));
 			}
 		};
 		
         var self = this;
         var titleElement = $('<h2 class="section-title"></h2>');
         var textAreaElement = $('<div id="' + thistextareaID + '" style="margin-top:10px; width: 100%; height:110px; overflow:auto"></div>');
-        var saveElements = $('<ul style="margin-top:10px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thistextareaID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thistextareaID + '" data-bind="click: pauseText" style="color: #B88F51; margin-top:1px">Pause</label></li><li><i class="icon-download-alt icon-white"></i>&nbsp;<label data-bind="click: saveText" style="color: #B88F51; margin-top:1px">Save to file</label></li></ul>');
+        var saveElements = $('<ul style="margin-top:10px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thistextareaID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thistextareaID + '" data-bind="click: pauseText" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li><li><i class="icon-download-alt icon-white"></i>&nbsp;<label data-bind="click: saveText" style="color: #B88F51; margin-top:1px">' + _t("Save to file") + '</label></li></ul>');
 		
 
         var rendered = false;
@@ -151,23 +151,23 @@ window.textareaID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "textarea",
-        display_name: "Text Area",
+        display_name: _t("Text Area"),
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "nblines_window",
-                display_name: "Number of lines to keep",
+                display_name: _t("Number of lines to keep"),
                 type: "text",
                 default_value: "100",
-                description: "Empty for unlimited"
+                description: _t("Empty for unlimited")
             },
             {
                 name: "value",
-                display_name: "Value",
+                display_name: _t("Value"),
                 type: "calculated",
                 multi_input: "true"
             }

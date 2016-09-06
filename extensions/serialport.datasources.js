@@ -3,6 +3,7 @@
 	var dataToSend = "";
 	var isOpen = false; // Problems with native methods
 	var serialPort;
+	
 	var serialportDatasource = function (settings, updateCallback) {
 		var self = this;
 		var currentSettings = settings;
@@ -11,13 +12,11 @@
 		var lastSentTime = 0;
 		var currentTime = new Date();
 		var newData = {};
-		var listVariablesToRead = (currentSettings.variables_to_read).split(currentSettings.separator);
+		var listVariablesToRead = (currentSettings.variables_to_read).split(",");
 		listVariablesToRead.push('_rawdata');
-		var listVariablesToSend = (_.isUndefined(currentSettings.variables_to_send) ? "" : currentSettings.variables_to_send).split(currentSettings.separator);
+		var listVariablesToSend = (_.isUndefined(currentSettings.variables_to_send) ? "" : currentSettings.variables_to_send).split(",");
 		// Object with keys from list of variables to send, each value is 0
 		var newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
-		var listVariables = _.union(listVariablesToRead, listVariablesToSend);
-
 		
 		// Will receive message from control widget through socket.io
         var socket;
@@ -70,7 +69,7 @@
 				
 				
 				// When data arrives (from a slider, for example), send it
-				// "immediately" (not faster than every 100 ms)
+				// "immediately" (but not faster than every 100 ms)
 				currentTime = new Date();
 				if ((currentTime - lastSentTime) > 100) {
 					lastSentTime = currentTime;
@@ -97,7 +96,7 @@
 			if (serialPort) {
 				serialPort.close(function (error) {
 					if ( error ) {
-						console.log('failed to close: ', error);
+						console.log('Failed to close: ', error);
 					} 
 					else {
 						isOpen = false;
@@ -114,7 +113,7 @@
 						
 		}
 
-		function initializeDataSource() {
+		function initializeDataSource(mySettings) {
 			
 			for (r in refreshIntervals) {
 			    clearInterval(refreshIntervals[r]);
@@ -129,6 +128,7 @@
 					// Write data to the serial port
 					currentTime = new Date();
 					if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
+						lastSentTime = currentTime;
 						serialPort.write(dataToSend, function (error) {
 							if (error) {
 						    	console.log("Error writing to the serial port: ", error);
@@ -136,7 +136,7 @@
 						});
 					}
 	        	},
-	        	(_.isUndefined(currentSettings.refresh_rate) ? 1000 : currentSettings.refresh_rate)
+	        	(_.isUndefined(mySettings.refresh_rate) ? 1000 : Math.max(1000, mySettings.refresh_rate))
 	        );
 	        refreshIntervals.push(refreshInterval);
 			
@@ -145,7 +145,7 @@
 			
 			console.log("Open port");
 			isOpen = true; // Needed to avoid a double open by updateNow
-			connectToSerialport(currentSettings.port, currentSettings.baudrate);
+			connectToSerialport(mySettings.port, mySettings.baudrate);
 			
 		    serialPort.on('open',function() {
 		    	isOpen = true;
@@ -191,7 +191,7 @@
 
 		this.updateNow = function () {
 			if (!isOpen) {
-				initializeDataSource();
+				initializeDataSource(currentSettings);
 			}
 			return;
 		};
@@ -211,25 +211,18 @@
 		this.onSettingsChanged = function (newSettings) {
             if ((newSettings.port != currentSettings.port)
             	|| (newSettings.baudrate != currentSettings.baudrate)) {
-            	initializeDataSource();
+            	initializeDataSource(newSettings);
             }
-            else if (newSettings.variables_to_read != currentSettings.variables_to_read) {
-            	listVariablesToRead = (newSettings.variables_to_read).split(currentSettings.separator);
+            if (newSettings.variables_to_read != currentSettings.variables_to_read) {
+            	listVariablesToRead = (newSettings.variables_to_read).split(",");
             	listVariablesToRead.push('_rawdata');
-            	listVariables = _.union(listVariablesToRead, listVariablesToSend);
             }
-            else if (newSettings.variables_to_send != currentSettings.variables_to_send) {
-            	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(currentSettings.separator);
+            if (newSettings.variables_to_send != currentSettings.variables_to_send) {
+            	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
             	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
-            	listVariables = _.union(listVariablesToRead, listVariablesToSend);
             }
-            else if (newSettings.separator != currentSettings.separator) {
-            	listVariablesToRead = (newSettings.variables_to_read).split(currentSettings.separator);
-            	listVariablesToRead.push('_rawdata');
-            	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(currentSettings.separator);
-            	listVariables = _.union(listVariablesToRead, listVariablesToSend);
-            }
-            else if (newSettings.refresh_rate != currentSettings.refresh_rate) {
+            if (newSettings.refresh_rate != currentSettings.refresh_rate) {
+            	newSettings.refresh_rate = Math.max(1000, newSettings.refresh_rate);
 				for (r in refreshIntervals) {
 				    clearInterval(refreshIntervals[r]);
 				}
@@ -243,6 +236,7 @@
 						// Write data to the serial port
 						currentTime = new Date();
 						if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
+							lastSentTime = currentTime;
 							serialPort.write(dataToSend, function (error) {
 								if (error) {
 							    	console.log("Error writing to the serial port: ", error);
@@ -259,76 +253,77 @@
 
 		};
 		
-		initializeDataSource();
+		initializeDataSource(currentSettings);
 	};
 
 	freeboard.loadDatasourcePlugin({
 		type_name: "serialport",
-		display_name: "Serialport",
-		description : "A real-time stream datasource from Serial port. Variables to read and to send must be comma-separated.",
+		display_name: _t("Serialport"),
+		description : _t("A real-time stream datasource from Serial port."),
 		external_scripts : [
 		    "extensions/thirdparty/socket.io-1.3.5.js"
  		],
 		settings: [
 			{
 				name: "port",
-				display_name: "PORT",
+				display_name: _t("Port"),
 				type: "text",
 				"required" : true,
 				description: ""
 			},
 			{
 				name: "baudrate",
-				display_name: "BAUDRATE",
+				display_name: _t("Baudrate"),
 				type: "number",
 				"required" : true,
 				description: ""
 			},
 			{
 				name: "variables_to_read",
-				display_name: "Variables to read",
+				display_name: _t("Variables to read"),
 				type: "text",
 				"required" : true,
-				description: "Name of the variables to read, separated by comma"
+				description: _t("Name of the variables to read, separated by comma")
 			},
 			{
 				name: "variables_to_send",
-				display_name: "Variables to send",
+				display_name: _t("Variables to send"),
 				type: "text",
 				"required" : false,
-				description: "Name of the variables to send, separated by comma"
+				description: _t("Name of the variables to send, separated by comma")
 			},
 			{
 				name: "refresh_rate",
-				display_name: "Refresh rate for sending data",
+				display_name: _t("Refresh rate for sending data"),
 				type: "text",
 				"required" : false,
-				default_value: 500,
-				description: "Refresh rate (in milliseconds) for sending data. Data will be sent even if control values are not changed"
+				default_value: 2000,
+				suffix: _t("milliseconds"),
+				description: _t("Refresh rate for sending data ( > 1000 ms). Data will be sent even if control values are not changed")
 			},
 			{
 				name: "separator",
-				display_name: "Separator",
+				display_name: _t("Separator"),
 				type: "text",
 				"required" : true,
-				description: "Separator character for received and (optionally) sent values"
+				description: _t("Separator character for received and (optionally) sent values")
 			},
 			{
 				name: "checksum",
-				display_name: "Checksum method",
+				display_name: _t("Checksum method"),
                 type: "option",
-                description: "If values are sent, a checksum will be automatically added in variable '_crc', computed from the other values.",
+                description: _t("If values are sent, a checksum will be automatically added in variable '_crc', computed from the other values."),
                 options: [
                     {
-                        name: "None",
+                        name: _t("None"),
                         value: "none"
                     },
                     {
-                        name: "Sum",
+                        name: _t("Sum"),
                         value: "sum"
                     },
                     {
-                        name: "String concatenation",
+                        name: _t("String concatenation"),
                         value: "concat"
                     }
                 ]

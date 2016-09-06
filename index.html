@@ -11,32 +11,68 @@
     <link href="css/nouislider.css" rel="stylesheet" />
     <link href="css/nouislider.pips.css" rel="stylesheet" />
     <script src="js/freeboard.thirdparty.js"></script>
+    <script src="lang/t.js"></script>
     <script type="text/javascript">
     	var refreshIntervals = [];
-		if (typeof(require) != "undefined") {			
-			
-			var dir = require('node-dir');
-			
-			var extensionsPath = "./extensions";
-			
-	        // Pack all js files of plugins in one js file
-	        var listExtensions = ["js/freeboard.js"];
-	        dir.readFiles(extensionsPath, {
-	            match: /.js$/,
-	            exclude: /^\./,
-	            }, function(err, content, filename, next) {
-	                if (err) {
-	                    throw err;
-	                }
-	                listExtensions.push(filename);
-	                next();
-	            },
-	            function(err, files){
-	                if (err) throw err;
-
-	                            
-			        head.js(// *** Load more plugins here ***
-			                listExtensions,
+		var translations;
+		var dashboardFile = "dashboard.json";
+		var languageCounter = 0;
+    	
+		function waitForTranslation(){
+		    if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
+				if (typeof(require) !== "undefined") {					
+					
+					var dir = require('node-dir');
+					
+					var extensionsPath = "./extensions";
+					
+			        // Pack all js files of plugins in one js file
+			        var listExtensions = ["js/freeboard.js"];
+			        dir.readFiles(extensionsPath, {
+			            match: /.js$/,
+			            exclude: /^\./,
+			            }, function(err, content, filename, next) {
+			                if (err) {
+			                    throw err;
+			                }
+			                listExtensions.push(filename);
+			                next();
+			            },
+			            function(err, files){
+			                if (err) throw err;
+		
+			                            
+					        head.js(// *** Load more plugins here ***
+					                listExtensions,
+					                function(){
+					                    $(function()
+					                    { //DOM Ready
+					                        freeboard.initialize(true);
+					
+					                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
+					                        if (hashpattern !== null) {
+					                            $.getJSON(hashpattern[2], function(data) {
+					                                freeboard.loadDashboard(data, function() {
+					                                    freeboard.setEditing(false);
+					                                });
+					                            });
+					                        }
+					
+					                    });
+					                });
+		
+			                            
+			            }
+			        );
+		
+		
+										
+				    var os = require('os');
+				    var ipAddress = os.networkInterfaces();
+				    
+				}
+				else {
+			        head.js('js/freeboard.js',
 			                function(){
 			                    $(function()
 			                    { //DOM Ready
@@ -53,36 +89,37 @@
 			
 			                    });
 			                });
-
-	                            
-	            }
-	        );
-
-
-								
-		    var os = require('os');
-		    var ipAddress = os.networkInterfaces();
-		    
+		        }
+		    }
+		    else {
+		        setTimeout(function(){
+					if (typeof(require) !== "undefined") {
+						var lang = "en_US";
+						var osLocale = require('os-locale');
+						osLocale(function (err, locale) {
+							lang = locale;
+						    try {
+						    	var langFile = require("./lang/" + lang + ".js");
+						    	translations = langFile.translations;
+							}
+							catch(e) {
+								console.log(e);
+								languageCounter++;
+								if (languageCounter > 10) {
+							    	var langFile = require("./lang/en_US.js");
+							    	translations = langFile.translations;
+							   }
+							}
+						});
+						
+			        	
+			        }
+		            waitForTranslation();
+		        },250);
+		    }
 		}
-		else {
-	        head.js('js/freeboard.js',
-	                function(){
-	                    $(function()
-	                    { //DOM Ready
-	                        freeboard.initialize(true);
-	
-	                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
-	                        if (hashpattern !== null) {
-	                            $.getJSON(hashpattern[2], function(data) {
-	                                freeboard.loadDashboard(data, function() {
-	                                    freeboard.setEditing(false);
-	                                });
-	                            });
-	                        }
-	
-	                    });
-	                });
-        }
+		waitForTranslation();
+		
               
     </script>
 </head>
@@ -101,25 +138,25 @@
                 <h1 id="board-logo" class="title bordered">MyViz</h1>
                 <div id="board-actions">
                     <ul class="board-toolbar vertical">
-                        <li data-bind="click: loadDashboardFromLocalFile"><i id="full-screen-icon" class="icon-folder-open icon-white"></i><label id="full-screen">Load Dashboard</label></li>
+                        <li data-bind="click: loadDashboardFromLocalFile"><i id="full-screen-icon" class="icon-folder-open icon-white"></i><label id="full-screen"><span id="load">Load Dashboard</span></label></li>
                         <li><i class="icon-download-alt icon-white"></i>
-                            <label data-bind="click: saveDashboardClicked">Save Dashboard</label>
+                            <label data-bind="click: saveDashboardClicked"><span id="save">Save Dashboard</span></label>
                             <label style="display: none;" data-bind="click: saveDashboard" data-pretty="true">[Pretty]</label>
                             <label style="display: none;" data-bind="click: saveDashboard" data-pretty="false">[Minified]</label>
                         </li>
-                        <li id="add-pane" data-bind="click: createPane"><i class="icon-plus icon-white"></i><label>Add Pane</label></li>
+                        <li id="add-pane" data-bind="click: createPane"><i class="icon-plus icon-white"></i><label><span id="pane">Add Pane</span></label></li>
                     </ul>
                 </div>
             </div>
             <div id="datasources">
-                <h2 class="title">DATASOURCES</h2>
+                <h2 class="title" id="datasources_list">DATASOURCES</h2>
 
                 <div class="datasource-list-container">
                     <table class="table table-condensed sub-table" id="datasources-list" data-bind="if: datasources().length">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Last Updated</th>
+                            <th><span id="name">Name</span></th>
+                            <th><span id="last_updated">Last Updated</span></th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -141,7 +178,7 @@
                         </tbody>
                     </table>
                 </div>
-                <span class="text-button table-operation" data-bind="pluginEditor: {operation: 'add', type: 'datasource'}">ADD</span>
+                <span class="text-button table-operation" data-bind="pluginEditor: {operation: 'add', type: 'datasource'}" id="add">ADD</span>
             </div>
         </div>
     </div>
@@ -198,6 +235,30 @@
             </div>
         </section>
     </li>
+</script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		function waitForElement(){
+		    if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
+		        //variable exists, do what you want
+				$("#load").html(_t("#load"));
+				$("#save").html(_t("#save"));
+				$("#pane").html(_t("#pane"));
+				$("#datasources_list").html(_t("#datasources_list"));
+				$("#name").html(_t("#name"));
+				$("#last_updated").html(_t("#last_updated"));
+				$("#add").html(_t("#add"));
+		    }
+		    else{
+		        setTimeout(function(){
+		            waitForElement();
+		        },250);
+		    }
+		}
+		waitForElement();
+	});
+		
+			
 </script>
 </body>
 </html>

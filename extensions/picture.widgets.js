@@ -83,20 +83,20 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "picture",
-        display_name: "Picture",
+        display_name: _t("Picture"),
         fill_size: true,
         settings: [
             {
                 name: "src",
-                display_name: "Image URL",
+                display_name: _t("Image URL"),
                 type: "calculated"
             },
             {
                 "type": "number",
-                "display_name": "Refresh every",
+                "display_name": _t("Refresh every"),
                 "name": "refresh",
-                "suffix": "seconds",
-                "description":"Leave blank if the image doesn't need to be refreshed"
+                "suffix": _t("seconds"),
+                "description":_t("Leave blank if the image doesn't need to be refreshed")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

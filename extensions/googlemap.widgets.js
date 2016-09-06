@@ -154,12 +154,12 @@
         settings: [
             {
                 name: "lat",
-                display_name: "Latitude",
+                display_name: _t("Latitude"),
                 type: "calculated"
             },
             {
                 name: "lon",
-                display_name: "Longitude",
+                display_name: _t("Longitude"),
                 type: "calculated"
             }
         ],

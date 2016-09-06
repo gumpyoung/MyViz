@@ -16,16 +16,6 @@ window.sliderID = 0;
         var event;
         var sliderValue = currentSettings.resetvalue;
         
-        // If the communication is on serial port, the event name is the serial port name,
-        // otherwise it is 'message'
-        if (currentSettings.type == "serialcom") {
-        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-        	event = (currentSettings.host).split("/").pop();
-        }
-        else {
-        	event = 'mesage';
-        }
-
 		function discardSocket() {
 			// Disconnect datasource websocket
 			if (socket) {
@@ -33,15 +23,28 @@ window.sliderID = 0;
 			}
 		}
 		
-		function connectToServer() {
-            if (currentSettings.type == "serialcom") {
-            	// Connect to the local server
-				var host = "http://127.0.0.1:9091/";
-            }
-            else {
-            	// Connect to the network host
-            	var host = currentSettings.host;
-            }
+		function connectToServer(mySettings) {
+	        // If the communication is on serial port, the event name is the serial port name,
+	        // otherwise it is 'message'
+	        
+        	// Get the type (serial port or socket) and the settings
+        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+	        	
+	        if (hostDatasourceType == "serialport") {
+	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	event = (hostDatasourceSettings.port).split("/").pop();
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else if (hostDatasourceType == "websocket") {
+	        	// Type = socket
+	        	event = 'message';
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else {
+	        	alert(_t("Datasource type not supported by this widget"));
+	        }
+	        
             socket = io.connect(host,{'forceNew':true});
 	        			
 			// Events
@@ -72,22 +75,22 @@ window.sliderID = 0;
 			socket.emit(event, JSON.stringify(toSend));
  		};
  		        
-        function createSlider(mysettings) {
+        function createSlider(mySettings) {
             if (!rendered) {
                 return;
             }
             
-            connectToServer();
+            connectToServer(mySettings);
             
             sliderElement.empty();
         
             slider = document.getElementById('slider-' + thissliderID);
 			noUiSlider.create(slider, {
-				start: [ (_.isUndefined(mysettings.initialvalue) ? 0 : mysettings.initialvalue) ],
+				start: [ (_.isUndefined(mySettings.initialvalue) ? 0 : mySettings.initialvalue) ],
 				step: 1,
 				range: {
-					'min': [ (_.isUndefined(mysettings.min) ? -10 * Math.pow(10, parseInt(mysettings.resolution)) : mysettings.min * Math.pow(10, parseInt(mysettings.resolution))) ],
-					'max': [ (_.isUndefined(mysettings.max) ? 10 * Math.pow(10, parseInt(mysettings.resolution)) : mysettings.max * Math.pow(10, parseInt(mysettings.resolution))) ]
+					'min': [ (_.isUndefined(mySettings.min) ? -10 * Math.pow(10, parseInt(mySettings.resolution)) : mySettings.min * Math.pow(10, parseInt(mySettings.resolution))) ],
+					'max': [ (_.isUndefined(mySettings.max) ? 10 * Math.pow(10, parseInt(mySettings.resolution)) : mySettings.max * Math.pow(10, parseInt(mySettings.resolution))) ]
 				},
 				pips: {
 					mode: 'positions',
@@ -95,29 +98,29 @@ window.sliderID = 0;
 					density: 4,
 					stepped: true,
 					format: wNumb({
-					decimals: mysettings.resolution,
+					decimals: mySettings.resolution,
 					encoder: 	function( value ){
-									return value / Math.pow(10, parseInt(mysettings.resolution));
+									return value / Math.pow(10, parseInt(mySettings.resolution));
 							}
 					})
 				},
 				format: wNumb({
-				decimals: mysettings.resolution,
+				decimals: mySettings.resolution,
 				encoder: 	function( value ){
-								return value / Math.pow(10, parseInt(mysettings.resolution));
+								return value / Math.pow(10, parseInt(mySettings.resolution));
 							},
 				decoder: 	function( value ){
-								return value * Math.pow(10, parseInt(mysettings.resolution));
+								return value * Math.pow(10, parseInt(mySettings.resolution));
 							}
 				})
 			});
 			var sliderPips = document.getElementById('slider-pips-' + thissliderID);
 			var sliderInput = document.getElementById('slider-input-' + thissliderID);
 			var sliderReset = document.getElementById('slider-reset-' + thissliderID);
-			sliderReset.innerHTML = mysettings.resetcaption;
+			sliderReset.innerHTML = mySettings.resetcaption;
 			
 			sliderReset.addEventListener('click', function(){
-				slider.noUiSlider.set([(_.isUndefined(mysettings.resetvalue) ? 0 : mysettings.resetvalue)]);
+				slider.noUiSlider.set([(_.isUndefined(mySettings.resetvalue) ? 0 : mySettings.resetvalue)]);
 			});
 			
 			slider.noUiSlider.on('update', function( values, handle ) {
@@ -140,9 +143,9 @@ window.sliderID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.host != currentSettings.host) {
+            if (newSettings.datasourcename != currentSettings.datasourcename) {
                 discardSocket();
-                connectToServer();
+                connectToServer(newSettings);
             }
 
             if (newSettings.initialvalue != currentSettings.initialvalue 
@@ -159,16 +162,6 @@ window.sliderID = 0;
                 createSlider(newSettings);
             }
             
-	        if (newSettings.type != currentSettings.type) {
-		        if (newSettings.type == "serialcom") {
-		        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-		        	event = (newSettings.host).split("/").pop();
-		        }
-		        else {
-		        	event = 'mesage';
-		        }
-	        }
-
 			currentSettings = newSettings;
             titleElement.html(currentSettings.title);
         };
@@ -192,8 +185,8 @@ window.sliderID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "slider",
-        display_name: "Slider",
-		description : "A Slider widget for serial or socket communications.",
+        display_name: _t("Slider"),
+		description : _t("A Slider widget for serial or socket communications."),
 		external_scripts: [
 			"extensions/thirdparty/nouislider.min.js",
 			"extensions/thirdparty/wNumb.min.js",
@@ -202,80 +195,61 @@ window.sliderID = 0;
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
 			{
-				name: "type",
-				display_name: "COMMUNICATION TYPE",
-                type: "option",
-                options: [
-                    {
-                        name: "Serial",
-                        value: "serialcom"
-                    },
-                    {
-                        name: "Socket",
-                        value: "socketcom"
-                    }
-                ]
-			},
-			{
-				name: "host",
-				display_name: "HOST",
-				type: "text",
-				required : true,
-				description: "Serial port or network host. <br />" +
-					"If serial port, you *must* create first a datasource with the same port. <br />" +
-					"If network host, include ws:// or http:// ,...)."
+				name: "datasourcename",
+				display_name: _t("Datasource"),
+                type: "text",
+				description: _t("You *must* create first a datasource with the same name")
 			},
             {
                 name: "variable",
-                display_name: "Variable",
+                display_name: _t("Variable"),
                 type: "calculated",
             },
             {
                 name: "formula",
-                display_name: "Formula",
+                display_name: _t("Formula"),
                 type: "text",
-                description: 'The value rreally sent will be computed from the slider value. <br />' +
-                	'Use "x" as slider value'
+                description: _t('The value really sent will be computed from the slider value. <br />Use "x" as slider value')
             },
             {
                 name: "initialvalue",
-                display_name: "Initial value",
+                display_name: _t("Initial value"),
                 type: "number",
                 default_value: 0
             },
             {
                 name: "min",
-                display_name: "Min",
+                display_name: _t("Min"),
                 type: "number",
                 default_value: -10
             },
             {
                 name: "max",
-                display_name: "Max",
+                display_name: _t("Max"),
                 type: "number",
                 default_value: 10
             },
             {
                 name: "resolution",
-                display_name: "Number of decimals",
+                display_name: _t("Number of decimals"),
                 type: "number",
                 default_value: 2
             },
             {
                 name: "resetvalue",
-                display_name: "Reset value",
+                display_name: _t("Reset value"),
                 type: "number",
                 default_value: 0
             },
             {
                 name: "resetcaption",
-                display_name: "Caption on reset button",
+                display_name: _t("Caption on reset button"),
                 type: "text",
-                default_value: "Reset"
+                default_value: _t("Reset")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

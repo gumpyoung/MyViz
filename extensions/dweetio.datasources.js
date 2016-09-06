@@ -53,8 +53,8 @@
 		"settings": [
 			{
 				name: "thing_id",
-				display_name: "Thing Name",
-				"description": "Example: salty-dog-1",
+				display_name: _t("Thing Name"),
+				"description": _t("Example: salty-dog-1"),
 				type: "text"
 			}
 		],

@@ -13,16 +13,7 @@ window.switchbuttonID = 0;
         var socket;
         var event;
         
-        // If the communication is on serial port, the event name is the serial port name,
-        // otherwise it is 'message'
-        if (currentSettings.type == "serialcom") {
-        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-        	event = (currentSettings.host).split("/").pop();
-        }
-        else {
-        	event = 'mesage';
-        }
-
+        
 		function discardSocket() {
 			// Disconnect datasource websocket
 			if (socket) {
@@ -30,15 +21,28 @@ window.switchbuttonID = 0;
 			}
 		}
 		
-		function connectToServer() {
-            if (currentSettings.type == "serialcom") {
-            	// Connect to the local server
-				var host = "http://127.0.0.1:9091/";
-            }
-            else {
-            	// Connect to the network host
-            	var host = currentSettings.host;
-            }
+		function connectToServer(mySettings) {
+	        // If the communication is on serial port, the event name is the serial port name,
+	        // otherwise it is 'message'
+	        
+        	// Get the type (serial port or socket) and the settings
+        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+	        	
+	        if (hostDatasourceType == "serialport") {
+	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	event = (hostDatasourceSettings.port).split("/").pop();
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else if (hostDatasourceType == "websocket") {
+	        	// Type = socket
+	        	event = 'message';
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else {
+	        	alert(_t("Datasource type not supported by this widget"));
+	        }
+            
             socket = io.connect(host,{'forceNew':true});
 	        			
 			// Events
@@ -74,20 +78,20 @@ window.switchbuttonID = 0;
 			socket.emit(event, JSON.stringify(toSend));
  		};
  		
-        function createSwitchButton(mysettings) {
+        function createSwitchButton(mySettings) {
             if (!rendered) {
                 return;
             }
             
-            connectToServer();
+            connectToServer(mySettings);
             
             //switchbuttonElement.empty();
         	var checkedStr = '';
-        	if (mysettings.initialstate) {
+        	if (mySettings.initialstate) {
         		checkedStr = 'checked="checked"';
         	}
 
-			var switchbuttonElementStr = '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thisswitchbuttonID + '-onoff" ' + checkedStr + '><label class="onoffswitch-label" for="' + thisswitchbuttonID + '-onoff"><div class="onoffswitch-inner"><span class="on">' + mysettings.yestext + '</span><span class="off">' + mysettings.notext + '</span></div><div class="onoffswitch-switch"></div></label>';
+			var switchbuttonElementStr = '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thisswitchbuttonID + '-onoff" ' + checkedStr + '><label class="onoffswitch-label" for="' + thisswitchbuttonID + '-onoff"><div class="onoffswitch-inner"><span class="on">' + mySettings.yestext + '</span><span class="off">' + mySettings.notext + '</span></div><div class="onoffswitch-switch"></div></label>';
             document.getElementById('switchbutton-' + thisswitchbuttonID).innerHTML = switchbuttonElementStr;
             
 			$( "#" + thisswitchbuttonID + "-onoff" ).change(function() {
@@ -110,9 +114,9 @@ window.switchbuttonID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.host != currentSettings.host) {
+            if (newSettings.datasourcename != currentSettings.datasourcename) {
                 discardSocket();
-                connectToServer();
+                connectToServer(newSettings);
             }
 
             if ((newSettings.yestext != currentSettings.yestext)
@@ -120,16 +124,6 @@ window.switchbuttonID = 0;
                 createSwitchButton(newSettings);
             }
             
-	        if (newSettings.type != currentSettings.type) {
-		        if (newSettings.type == "serialcom") {
-		        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-		        	event = (newSettings.host).split("/").pop();
-		        }
-		        else {
-		        	event = 'message';
-		        }
-	        }
-
 			currentSettings = newSettings;
             titleElement.html(currentSettings.title);
         };
@@ -153,63 +147,45 @@ window.switchbuttonID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "switchbutton",
-        display_name: "Switch button",
-		description : "A Switchbutton widget for serial or socket communications.",
+        display_name: _t("Switch button"),
+		description : _t("A Switchbutton widget for serial or socket communications."),
 		external_scripts: [
 			"extensions/thirdparty/socket.io-1.3.5.js"
 		],
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
 			{
-				name: "type",
-				display_name: "COMMUNICATION TYPE",
-                type: "option",
-                options: [
-                    {
-                        name: "Serial",
-                        value: "serialcom"
-                    },
-                    {
-                        name: "Socket",
-                        value: "socketcom"
-                    }
-                ]
-			},
-			{
-				name: "host",
-				display_name: "HOST",
-				type: "text",
-				required : true,
-				description: "Serial port or network host. <br />" +
-					"If serial port, you *must* create first a datasource with the same port. <br />" +
-					"If network host, include ws:// or http:// ,...)."
+				name: "datasourcename",
+				display_name: _t("Datasource"),
+                type: "text",
+				description: _t("You *must* create first a datasource with the same name")
 			},
             {
                 name: "variable",
-                display_name: "Variable",
+                display_name: _t("Variable"),
                 type: "calculated",
             },
             {
                 name: "yestext",
-                display_name: '"YES" text',
+                display_name: _t('"YES" text'),
                 type: "text",
                 default_value: "YES",
-                description: "Corresponding numeric value is 1"
+                description: _t("Corresponding numeric value is 1")
             },
             {
                 name: "notext",
-                display_name: '"NO" text',
+                display_name: _t('"NO" text'),
                 type: "text",
                 default_value: "NO",
-                description: "Corresponding numeric value is 0"
+                description: _t("Corresponding numeric value is 0")
             },
             {
                 name: "initialstate",
-                display_name: "Initial state",
+                display_name: _t("Initial state"),
                 type: "boolean",
                 default_value: true
             }

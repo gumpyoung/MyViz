@@ -68,26 +68,26 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "indicator",
-        display_name: "Indicator Light",
+        display_name: _t("Indicator Light"),
         settings: [
 	        {
 	            name: "title",
-	            display_name: "Title",
+	            display_name: _t("Title"),
 	            type: "text"
 	        },
 	        {
 	            name: "value",
-	            display_name: "Value",
+	            display_name: _t("Value"),
 	            type: "calculated"
 	        },
 	        {
 	            name: "on_text",
-	            display_name: "On Text",
+	            display_name: _t("On Text"),
 	            type: "calculated"
 	        },
 	        {
 	            name: "off_text",
-	            display_name: "Off Text",
+	            display_name: _t("Off Text"),
 	            type: "calculated"
 	        }
         ],

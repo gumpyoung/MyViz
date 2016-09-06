@@ -74,7 +74,7 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "gauge",
-        display_name: "Gauge",
+        display_name: _t("Gauge"),
         "external_scripts" : [
             "extensions/thirdparty/raphael.2.1.0.min.js",
             "extensions/thirdparty/justgage.1.0.1.js"
@@ -82,28 +82,28 @@
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "value",
-                display_name: "Value",
+                display_name: _t("Value"),
                 type: "calculated"
             },
             {
                 name: "units",
-                display_name: "Units",
+                display_name: _t("Units"),
                 type: "text"
             },
             {
                 name: "min_value",
-                display_name: "Minimum",
+                display_name: _t("Minimum"),
                 type: "text",
                 default_value: 0
             },
             {
                 name: "max_value",
-                display_name: "Maximum",
+                display_name: _t("Maximum"),
                 type: "text",
                 default_value: 100
             }

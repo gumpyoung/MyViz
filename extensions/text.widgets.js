@@ -296,50 +296,50 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "text_widget",
-        display_name: "Text",
+        display_name: _t("Text"),
         "external_scripts" : [
             "extensions/thirdparty/jquery.sparkline.min.js"
         ],
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "size",
-                display_name: "Size",
+                display_name: _t("Size"),
                 type: "option",
                 options: [
                     {
-                        name: "Regular",
+                        name: _t("Regular"),
                         value: "regular"
                     },
                     {
-                        name: "Big",
+                        name: _t("Big"),
                         value: "big"
                     }
                 ]
             },
             {
                 name: "value",
-                display_name: "Value",
+                display_name: _t("Value"),
                 type: "calculated"
             },
             {
                 name: "sparkline",
-                display_name: "Include Sparkline",
+                display_name: _t("Include Sparkline"),
                 type: "boolean"
             },
             {
                 name: "animate",
-                display_name: "Animate Value Changes",
+                display_name: _t("Animate Value Changes"),
                 type: "boolean",
                 default_value: true
             },
             {
                 name: "units",
-                display_name: "Units",
+                display_name: _t("Units"),
                 type: "text"
             }
         ],

@@ -58,13 +58,13 @@
 
 	freeboard.loadDatasourcePlugin({
 		"type_name": "clock",
-		"display_name": "Clock",
+		"display_name": _t("Clock"),
 		"settings": [
 			{
 				"name": "refresh",
-				"display_name": "Refresh Every",
+				"display_name": _t("Refresh Every"),
 				"type": "number",
-				"suffix": "seconds",
+				"suffix": _t("seconds"),
 				"default_value": 1
 			}
 		],

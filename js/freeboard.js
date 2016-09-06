@@ -67,7 +67,7 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 		}
 	});
 
-	this.last_updated = ko.observable("never");
+	this.last_updated = ko.observable(_t("never"));
 	this.last_error = ko.observable();
 
 	this.serialize = function()
@@ -77,20 +77,20 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 			type    : self.type(),
 			settings: self.settings()
 		};
-	}
+	};
 
 	this.deserialize = function(object)
 	{
 		self.settings(object.settings);
 		self.name(object.name);
 		self.type(object.type);
-	}
+	};
 
 	this.getDataRepresentation = function(dataPath)
 	{
 		var valueFunction = new Function("data", "return " + dataPath + ";");
 		return valueFunction.call(undefined, self.latestData());
-	}
+	};
 
 	this.updateNow = function()
 	{
@@ -215,8 +215,8 @@ DeveloperConsole = function(theFreeboardModel)
 		{
 			showDeveloperConsole();
 		}
-	}
-}
+	};
+};
 
 function DialogBox(contentElement, title, okTitle, cancelTitle, okCallback)
 {
@@ -377,7 +377,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			self.plugins.push(pluginSource);
 		}
-	}
+	};
 
 	this.serialize = function()
 	{
@@ -404,7 +404,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			datasources : datasources,
 			columns     : freeboardUI.getUserColumns()
 		};
-	}
+	};
 
 	this.deserialize = function(object, finishedCallback)
 	{
@@ -474,7 +474,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			finishLoad();
 		}
-	}
+	};
 
 	this.clearDashboard = function()
 	{
@@ -493,7 +493,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		self.plugins.removeAll();
 		self.datasources.removeAll();
 		self.panes.removeAll();
-	}
+	};
 
 	this.loadDashboard = function(dashboardData, callback)
 	{
@@ -509,7 +509,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 
         freeboard.emit("dashboard_loaded");
 		});
-	}
+	};
 
 	this.loadDashboardFromLocalFile = function()
 	{
@@ -526,6 +526,8 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 				{
 					var file = files[0];
 					var reader = new FileReader();
+					dashboardFile = file.name;
+					document.title = "MyViz - " + dashboardFile;
 
 					reader.addEventListener("load", function(fileReaderEvent)
 					{
@@ -559,7 +561,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			$(event.currentTarget).siblings('label').fadeOut('slow');
 		}
 		target.data('siblings-shown', !siblingsShown);
-	}
+	};
 
 	this.saveDashboard = function(_thisref, event)
 	{
@@ -573,15 +575,16 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		}
 		document.body.appendChild(a);
 		a.href = window.URL.createObjectURL(blob);
-		a.download = "dashboard.json";
+		a.download = dashboardFile;
+		document.title = "MyViz - " + dashboardFile;
 		a.target="_self";
 		a.click();
-	}
+	};
 
 	this.addDatasource = function(datasource)
 	{
 		self.datasources.push(datasource);
-	}
+	};
 
 	this.deleteDatasource = function(datasource)
 	{
@@ -604,38 +607,38 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 	{
 		var newPane = new PaneModel(self, widgetPlugins);
 		self.addPane(newPane);
-	}
+	};
 
 	this.addGridColumnLeft = function()
 	{
 		freeboardUI.addGridColumnLeft();
-	}
+	};
 
 	this.addGridColumnRight = function()
 	{
 		freeboardUI.addGridColumnRight();
-	}
+	};
 
 	this.subGridColumnLeft = function()
 	{
 		freeboardUI.subGridColumnLeft();
-	}
+	};
 
 	this.subGridColumnRight = function()
 	{
 		freeboardUI.subGridColumnRight();
-	}
+	};
 
 	this.addPane = function(pane)
 	{
 		self.panes.push(pane);
-	}
+	};
 
 	this.deletePane = function(pane)
 	{
 		pane.dispose();
 		self.panes.remove(pane);
-	}
+	};
 
 	this.deleteWidget = function(widget)
 	{
@@ -645,7 +648,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		});
 
 		widget.dispose();
-	}
+	};
 
 	this.setEditing = function(editing, animate)
 	{
@@ -687,13 +690,13 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		}
 
 		freeboardUI.showPaneEditIcons(editing, animate);
-	}
+	};
 
 	this.toggleEditing = function()
 	{
 		var editing = !self.isEditing();
 		self.setEditing(editing);
-	}
+	};
 }
 
 function FreeboardUI()
@@ -726,7 +729,7 @@ function FreeboardUI()
 					.attr("data-col", newPosition.col);
 
 				paneModel.processSizeChange();
-			}
+			};
 		}
 
 		updateGridWidth(Math.min(maxDisplayableColumns, userColumns));
@@ -895,11 +898,11 @@ function FreeboardUI()
 				}
 			}).data("gridster");
 
-			processResize(false)
+			processResize(false);
 
 			grid.disable();
 		}
-	}
+	};
 
 	function addPane(element, viewModel, isEditing)
 	{
@@ -1134,11 +1137,11 @@ function FreeboardUI()
 		{
 			setUserColumns(numCols);
 		}
-	}
+	};
 }
 
 JSEditor = function () {
-	var assetRoot = ""
+	var assetRoot = "";
 
 	function setAssetRoot(_assetRoot) {
 		assetRoot = _assetRoot;
@@ -1196,10 +1199,10 @@ JSEditor = function () {
 			displayJSEditor(value, callback);
 		},
 		setAssetRoot: function (assetRoot) {
-			setAssetRoot(assetRoot)
+			setAssetRoot(assetRoot);
 		}
-	}
-}
+	};
+};
 
 function PaneModel(theFreeboardModel, widgetPlugins) {
 	var self = this;
@@ -1219,17 +1222,17 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 
 	this.addWidget = function (widget) {
 		this.widgets.push(widget);
-	}
+	};
 
 	this.widgetCanMoveUp = function (widget) {
 		return (self.widgets.indexOf(widget) >= 1);
-	}
+	};
 
 	this.widgetCanMoveDown = function (widget) {
 		var i = self.widgets.indexOf(widget);
 
 		return (i < self.widgets().length - 1);
-	}
+	};
 
 	this.moveWidgetUp = function (widget) {
 		if (self.widgetCanMoveUp(widget)) {
@@ -1237,7 +1240,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			var array = self.widgets();
 			self.widgets.splice(i - 1, 2, array[i], array[i - 1]);
 		}
-	}
+	};
 
 	this.moveWidgetDown = function (widget) {
 		if (self.widgetCanMoveDown(widget)) {
@@ -1245,7 +1248,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			var array = self.widgets();
 			self.widgets.splice(i, 2, array[i + 1], array[i]);
 		}
-	}
+	};
 
 	this.processSizeChange = function()
 	{
@@ -1256,7 +1259,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 				widget.processSizeChange();
 			});
 		}, 1000);
-	}
+	};
 
 	this.getCalculatedHeight = function () {
 		var sumHeights = _.reduce(self.widgets(), function (memo, widget) {
@@ -1271,7 +1274,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 		var rows = Math.ceil((sumHeights + 20) / 30);
 
 		return Math.max(4, rows);
-	}
+	};
 
 	this.serialize = function () {
 		var widgets = [];
@@ -1288,7 +1291,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			col_width: self.col_width(),
 			widgets: widgets
 		};
-	}
+	};
 
 	this.deserialize = function (object) {
 		self.title(object.title);
@@ -1303,13 +1306,13 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			widget.deserialize(widgetConfig);
 			self.widgets.push(widget);
 		});
-	}
+	};
 
 	this.dispose = function () {
 		_.each(self.widgets(), function (widget) {
 			widget.dispose();
 		});
-	}
+	};
 }
 
 PluginEditor = function(jsEditor, valueEditor)
@@ -1737,7 +1740,7 @@ PluginEditor = function(jsEditor, valueEditor)
 		}
 
 
-		new DialogBox(form, title, "Save", "Cancel", function()
+		new DialogBox(form, title, _t("Save"), _t("Cancel"), function()
 		{
 			$(".validation-error").remove();
 
@@ -1775,10 +1778,10 @@ PluginEditor = function(jsEditor, valueEditor)
 
 		if(pluginTypeNames.length > 1)
 		{
-			var typeRow = createSettingRow("plugin-types", "Type");
+			var typeRow = createSettingRow("plugin-types", _t("Type"));
 			typeSelect = $('<select></select>').appendTo($('<div class="styled-select"></div>').appendTo(typeRow));
 
-			typeSelect.append($("<option>Select a type...</option>").attr("value", "undefined"));
+			typeSelect.append($(_t("<option>Select a type...</option>")).attr("value", "undefined"));
 
 			_.each(pluginTypes, function(pluginType)
 			{
@@ -1839,7 +1842,7 @@ PluginEditor = function(jsEditor, valueEditor)
 				typeSelect.val(currentTypeName).trigger("change");
 			}
 		}
-	}
+	};
 
 	// Public API
 	return {
@@ -1853,8 +1856,8 @@ PluginEditor = function(jsEditor, valueEditor)
 		{
 			createPluginEditor(title, pluginTypes, currentInstanceName, currentTypeName, currentSettingsValues, settingsSavedCallback);
 		}
-	}
-}
+	};
+};
 
 ValueEditor = function(theFreeboardModel)
 {
@@ -2200,8 +2203,8 @@ ValueEditor = function(theFreeboardModel)
 			}
 		},
 		EXPECTED_TYPE : EXPECTED_TYPE
-	}
-}
+	};
+};
 
 function WidgetModel(theFreeboardModel, widgetPlugins) {
 	function disposeWidgetInstance() {
@@ -2370,7 +2373,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				}
 			}
 		});
-	}
+	};
 
 	this._heightUpdate = ko.observable();
 	this.height = ko.computed({
@@ -2392,11 +2395,11 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 			self.widgetInstance.render(element);
 			self.updateCalculatedSettings();
 		}
-	}
+	};
 
 	this.dispose = function () {
 
-	}
+	};
 
 	this.serialize = function () {
 		return {
@@ -2404,13 +2407,13 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 			type: self.type(),
 			settings: self.settings()
 		};
-	}
+	};
 
 	this.deserialize = function (object) {
 		self.title(object.title);
 		self.settings(object.settings);
 		self.type(object.type);
-	}
+	};
 }
 
 // ┌────────────────────────────────────────────────────────────────────┐ \\
@@ -2434,14 +2437,14 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 		{
 			p.addEventListener('DOMAttrModified', function()
 			{
-				flag = true
+				flag = true;
 			}, false);
 		}
 		else if(p.attachEvent)
 		{
 			p.attachEvent('onDOMAttrModified', function()
 			{
-				flag = true
+				flag = true;
 			});
 		}
 		else
@@ -2583,7 +2586,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 		}
 
 		return this;
-	}
+	};
 })(jQuery);
 
 (function(jQuery) {
@@ -2646,24 +2649,24 @@ var freeboard = (function()
 			if(options.type == 'datasource')
 			{
 				types = datasourcePlugins;
-				title = "Datasource";
+				title = _t("Datasource");
 			}
 			else if(options.type == 'widget')
 			{
 				types = widgetPlugins;
-				title = "Widget";
+				title = _t("Widget");
 			}
 			else if(options.type == 'pane')
 			{
-				title = "Pane";
+				title = _t("Pane");
 			}
 
 			$(element).click(function(event)
 			{
 				if(options.operation == 'delete')
 				{
-					var phraseElement = $('<p>Are you sure you want to delete this ' + title + '?</p>');
-					new DialogBox(phraseElement, "Confirm Delete", "Yes", "No", function()
+					var phraseElement = $(_t('<p>Are you sure you want to delete this ') + title + '?</p>');
+					new DialogBox(phraseElement, _t("Confirm Delete"), _t("Yes"), _t("No"), function()
 					{
 
 						if(options.type == 'datasource')
@@ -2725,19 +2728,19 @@ var freeboard = (function()
 								settings: [
 									{
 										name        : "title",
-										display_name: "Title",
+										display_name: _t("Title"),
 										type        : "text"
 									},
 									{
 										name : "col_width",
-										display_name : "Columns",
+										display_name : _t("Columns"),
 										type : "integer",
 										default_value : 1,
 										required : true
 									}
 								]
 							}
-						}
+						};
 					}
 
 					pluginEditor.createPluginEditor(title, types, instanceType, settings, function(newSettings)
@@ -2790,7 +2793,7 @@ var freeboard = (function()
 				}
 			});
 		}
-	}
+	};
 
 	ko.virtualElements.allowedBindings.datasourceTypeSettings = true;
 	ko.bindingHandlers.datasourceTypeSettings = {
@@ -2798,7 +2801,7 @@ var freeboard = (function()
 		{
 			processPluginSettings(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 		}
-	}
+	};
 
 	ko.bindingHandlers.pane = {
 		init  : function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2819,7 +2822,7 @@ var freeboard = (function()
 			}
 			freeboardUI.updatePane(element, viewModel);
 		}
-	}
+	};
 
 	ko.bindingHandlers.widget = {
 		init  : function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2837,7 +2840,7 @@ var freeboard = (function()
 				viewModel.render(element);
 			}
 		}
-	}
+	};
 
 	function getParameterByName(name)
 	{
@@ -2933,7 +2936,7 @@ var freeboard = (function()
             // Add a required setting called name to the beginning
             plugin.settings.unshift({
                 name : "name",
-                display_name : "Name",
+                display_name : _t("Name"),
                 type : "text",
                 required : true
             });

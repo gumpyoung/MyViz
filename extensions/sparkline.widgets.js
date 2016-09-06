@@ -142,32 +142,32 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "sparkline",
-        display_name: "Sparkline",
+        display_name: _t("Sparkline"),
         "external_scripts" : [
             "extensions/thirdparty/jquery.sparkline.min.js"
         ],
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "value",
-                display_name: "Value",
+                display_name: _t("Value"),
                 type: "calculated",
 				multi_input: "true"
             },
 			{
 				name: "include_legend",
-				display_name: "Include Legend",
+				display_name: _t("Include Legend"),
 				type: "boolean"
 			},
 			{
 				name: "legend",
-				display_name: "Legend",
+				display_name: _t("Legend"),
 				type: "text",
-				description: "Comma-separated for multiple sparklines"
+				description: _t("Comma-separated for multiple sparklines")
 			}
         ],
         newInstance: function (settings, newInstanceCallback) {

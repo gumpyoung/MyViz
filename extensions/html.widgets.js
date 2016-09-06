@@ -49,14 +49,14 @@
                 "name": "html",
                 "display_name": "HTML",
                 "type": "calculated",
-                "description": "Can be literal HTML, or javascript that outputs HTML."
+                "description": _t("Can be literal HTML, or javascript that outputs HTML.")
             },
             {
                 "name": "height",
-                "display_name": "Height Blocks",
+                "display_name": _t("Height Blocks"),
                 "type": "number",
                 "default_value": 4,
-                "description": "A height block is around 60 pixels"
+                "description": _t("A height block is around 60 pixels")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

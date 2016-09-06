@@ -110,21 +110,21 @@
 			},
 			{
 				name: "use_thingproxy",
-				display_name: "Try thingproxy",
-				description: 'A direct JSON connection will be tried first, if that fails, a JSONP connection will be tried. If that fails, you can use thingproxy, which can solve many connection problems to APIs. <a href="https://github.com/Freeboard/thingproxy" target="_blank">More information</a>.',
+				display_name: _t("Try thingproxy"),
+				description: _t('A direct JSON connection will be tried first, if that fails, a JSONP connection will be tried. If that fails, you can use thingproxy, which can solve many connection problems to APIs. <a href="https://github.com/Freeboard/thingproxy" target="_blank">More information</a>.'),
 				type: "boolean",
 				default_value: true
 			},
 			{
 				name: "refresh",
-				display_name: "Refresh Every",
+				display_name: _t("Refresh Every"),
 				type: "number",
-				suffix: "seconds",
+				suffix: _t("seconds"),
 				default_value: 5
 			},
 			{
 				name: "method",
-				display_name: "Method",
+				display_name: _t("Method"),
 				type: "option",
 				options: [
 					{
@@ -147,23 +147,23 @@
 			},
 			{
 				name: "body",
-				display_name: "Body",
+				display_name: _t("Body"),
 				type: "text",
-				description: "The body of the request. Normally only used if method is POST"
+				description: _t("The body of the request. Normally only used if method is POST")
 			},
 			{
 				name: "headers",
-				display_name: "Headers",
+				display_name: _t("Headers"),
 				type: "array",
 				settings: [
 					{
 						name: "name",
-						display_name: "Name",
+						display_name: _t("Name"),
 						type: "text"
 					},
 					{
 						name: "value",
-						display_name: "Value",
+						display_name: _t("Value"),
 						type: "text"
 					}
 				]

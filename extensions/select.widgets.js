@@ -13,16 +13,6 @@ window.selectID = 0;
         var socket;
         var event;
 
-        // If the communication is on serial port, the event name is the serial port name,
-        // otherwise it is 'message'
-        if (currentSettings.type == "serialcom") {
-        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-        	event = (currentSettings.host).split("/").pop();
-        }
-        else {
-        	event = 'mesage';
-        }
-
 		function discardSocket() {
 			// Disconnect datasource websocket
 			if (socket) {
@@ -30,15 +20,28 @@ window.selectID = 0;
 			}
 		}
 		
-		function connectToServer() {
-            if (currentSettings.type == "serialcom") {
-            	// Connect to the local server
-				var host = "http://127.0.0.1:9091/";
-            }
-            else {
-            	// Connect to the network host
-            	var host = currentSettings.host;
-            }
+		function connectToServer(mySettings) {
+	        // If the communication is on serial port, the event name is the serial port name,
+	        // otherwise it is 'message'
+	        
+        	// Get the type (serial port or socket) and the settings
+        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+	        	
+	        if (hostDatasourceType == "serialport") {
+	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	event = (hostDatasourceSettings.port).split("/").pop();
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else if (hostDatasourceType == "websocket") {
+	        	// Type = socket
+	        	event = 'message';
+	        	var host = "http://127.0.0.1:9091/";
+	        }
+	        else {
+	        	alert(_t("Datasource type not supported by this widget"));
+	        }
+	        
             socket = io.connect(host,{'forceNew':true});
 	        			
 			// Events
@@ -69,17 +72,17 @@ window.selectID = 0;
 			socket.emit(event, JSON.stringify(toSend));
  		};
  		        
-        function createSelect(mysettings) {
+        function createSelect(mySettings) {
             if (!rendered) {
                 return;
             }
 
-	        connectToServer();
+	        connectToServer(mySettings);
 	        
 	        //selectElement.empty();
 	        
-	        arrayCaptions = mysettings.listcaptions.split(",");
-	        arrayValues = mysettings.listvalues.split(",");
+	        arrayCaptions = mySettings.listcaptions.split(",");
+	        arrayValues = mySettings.listvalues.split(",");
 		
 			selectElementStr = '';
 			for (var i=0; i<Math.min(arrayCaptions.length, arrayValues.length); i++) {
@@ -99,25 +102,15 @@ window.selectID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.host != currentSettings.host) {
+            if (newSettings.datasourcename != currentSettings.datasourcename) {
                 discardSocket();
-                connectToServer();
+                connectToServer(newSettings);
             }
 
             if (newSettings.listcaptions != currentSettings.listcaptions 
             	|| newSettings.listvalues != currentSettings.listvalues) {
                 createSelect(newSettings);
             }
-
-	        if (newSettings.type != currentSettings.type) {
-		        if (newSettings.type == "serialcom") {
-		        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-		        	event = (newSettings.host).split("/").pop();
-		        }
-		        else {
-		        	event = 'message';
-		        }
-	        }
 
 			currentSettings = newSettings;
             titleElement.html(newSettings.title);
@@ -143,58 +136,40 @@ window.selectID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "select",
-        display_name: "Select",
+        display_name: _t("Select"),
 		"external_scripts": [
 			"extensions/thirdparty/socket.io-1.3.5.js"
 		],
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
 			{
-				name: "type",
-				display_name: "COMMUNICATION TYPE",
-                type: "option",
-                options: [
-                    {
-                        name: "Serial",
-                        value: "serialcom"
-                    },
-                    {
-                        name: "Socket",
-                        value: "socketcom"
-                    }
-                ]
-			},
-			{
-				name: "host",
-				display_name: "HOST",
-				type: "text",
-				required : true,
-				description: "Serial port or network host. <br />" +
-					"If serial port, you *must* create first a datasource with the same port. <br />" +
-					"If network host, include ws:// or http:// ,...)."
+				name: "datasourcename",
+				display_name: _t("Datasource"),
+                type: "text",
+				description: _t("You *must* create first a datasource with the same name")
 			},
             {
                 name: "variable",
-                display_name: "Variable",
+                display_name: _t("Variable"),
                 type: "calculated",
             },
             {
                 name: "listcaptions",
-                display_name: "List of captions",
+                display_name: _t("List of captions"),
                 type: "text",
 				"required" : true,
-                description: "Use the comma as separator"
+                description: _t("Use the comma as separator")
             },
             {
                 name: "listvalues",
-                display_name: "List of values",
+                display_name: _t("List of values"),
                 type: "text",
 				"required" : true,
-                description: "Use the comma as separator"
+                description: _t("Use the comma as separator")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

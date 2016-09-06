@@ -86,25 +86,25 @@
 
     freeboard.loadWidgetPlugin({
         type_name: "pointer",
-        display_name: "Pointer",
+        display_name: _t("Pointer"),
         "external_scripts" : [
             "extensions/thirdparty/raphael.2.1.0.min.js"
         ],
         settings: [
             {
                 name: "direction",
-                display_name: "Direction",
+                display_name: _t("Direction"),
                 type: "calculated",
-                description: "In degrees"
+                description: _t("In degrees")
             },
             {
                 name: "value_text",
-                display_name: "Value Text",
+                display_name: _t("Value Text"),
                 type: "calculated"
             },
             {
                 name: "units",
-                display_name: "Units",
+                display_name: _t("Units"),
                 type: "text"
             }
         ],
