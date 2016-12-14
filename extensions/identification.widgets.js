@@ -44,6 +44,7 @@ window.identificationID = 0;
 	    var windowStopped2;
 	    var identCurrentDone = false;
 	    var lastDate = 1000;
+    	var trueX0 = 0.;
 
         var currentSettings = settings;
         
@@ -117,14 +118,26 @@ window.identificationID = 0;
 			                	}
 			                	else {
 			                		// Initialize the identification array with 0
-			                		// xDataIdentArray[0] = 0.;
-			                		// yDataIdentArray[0] = 0.;
+			                		xDataIdentArray[0] = 0.;
+			                		yDataIdentArray[0] = 0.;
 			                	}
 			                }
 			                // Store data when the window is open
 			                else if (!windowStopped1) {
 			                	xDataIdentArray.push(xData);
 			                	yDataIdentArray.push(yData);
+			                	// At the third point, we shift x to its real value
+			                	var nbPoints = xDataIdentArray.length;
+			                	if (nbPoints == 3) {
+			                		// On applique le théorème de Thalès... comme quoi ça sert !
+			                		trueX0 = (yDataIdentArray[1] * xDataIdentArray[2] - yDataIdentArray[2] * xDataIdentArray[1]) / (yDataIdentArray[1] - yDataIdentArray[2]);
+			                		xDataIdentArray[1] -= trueX0;
+			                		xDataIdentArray[2] -= trueX0;
+			                	}
+			                	else if (nbPoints > 3) {
+			                		xDataIdentArray[nbPoints - 1] -= trueX0;
+			                	}
+			                	
 			                	yIdentMax = Math.max.apply(null, yDataIdentArray);
 			                }
 			                // if yData < 0.8 * yIdentMax, we close the window
@@ -148,7 +161,6 @@ window.identificationID = 0;
 			                	
 			                	// Identify the data
 			                	dataIdentArray = _.zip(xDataIdentArray3,yDataIdentArray3);
-			                	var myRegression1 = regression('exponential', dataIdentArray);
 			                	var yTau1 = 0.632 * yIdentMax;
 			                	var indexYTau1 = bs.closest(yDataIdentArray2,yTau1);
 			                	//var tau1 = xDataIdentArray3[indexYTau1-1] + (xDataIdentArray3[indexYTau1+1]-xDataIdentArray3[indexYTau1-1]) * (yTau1 - yDataIdentArray2[indexYTau1-1])/(yDataIdentArray2[indexYTau1+1]-yDataIdentArray2[indexYTau1-1]);
@@ -156,8 +168,6 @@ window.identificationID = 0;
 			                	
 			                	// Plot the results
 			                	var physicalPoints = _.zip(xDataIdentArray3,yDataIdentArray2);
-			                	var physicalResults = _.unzip(myRegression1.points);
-			                	var yResults = physicalResults[1];
 			                	
 								// Print the results out
 								var voltage = Number(currentSettings.voltage);
@@ -167,9 +177,8 @@ window.identificationID = 0;
 								$("#" + resistanceID).text("Resistance: " + resistance.toFixed(1) + " Ohms");
 								$("#" + inductanceID).text("Inductance: " + inductance.toFixed(1) + " mH");
 								
-			                	//var yResults2 = _.map(yResults, function(num){ return yIdentMax - num; });
 			                	var yResults2 = Array();
-			                	for (var i=0; i<yResults.length; i++) {
+			                	for (var i=0; i<physicalPoints.length; i++) {
 			                		yResults2.push(yIdentMax * (1 - Math.exp(-0.001 * resistance * xDataIdentArray3[i]/(0.001 * inductance))));
 			                	}
 			                	
@@ -268,7 +277,7 @@ window.identificationID = 0;
 			                	var myRegression2 = regression('exponential', dataIdentArray);
 			                	var yTau2 = 0.632*meanOmega;
 			                	var indexYTau2 = bs.closest(yDataIdentArray2,yTau2);
-			                	var tau2 = xDataIdentArray3[indexYTau2-1] + (xDataIdentArray3[indexYTau2+1]-xDataIdentArray3[indexYTau2-1]) * (yTau2 - yDataIdentArray2[indexYTau2-1])/(yDataIdentArray2[indexYTau2+1]-yDataIdentArray2[indexYTau2-1]);
+			                	var tau2 = xDataIdentArray3[indexYTau2] + (xDataIdentArray3[indexYTau2+1]-xDataIdentArray3[indexYTau2]) * (yTau2 - yDataIdentArray2[indexYTau2])/(yDataIdentArray2[indexYTau2+1]-yDataIdentArray2[indexYTau2]);
 			                	
 			                	// Plot the results
 			                	var physicalPoints = _.zip(xDataIdentArray3,yDataIdentArray2);
@@ -277,8 +286,8 @@ window.identificationID = 0;
 			                	
 								// Print the results out
 								var ratio = Number(currentSettings.ratio);
-								var voltage = Number(currentSettings.voltage);
-								var frottement = (-resistance * Math.pow(meanCurrent,2) + voltage * meanCurrent)/(Math.pow(meanOmega,2));
+								// Voltage is 6V for the speed measurement try
+								var frottement = (-resistance * Math.pow(meanCurrent,2) + 6. * meanCurrent)/(Math.pow(meanOmega,2));
 								var constanteCouple = frottement * meanOmega / (meanCurrent * ratio);
 								//var inertie = -0.001 * Math.pow(constanteCouple,2) / (myRegression2.equation[1] * resistance);
 								var inertie = 0.001 * Math.pow(constanteCouple,2) * tau2 / resistance;
@@ -355,7 +364,7 @@ window.identificationID = 0;
 				type: "text",
 				"required" : true,
 				default_value: "6",
-				description: _t("Tension appliquée au moteur pendant l'essai")
+				description: _t("Tension appliquée au moteur pendant l'essai en courant")
 			},
 			{
 				name: "ratio",
