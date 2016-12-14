@@ -84,9 +84,9 @@ window.switchbuttonID = 0;
 			if (($( "#" + thisswitchbuttonID + "-onoff" )).prop("checked")) {
 				var vxref2 = vxref;
 				vyref = 0;
-				console.log("vxref: ", vxref2);
-				console.log("vyref: ", 0);
-				console.log("xiref: ", xiref);
+				// console.log("vxref: ", vxref2);
+				// console.log("vyref: ", 0);
+				// console.log("xiref: ", xiref);
 				$("#value1-" + thisjoypad4rouesID).html(vxref.toFixed(0));
 				$("#value2-" + thisjoypad4rouesID).html(xiref.toFixed(0));
 			}
@@ -94,9 +94,9 @@ window.switchbuttonID = 0;
 				var vxref2 = vxref * Math.cos((xiref * Math.PI / 180)/2);
 				vyref = vxref * Math.sin((xiref * Math.PI / 180)/2);
 				xiref = 0;
-				console.log("vxref: ", vxref2);
-				console.log("vyref: ", vyref);
-				console.log("xiref: ", 0);
+				// console.log("vxref: ", vxref2);
+				// console.log("vyref: ", vyref);
+				// console.log("xiref: ", 0);
 				$("#value1-" + thisjoypad4rouesID).html(vxref2.toFixed(0));
 				$("#value2-" + thisjoypad4rouesID).html(vyref.toFixed(0));
 			}
