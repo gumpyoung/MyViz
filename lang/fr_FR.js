@@ -8,6 +8,8 @@ translations["#datasources_list"] = "SOURCES DE DONNEES";
 translations["#name"] = "Nom";
 translations["#last_updated"] = "Derni&egrave;re mise &agrave; jour";
 translations["#add"] = "Ajouter";
+translations["#pretty"] = "[Normal]";
+translations["#mini"] = "[Mini]";
 
 // js/freeboard.js
 translations["Save"] = "Enregistrer";

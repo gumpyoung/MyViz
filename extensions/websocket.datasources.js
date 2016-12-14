@@ -16,9 +16,10 @@
 		// Will receive message from control widget through socket.io
         var socket;
         var event = "message";
-        var io = require('socket.io')(9091);
+        var io = require('socket.io')(9092);
         
  		function sendData(data) {
+ 			//console.log("data: ", JSON.stringify(data));
         	// Send data
 			if (ws.readyState === 1) {
 				ws.send(JSON.stringify(data));
@@ -37,6 +38,20 @@
 			
 				// Merge messages to send using jQuery
 				$.extend(dataObj, currentObj);
+				
+				// Create CRC data
+				crcValue = 0;
+				for (var d in dataObj) {
+					if (d != '_crc') {
+						if (currentSettings.checksum == "sum") {
+							crcValue += Number(dataObj[d]);
+						}
+						else if (currentSettings.checksum == "concat") {
+							crcValue += dataObj[d];
+						}
+					}
+				}
+				$.extend(dataObj, {'_crc':crcValue});
 				
 				// When data arrives (from a slider, for example), send it
 				// "immediately" (not faster than every 100 ms)
@@ -140,6 +155,7 @@
             	initializeDataSource();
             }
             else if (newSettings.variables_to_send != currentSettings.variables_to_send) {
+            	// In case the list is not empty, remove extra commas and spaces
             	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
             	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
             }
@@ -198,6 +214,26 @@
 				default_value: 500,
 				suffix: _t("milliseconds"),
 				description: _t("Refresh rate for sending data. Data will be sent even if control values are not changed")
+			},
+			{
+				name: "checksum",
+				display_name: _t("Checksum method"),
+                type: "option",
+                description: _t("If values are sent, a checksum will be automatically added in variable '_crc', computed from the other values."),
+                options: [
+                    {
+                        name: _t("None"),
+                        value: "none"
+                    },
+                    {
+                        name: _t("Sum"),
+                        value: "sum"
+                    },
+                    {
+                        name: _t("String concatenation"),
+                        value: "concat"
+                    }
+                ]
 			}
 		],
 		newInstance: function (settings, newInstanceCallback, updateCallback) {

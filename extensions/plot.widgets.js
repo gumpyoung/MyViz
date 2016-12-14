@@ -3,6 +3,8 @@ window.plotID = 0;
         var plotWidget = function (settings) {
         var self = this;
         var thisplotID = "plot-" + window.plotID++;
+        numberOfPlotWindows++;
+        console.log(numberOfPlotWindows);
         var titleElement = $('<h2 class="section-title"></h2>');
         var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:95%"></div>');
 		//var legendElement = $('<div id="chartLegend"></div>');
@@ -243,20 +245,21 @@ window.plotID = 0;
 			                opts.xaxes[0].min = Math.max(0, opts.xaxes[0].max - Number(currentSettings.time_window));
 			                
 			                if (last_ymin < opts.yaxes[0].min) {
-			                	opts.yaxes[0].min = center - 2 * (center - last_ymin);
+			                	opts.yaxes[0].min = center - 1.5 * (center - last_ymin);
 			                }
 			                else if (last_ymin > (opts.yaxes[0].min / 2)) {
 			                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
 			                }
 			                
 			                if (last_ymax > opts.yaxes[0].max) {
-			                	opts.yaxes[0].max = center + 2 * (last_ymax - center);
+			                	opts.yaxes[0].max = center + 1.5 * (last_ymax - center);
 			                }
 			                else if (last_ymax < (opts.yaxes[0].max / 2)) {
 			                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
 			                }
-			                // Max plot frequency: 100 ms
-			                if ((lastDate - lastPlot) > 0.1) {
+			                
+			                // Max plot frequency: 10 ms * number of plot windows
+			                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
 				                plotObject.setupGrid();
 				                plotObject.draw();
 				                lastPlot = lastDate;

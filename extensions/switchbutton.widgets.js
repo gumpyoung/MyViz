@@ -37,7 +37,7 @@ window.switchbuttonID = 0;
 	        else if (hostDatasourceType == "websocket") {
 	        	// Type = socket
 	        	event = 'message';
-	        	var host = "http://127.0.0.1:9091/";
+	        	var host = "http://127.0.0.1:9092/";
 	        }
 	        else {
 	        	alert(_t("Datasource type not supported by this widget"));

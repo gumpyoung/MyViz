@@ -183,6 +183,8 @@
 		
 		    serialPort.on('error',function(err) {
 		        console.log('Error: ', err.message);
+				// Allows to design the dashboard even if the is not serial port communication
+		        updateCallback(_.object(listVariablesToRead,Array(4)));
 		        alert('Error: ' + err.message);
 		        isOpen = false;
 		    });
