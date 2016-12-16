@@ -194,7 +194,7 @@ window.switchbuttonID = 0;
 					// vxref_calc = -vxref_calc;
 				// }
 				vxref = 100*(vxref_calc.toFixed(2));				
-				xiref = 180. - 2. * xiref_calc;
+				xiref = -(180. - 2. * xiref_calc);
 				sendData();
 				
 			};

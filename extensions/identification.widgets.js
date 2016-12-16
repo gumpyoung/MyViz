@@ -291,9 +291,9 @@ window.identificationID = 0;
 								var constanteCouple = frottement * meanOmega / (meanCurrent * ratio);
 								//var inertie = -0.001 * Math.pow(constanteCouple,2) / (myRegression2.equation[1] * resistance);
 								var inertie = 0.001 * Math.pow(constanteCouple,2) * tau2 / resistance;
-								$("#" + constanteCoupleID).text("Constante de couple: " + constanteCouple.toFixed(3) + " N.m/A");
+								$("#" + constanteCoupleID).text("Constante de couple: " + constanteCouple.toFixed(4) + " N.m/A");
 								$("#" + inertieID).text("Inertie: " + inertie.toFixed(10) + " kg.m^2");
-								$("#" + frottementID).text("Frottement: " + frottement.toFixed(10) + " N.m.s/rad");
+								$("#" + frottementID).text("Frottement: " + frottement.toFixed(4) + " N.m.s/rad");
 								
 			                	//var yResults2 = _.map(yResults, function(num){ return yIdentMax - num; });
 			                	var yResults2 = Array();

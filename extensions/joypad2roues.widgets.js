@@ -146,7 +146,7 @@ window.joypad2rouesID = 0;
 				vxref = 100*(vxref_calc.toFixed(2));
 				$("#value1-" + thisjoypad2rouesID).html(vxref.toFixed(0));
 				
-				xiref = 180. - 2. * xiref_calc;
+				xiref = -(180. - 2. * xiref_calc);
 				$("#value2-" + thisjoypad2rouesID).html(xiref.toFixed(0));
 				sendData();
 				
