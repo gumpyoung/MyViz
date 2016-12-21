@@ -1,6 +1,6 @@
 window.textareaID = 0;
 (function() {    
-        var textAreaWidget = function (settings) {
+    var textAreaWidget = function (settings) {
 	    var textdata = [];
 	    var pausedata = [];
 	    var pause = false;

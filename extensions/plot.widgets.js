@@ -1,12 +1,34 @@
 window.plotID = 0;
 (function() {    
-        var plotWidget = function (settings) {
+    var plotWidget = function (settings) {
         var self = this;
+        if (window.plotID == 0) {
+        	pausePlot = Array();
+        }
         var thisplotID = "plot-" + window.plotID++;
         numberOfPlotWindows++;
-        console.log(numberOfPlotWindows);
+	    var pause = false;
+	    var resume = false;
+        
+		pausePlot.push( function() {
+			if (!pause) {
+				pause = true;
+				$("#pauseresume-" + thisplotID).removeClass("icon-pause");
+				$("#pauseresume-" + thisplotID).addClass("icon-play");
+				$("#labelpauseresume-" + thisplotID).html(_t("Play"));
+			}
+			else {
+				pause = false;
+				resume = true;
+				$("#pauseresume-" + thisplotID).removeClass("icon-play");
+				$("#pauseresume-" + thisplotID).addClass("icon-pause");
+				$("#labelpauseresume-" + thisplotID).html(_t("Pause"));
+			}
+		});
+		
         var titleElement = $('<h2 class="section-title"></h2>');
-        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:95%"></div>');
+        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:80%"></div>');
+        var pauseElement = $('<ul style="margin-top:-5px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thisplotID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thisplotID + '" data-bind="click: pausePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li></ul>');
 		//var legendElement = $('<div id="chartLegend"></div>');
 
         var plotObject;
@@ -127,7 +149,7 @@ window.plotID = 0;
 	                var x = item.datapoint[0].toFixed(2),
 	                    y = item.datapoint[1].toFixed(2);
 	                
-	                $("#tooltip").html(item.series.label + " = " + y)
+	                $("#tooltip").html("x = " + x + "<br>" + item.series.label + " = " + y)
 	                    .css({top: item.pageY+5, left: item.pageX+5})
 	                    .fadeIn(200);
 	            } else {
@@ -157,7 +179,12 @@ window.plotID = 0;
         this.render = function (element) {
             rendered = true;
             //$(element).append(titleElement).append(plotElement).append(legendElement);
-            $(element).append(titleElement).append(plotElement);
+            if (currentSettings.pausable) {
+            	$(element).append(titleElement).append(plotElement).append(pauseElement);
+           	}
+           	else {
+           		$(element).append(titleElement).append(plotElement);
+           	}
             setYaxisRange(currentSettings);
             createPlot(currentSettings);
         };
@@ -168,7 +195,8 @@ window.plotID = 0;
             	|| newSettings.time != currentSettings.time
             	|| newSettings.value != currentSettings.value
             	|| newSettings.height != currentSettings.height
-            	|| newSettings.y_axis_min_range != currentSettings.y_axis_min_range) {
+            	|| newSettings.y_axis_min_range != currentSettings.y_axis_min_range
+            	|| newSettings.pausable != currentSettings.pausable) {
             	plotCreated = false;
                 setYaxisRange(newSettings);
                 createPlot(newSettings);
@@ -230,10 +258,12 @@ window.plotID = 0;
 				            (plotdata[i].data).push([xData, yData]);
 				            
 				            // Remove old data out of time window
-				            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
-				            	(plotdata[i].data).shift();
-				            	yDataArray.shift();
-				            }
+				            if (!pause) {
+					            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
+					            	(plotdata[i].data).shift();
+					            	yDataArray.shift();
+					            }
+					        }
 				            last_ymin = Math.min.apply(null, yDataArray);
 				            last_ymax = Math.max.apply(null, yDataArray);
 				            
@@ -260,8 +290,10 @@ window.plotID = 0;
 			                
 			                // Max plot frequency: 10 ms * number of plot windows
 			                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
-				                plotObject.setupGrid();
-				                plotObject.draw();
+			                	if (!pause) {
+					                plotObject.setupGrid();
+					                plotObject.draw();
+					            }
 				                lastPlot = lastDate;
 				            }
 			            }
@@ -354,7 +386,14 @@ window.plotID = 0;
                 type: "number",
                 default_value: 3,
                 description: _t("A height block is around 60 pixels")
+            },
+            {
+                name: "pausable",
+                display_name: _t("Pausable"),
+				type: "boolean",
+                default_value: false
             }
+
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new plotWidget(settings));
