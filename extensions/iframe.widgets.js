@@ -57,7 +57,7 @@ window.iframeID = 0;
         };
 
         this.getHeight = function () {
-            return 9;
+            return Number(currentSettings.height);
         };
 
         this.onSettingsChanged(settings);
@@ -78,7 +78,14 @@ window.iframeID = 0;
 				type: "text",
 				"required" : true,
 				description: "Include http://..."
-			}
+			},
+            {
+                name: "height",
+                display_name: _t("Height Blocks"),
+                type: "number",
+                default_value: 9,
+                description: _t("A height block is around 60 pixels")
+            },
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new iFrameWidget(settings));
