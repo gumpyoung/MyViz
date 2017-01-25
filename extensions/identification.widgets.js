@@ -163,7 +163,6 @@ window.identificationID = 0;
 			                	dataIdentArray = _.zip(xDataIdentArray3,yDataIdentArray3);
 			                	var yTau1 = 0.632 * yIdentMax;
 			                	var indexYTau1 = bs.closest(yDataIdentArray2,yTau1);
-			                	//var tau1 = xDataIdentArray3[indexYTau1-1] + (xDataIdentArray3[indexYTau1+1]-xDataIdentArray3[indexYTau1-1]) * (yTau1 - yDataIdentArray2[indexYTau1-1])/(yDataIdentArray2[indexYTau1+1]-yDataIdentArray2[indexYTau1-1]);
 			                	var tau1 = xDataIdentArray3[indexYTau1] + (xDataIdentArray3[indexYTau1+1]-xDataIdentArray3[indexYTau1]) * (yTau1 - yDataIdentArray2[indexYTau1])/(yDataIdentArray2[indexYTau1+1]-yDataIdentArray2[indexYTau1]);
 			                	
 			                	// Plot the results
@@ -172,13 +171,12 @@ window.identificationID = 0;
 								// Print the results out
 								var voltage = Number(currentSettings.voltage);
 								resistance = voltage / yIdentMax;
-								//var inductance = -resistance / myRegression1.equation[1];
 								var inductance = tau1 * resistance;
 								$("#" + resistanceID).text("Resistance: " + resistance.toFixed(1) + " Ohms");
 								$("#" + inductanceID).text("Inductance: " + inductance.toFixed(1) + " mH");
 								
 			                	var yResults2 = Array();
-			                	for (var i=0; i<physicalPoints.length; i++) {
+			                	for (var i=0; i<xDataIdentArray3.length; i++) {
 			                		yResults2.push(yIdentMax * (1 - Math.exp(-0.001 * resistance * xDataIdentArray3[i]/(0.001 * inductance))));
 			                	}
 			                	
@@ -274,30 +272,25 @@ window.identificationID = 0;
 			                	
 			                	// Identify the data
 			                	dataIdentArray = _.zip(xDataIdentArray3,yDataIdentArray3);
-			                	var myRegression2 = regression('exponential', dataIdentArray);
 			                	var yTau2 = 0.632*meanOmega;
 			                	var indexYTau2 = bs.closest(yDataIdentArray2,yTau2);
 			                	var tau2 = xDataIdentArray3[indexYTau2] + (xDataIdentArray3[indexYTau2+1]-xDataIdentArray3[indexYTau2]) * (yTau2 - yDataIdentArray2[indexYTau2])/(yDataIdentArray2[indexYTau2+1]-yDataIdentArray2[indexYTau2]);
 			                	
 			                	// Plot the results
 			                	var physicalPoints = _.zip(xDataIdentArray3,yDataIdentArray2);
-			                	var physicalResults = _.unzip(myRegression2.points);
-			                	var yResults = physicalResults[1];
 			                	
 								// Print the results out
 								var ratio = Number(currentSettings.ratio);
 								// Voltage is 6V for the speed measurement try
 								var frottement = (-resistance * Math.pow(meanCurrent,2) + 6. * meanCurrent)/(Math.pow(meanOmega,2));
 								var constanteCouple = frottement * meanOmega / (meanCurrent * ratio);
-								//var inertie = -0.001 * Math.pow(constanteCouple,2) / (myRegression2.equation[1] * resistance);
 								var inertie = 0.001 * Math.pow(constanteCouple,2) * tau2 / resistance;
 								$("#" + constanteCoupleID).text("Constante de couple: " + constanteCouple.toFixed(4) + " N.m/A");
 								$("#" + inertieID).text("Inertie: " + inertie.toFixed(10) + " kg.m^2");
 								$("#" + frottementID).text("Frottement: " + frottement.toFixed(4) + " N.m.s/rad");
 								
-			                	//var yResults2 = _.map(yResults, function(num){ return yIdentMax - num; });
 			                	var yResults2 = Array();
-			                	for (var i=0; i<yResults.length; i++) {
+			                	for (var i=0; i<xDataIdentArray3.length; i++) {
 			                		yResults2.push(meanOmega * (1 - Math.exp(-0.001 * Math.pow(constanteCouple,2) * xDataIdentArray3[i]/(inertie * resistance))));
 			                	}
 			                	
@@ -339,7 +332,6 @@ window.identificationID = 0;
         display_name: _t("Identification"),
 		description : _t("Identification des paramètres d'un moteur à courant continu."),
 		external_scripts : [
-		    "extensions/thirdparty/regression.js",
 		    "extensions/thirdparty/flot/jquery.flot.js"
  		],
         settings: [
