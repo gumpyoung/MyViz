@@ -3,12 +3,16 @@ window.sshcommandID = 0;
     var sshcommandWidget = function (settings) {
         var thissshcommandID = window.sshcommandID++;
         var titleElement = $('<h2 class="section-title" style="padding-bottom:7px;"></h2>');
-        var sshcommandElement = $('<div id="sshcommand-' + thissshcommandID + '" class="onoffswitch"></div>');
+        var switchElement = $('<div id="sshcommand-' + thissshcommandID + '" class="onoffswitch"></div>');
+        var buttonElement = $('<br /><button id="sshcommandbutton-' + thissshcommandID + '" class="btn-class"></button>');
+        var sshcommandElement = switchElement;
 
 		var exec = require('ssh-exec');
 		
         var sshcommandObject;
         var rendered = false;
+        var button;
+        var sw;
 
 		var sshcommand;
         var currentSettings = settings;
@@ -19,32 +23,46 @@ window.sshcommandID = 0;
                 return;
             }
             
-            //sshcommandElement.empty();
-        	var checkedStr = '';
-        	if (mySettings.initialstate) {
-        		checkedStr = 'checked="checked"';
-        	}
-
-			var sshcommandElementStr = '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thissshcommandID + '-sshonoff" ' + checkedStr + '><label class="onoffswitch-label" for="' + thissshcommandID + '-sshonoff"><div class="onoffswitch-inner"><span class="on">' + mySettings.ontext + '</span><span class="off">' + mySettings.offtext + '</span></div><div class="onoffswitch-switch"></div></label>';
-            document.getElementById('sshcommand-' + thissshcommandID).innerHTML = sshcommandElementStr;
+            sshcommandElement.empty();
             
-			$( "#" + thissshcommandID + "-sshonoff" ).change(function() {
-				if (($( "#" + thissshcommandID + "-sshonoff" )).prop("checked")) {
-					exec(mySettings.oncommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
-				}
-				else {
-					exec(mySettings.offcommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
-				}
-			});
-			
-			/*var input = $('<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thissshcommandID + '-onoff">').prependTo(sshcommandElement).change(function() {
-				newSettings.settings[thissshcommandID] = this.checked;
-			});*/
+            var style = (_.isUndefined(mySettings.style) ? "switch" : mySettings.style);
+            // console.log(style);
+            // console.log(style == "switch");
+            
+            if (style == "switch") {
+            	sshcommandElement = switchElement;
+	        	var checkedStr = '';
+	        	if (mySettings.initialstate) {
+	        		checkedStr = 'checked="checked"';
+	        	}
 	
-			/*if (thissshcommandID in currentSettingsValues) {
-				input.prop("checked", currentSettingsValues[thissshcommandID]);
-			}*/
-							        
+				var sshcommandElementStr = '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thissshcommandID + '-sshonoff" ' + checkedStr + '><label class="onoffswitch-label" for="' + thissshcommandID + '-sshonoff"><div class="onoffswitch-inner"><span class="on">' + mySettings.ontext + '</span><span class="off">' + mySettings.offtext + '</span></div><div class="onoffswitch-switch"></div></label>';
+	            document.getElementById('sshcommand-' + thissshcommandID).innerHTML = sshcommandElementStr;
+	            
+				$( "#" + thissshcommandID + "-sshonoff" ).change(function() {
+					if (($( "#" + thissshcommandID + "-sshonoff" )).prop("checked")) {
+						exec(mySettings.oncommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
+					}
+					else {
+						exec(mySettings.offcommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
+					}
+				});
+			}
+			else {
+				sshcommandElement.html(buttonElement);
+				
+				button = document.getElementById('sshcommandbutton-' + thissshcommandID);
+				
+				button.innerHTML = mySettings.caption;
+				
+				button.addEventListener('mousedown', function(){
+					exec(mySettings.oncommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
+				});
+				
+				button.addEventListener('mouseup', function(){
+					exec(mySettings.offcommand, {user: mySettings.login, host: mySettings.host, password: mySettings.password}).pipe(process.stdout);
+				});
+			}
         }
 
         this.render = function (element) {
@@ -54,8 +72,10 @@ window.sshcommandID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if ((newSettings.ontext != currentSettings.ontext)
-            	|| (newSettings.offtext != currentSettings.offtext)) {
+            if ((newSettings.style != currentSettings.style)
+            	|| (newSettings.ontext != currentSettings.ontext)
+            	|| (newSettings.offtext != currentSettings.offtext)
+            	|| (newSettings.caption != currentSettings.caption)) {
                 createSSHCommand(newSettings);
             }
             
@@ -86,6 +106,22 @@ window.sshcommandID = 0;
                 name: "title",
                 display_name: _t("Title"),
                 type: "text"
+            },
+            {
+                name: "style",
+                display_name: _t("Style"),
+                type: "option",
+                options: [
+                    {
+                        name: _t("Switch"),
+                        value: "switch"
+                    },
+                    {
+                        name: _t("Button"),
+                        value: "button"
+                    }
+                ],
+                default_value: "switch"
             },
 			{
 				name: "host",
@@ -121,21 +157,29 @@ window.sshcommandID = 0;
                 name: "ontext",
                 display_name: _t('"ON" text'),
                 type: "text",
-                default_value: "ON",
-                description: _t("Corresponding numeric value is 1")
+                description: _t("Only for switch style"),
+                default_value: "ON"
             },
             {
                 name: "offtext",
                 display_name: _t('"OFF" text'),
                 type: "text",
-                default_value: "OFF",
-                description: _t("Corresponding numeric value is 0")
+                description: _t("Only for switch style"),
+                default_value: "OFF"
             },
             {
                 name: "initialstate",
                 display_name: _t("Initial state"),
                 type: "boolean",
+                description: _t("Only for switch style"),
                 default_value: false
+            },
+            {
+                name: "caption",
+                display_name: _t('Caption'),
+                type: "text",
+                description: _t("Only for button style"),
+                default_value: _t("Switch ON")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {
