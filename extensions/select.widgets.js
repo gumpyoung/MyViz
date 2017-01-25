@@ -10,66 +10,67 @@ window.selectID = 0;
 
 		var select;
         var currentSettings = settings;
-        var socket;
-        var event;
+        // var socket;
+        // var event;
 
-		function discardSocket() {
-			// Disconnect datasource websocket
-			if (socket) {
-				socket.disconnect();
-			}
-		}
-		
-		function connectToServer(mySettings) {
-	        // If the communication is on serial port, the event name is the serial port name,
-	        // otherwise it is 'message'
-	        
-        	// Get the type (serial port or socket) and the settings
-        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
-        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
-	        	
-	        if (hostDatasourceType == "serialport") {
-	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-	        	event = (hostDatasourceSettings.port).split("/").pop();
-	        	var host = "http://127.0.0.1:9091/";
-	        }
-	        else if (hostDatasourceType == "websocket") {
-	        	// Type = socket
-	        	event = 'message';
-	        	var host = "http://127.0.0.1:9092/";
-	        }
-	        else {
-	        	alert(_t("Datasource type not supported by this widget"));
-	        }
-	        
-            socket = io.connect(host,{'forceNew':true});
-	        			
-			// Events
-			socket.on('connect', function() {
-				console.info("Connecting to server at: %s", host);
-        		sendData();
-			});
-			
-			socket.on('connect_error', function(object) {
-				console.error("It was not possible to connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_error', function(object) {
-				console.error("Still was not possible to re-connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_failed', function(object) {
-				console.error("Re-connection to server failed at: %s", host);
-				discardSocket();
-			});
-			
-		}
+		// function discardSocket() {
+			// // Disconnect datasource websocket
+			// if (socket) {
+				// socket.disconnect();
+			// }
+		// }
+// 		
+		// function connectToServer(mySettings) {
+	        // // If the communication is on serial port, the event name is the serial port name,
+	        // // otherwise it is 'message'
+// 	        
+        	// // Get the type (serial port or socket) and the settings
+        	// var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	// var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+// 	        	
+	        // if (hostDatasourceType == "serialport") {
+	        	// // Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	// event = (hostDatasourceSettings.port).split("/").pop();
+	        	// var host = "http://127.0.0.1:9091/";
+	        // }
+	        // else if (hostDatasourceType == "websocket") {
+	        	// // Type = socket
+	        	// event = 'message';
+	        	// var host = "http://127.0.0.1:9092/";
+	        // }
+	        // else {
+	        	// alert(_t("Datasource type not supported by this widget"));
+	        // }
+// 	        
+            // socket = io.connect(host,{'forceNew':true});
+// 	        			
+			// // Events
+			// socket.on('connect', function() {
+				// console.info("Connecting to server at: %s", host);
+        		// sendData();
+			// });
+// 			
+			// socket.on('connect_error', function(object) {
+				// console.error("It was not possible to connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_error', function(object) {
+				// console.error("Still was not possible to re-connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_failed', function(object) {
+				// console.error("Re-connection to server failed at: %s", host);
+				// discardSocket();
+			// });
+// 			
+		// }
 
  		function sendData() {
 			// Send message to socket
 			toSend = {};
 			toSend[currentSettings.variable] = $( "#select-" + thisselectID ).val();
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variable, toSend[currentSettings.variable]);
  		};
  		        
         function createSelect(mySettings) {
@@ -77,7 +78,7 @@ window.selectID = 0;
                 return;
             }
 
-	        connectToServer(mySettings);
+	        //connectToServer(mySettings);
 	        
 	        //selectElement.empty();
 	        
@@ -90,6 +91,9 @@ window.selectID = 0;
 			}
             document.getElementById('select-' + thisselectID).innerHTML = selectElementStr;
         
+        	// Send data at the creation...
+        	sendData();
+        	// ... and on changes
 			$( "#select-" + thisselectID ).change(function() {
 				sendData();
 			});
@@ -102,10 +106,10 @@ window.selectID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.datasourcename != currentSettings.datasourcename) {
-                discardSocket();
-                connectToServer(newSettings);
-            }
+            // if (newSettings.datasourcename != currentSettings.datasourcename) {
+                // discardSocket();
+                // connectToServer(newSettings);
+            // }
 
             if (newSettings.listcaptions != currentSettings.listcaptions 
             	|| newSettings.listvalues != currentSettings.listvalues) {
@@ -123,7 +127,7 @@ window.selectID = 0;
         };
 
         this.onDispose = function () {
-			socket.close();
+			//socket.close();
         };
 
         this.getHeight = function () {
@@ -137,21 +141,21 @@ window.selectID = 0;
     freeboard.loadWidgetPlugin({
         type_name: "select",
         display_name: _t("Select"),
-		"external_scripts": [
-			"extensions/thirdparty/socket.io-1.3.5.js"
-		],
+		// "external_scripts": [
+			// "extensions/thirdparty/socket.io-1.3.5.js"
+		// ],
         settings: [
             {
                 name: "title",
                 display_name: _t("Title"),
                 type: "text"
             },
-			{
-				name: "datasourcename",
-				display_name: _t("Datasource"),
-                type: "text",
-				description: _t("You *must* create first a datasource with the same name")
-			},
+			// {
+				// name: "datasourcename",
+				// display_name: _t("Datasource"),
+                // type: "text",
+				// description: _t("You *must* create first a datasource with the same name")
+			// },
             {
                 name: "variable",
                 display_name: _t("Variable"),

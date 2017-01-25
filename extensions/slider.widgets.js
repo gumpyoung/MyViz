@@ -12,67 +12,68 @@ window.sliderID = 0;
 
 		var slider;
         var currentSettings = settings;
-        var socket;
-        var event;
+        // var socket;
+        // var event;
         var sliderValue = currentSettings.resetvalue;
         
-		function discardSocket() {
-			// Disconnect datasource websocket
-			if (socket) {
-				socket.disconnect();
-			}
-		}
+		// function discardSocket() {
+			// // Disconnect datasource websocket
+			// if (socket) {
+				// socket.disconnect();
+			// }
+		// }
 		
-		function connectToServer(mySettings) {
-	        // If the communication is on serial port, the event name is the serial port name,
-	        // otherwise it is 'message'
-	        
-        	// Get the type (serial port or socket) and the settings
-        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
-        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
-	        	
-	        if (hostDatasourceType == "serialport") {
-	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-	        	event = (hostDatasourceSettings.port).split("/").pop();
-	        	var host = "http://127.0.0.1:9091/";
-	        }
-	        else if (hostDatasourceType == "websocket") {
-	        	// Type = socket
-	        	event = 'message';
-	        	var host = "http://127.0.0.1:9092/";
-	        }
-	        else {
-	        	alert(_t("Datasource type not supported by this widget"));
-	        }
-	        
-            socket = io.connect(host,{'forceNew':true});
-	        			
-			// Events
-			socket.on('connect', function() {
-				console.info("Connecting to server at: %s", host);
-			});
-			
-			socket.on('connect_error', function(object) {
-				console.error("It was not possible to connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_error', function(object) {
-				console.error("Still was not possible to re-connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_failed', function(object) {
-				console.error("Re-connection to server failed at: %s", host);
-				discardSocket();
-			});
-			
-		}
+		// function connectToServer(mySettings) {
+	        // // If the communication is on serial port, the event name is the serial port name,
+	        // // otherwise it is 'message'
+// 	        
+        	// // Get the type (serial port or socket) and the settings
+        	// var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	// var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+// 	        	
+	        // if (hostDatasourceType == "serialport") {
+	        	// // Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	// event = (hostDatasourceSettings.port).split("/").pop();
+	        	// var host = "http://127.0.0.1:9091/";
+	        // }
+	        // else if (hostDatasourceType == "websocket") {
+	        	// // Type = socket
+	        	// event = 'message';
+	        	// var host = "http://127.0.0.1:9092/";
+	        // }
+	        // else {
+	        	// alert(_t("Datasource type not supported by this widget"));
+	        // }
+// 	        
+            // socket = io.connect(host,{'forceNew':true});
+// 	        			
+			// // Events
+			// socket.on('connect', function() {
+				// console.info("Connecting to server at: %s", host);
+			// });
+// 			
+			// socket.on('connect_error', function(object) {
+				// console.error("It was not possible to connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_error', function(object) {
+				// console.error("Still was not possible to re-connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_failed', function(object) {
+				// console.error("Re-connection to server failed at: %s", host);
+				// discardSocket();
+			// });
+// 			
+		// }
 
  		function sendData() {
-			// Send message to socket
+			// Store message in session storage
 			toSend = {};
 			var formula = (_.isUndefined(currentSettings.formula) ? "x" : currentSettings.formula);
 			toSend[currentSettings.variable] = eval(formula.replace("x", sliderValue));
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variable, toSend[currentSettings.variable]);
  		};
  		        
         function createSlider(mySettings) {
@@ -80,7 +81,7 @@ window.sliderID = 0;
                 return;
             }
             
-            connectToServer(mySettings);
+            //connectToServer(mySettings);
             
             sliderElement.empty();
         
@@ -143,10 +144,10 @@ window.sliderID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.datasourcename != currentSettings.datasourcename) {
-                discardSocket();
-                connectToServer(newSettings);
-            }
+            // if (newSettings.datasourcename != currentSettings.datasourcename) {
+                // discardSocket();
+                // connectToServer(newSettings);
+            // }
 
             if (newSettings.initialvalue != currentSettings.initialvalue 
             	|| newSettings.min != currentSettings.min 
@@ -173,7 +174,7 @@ window.sliderID = 0;
         };
 
         this.onDispose = function () {
-			socket.close();
+			//socket.close();
         };
 
         this.getHeight = function () {
@@ -189,8 +190,8 @@ window.sliderID = 0;
 		description : _t("A Slider widget for serial or socket communications."),
 		external_scripts: [
 			"extensions/thirdparty/nouislider.min.js",
-			"extensions/thirdparty/wNumb.min.js",
-			"extensions/thirdparty/socket.io-1.3.5.js"
+			//"extensions/thirdparty/socket.io-1.3.5.js",
+			"extensions/thirdparty/wNumb.min.js"
 		],
         settings: [
             {
@@ -198,12 +199,6 @@ window.sliderID = 0;
                 display_name: _t("Title"),
                 type: "text"
             },
-			{
-				name: "datasourcename",
-				display_name: _t("Datasource"),
-                type: "text",
-				description: _t("You *must* create first a datasource with the same name")
-			},
             {
                 name: "variable",
                 display_name: _t("Variable"),

@@ -10,64 +10,67 @@ window.switchbuttonID = 0;
 
 		var switchbutton;
         var currentSettings = settings;
-        var socket;
-        var event;
+        // var socket;
+        // var event;
         
         
-		function discardSocket() {
-			// Disconnect datasource websocket
-			if (socket) {
-				socket.disconnect();
-			}
-		}
+		// function discardSocket() {
+			// // Disconnect datasource websocket
+			// if (socket) {
+				// socket.disconnect();
+			// }
+		// }
 		
-		function connectToServer(mySettings) {
-	        // If the communication is on serial port, the event name is the serial port name,
-	        // otherwise it is 'message'
-	        
-        	// Get the type (serial port or socket) and the settings
-        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
-        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
-	        	
-	        if (hostDatasourceType == "serialport") {
-	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-	        	event = (hostDatasourceSettings.port).split("/").pop();
-	        	var host = "http://127.0.0.1:9091/";
-	        }
-	        else if (hostDatasourceType == "websocket") {
-	        	// Type = socket
-	        	event = 'message';
-	        	var host = "http://127.0.0.1:9092/";
-	        }
-	        else {
-	        	alert(_t("Datasource type not supported by this widget"));
-	        }
-            
-            socket = io.connect(host,{'forceNew':true});
-	        			
-			// Events
-			socket.on('connect', function() {
-				console.info("Connecting to server at: %s", host);
-				sendData();
-			});
-			
-			socket.on('connect_error', function(object) {
-				console.error("It was not possible to connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_error', function(object) {
-				console.error("Still was not possible to re-connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_failed', function(object) {
-				console.error("Re-connection to server failed at: %s", host);
-				discardSocket();
-			});
-			
-		}
+		// function connectToServer(mySettings) {
+	        // // If the communication is on serial port, the event name is the serial port name,
+	        // // otherwise it is 'message'
+// 	        
+        	// // Get the type (serial port or socket) and the settings
+        	// var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	// var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+// 	        	
+	        // if (hostDatasourceType == "serialport") {
+	        	// // Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	// event = (hostDatasourceSettings.port).split("/").pop();
+	        	// var host = "http://127.0.0.1:9091/";
+	        // }
+	        // else if (hostDatasourceType == "websocket") {
+	        	// event = 'message';
+	        	// var host = "http://127.0.0.1:9092/";
+	        // }
+	        // else if (hostDatasourceType == "pahomqtt") {
+	        	// event = 'message';
+	        	// var host = "http://127.0.0.1:9093/";
+	        // }
+	        // else {
+	        	// alert(_t("Datasource type not supported by this widget"));
+	        // }
+//             
+            // socket = io.connect(host,{'forceNew':true});
+// 	        			
+			// // Events
+			// socket.on('connect', function() {
+				// console.info("Connecting to server at: %s", host);
+				// sendData();
+			// });
+// 			
+			// socket.on('connect_error', function(object) {
+				// console.error("It was not possible to connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_error', function(object) {
+				// console.error("Still was not possible to re-connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_failed', function(object) {
+				// console.error("Re-connection to server failed at: %s", host);
+				// discardSocket();
+			// });
+// 			
+		// }
 
  		function sendData() {
-			// Send message to socket
+			// Store message in session storage
 			toSend = {};
 			if (($( "#" + thisswitchbuttonID + "-onoff" )).prop("checked")) {
 				toSend[currentSettings.variable] = 1;
@@ -75,7 +78,8 @@ window.switchbuttonID = 0;
 			else {
 				toSend[currentSettings.variable] = 0;
 			}
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variable, toSend[currentSettings.variable]);
  		};
  		
         function createSwitchButton(mySettings) {
@@ -83,7 +87,7 @@ window.switchbuttonID = 0;
                 return;
             }
             
-            connectToServer(mySettings);
+            //connectToServer(mySettings);
             
             //switchbuttonElement.empty();
         	var checkedStr = '';
@@ -94,16 +98,12 @@ window.switchbuttonID = 0;
 			var switchbuttonElementStr = '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thisswitchbuttonID + '-onoff" ' + checkedStr + '><label class="onoffswitch-label" for="' + thisswitchbuttonID + '-onoff"><div class="onoffswitch-inner"><span class="on">' + mySettings.yestext + '</span><span class="off">' + mySettings.notext + '</span></div><div class="onoffswitch-switch"></div></label>';
             document.getElementById('switchbutton-' + thisswitchbuttonID).innerHTML = switchbuttonElementStr;
             
+        	// Send data at the creation...
+        	sendData();
+        	// ... and on changes
 			$( "#" + thisswitchbuttonID + "-onoff" ).change(function() {
 				sendData();
 			});
-			/*var input = $('<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="' + thisswitchbuttonID + '-onoff">').prependTo(switchbuttonElement).change(function() {
-				newSettings.settings[thisswitchbuttonID] = this.checked;
-			});*/
-	
-			/*if (thisswitchbuttonID in currentSettingsValues) {
-				input.prop("checked", currentSettingsValues[thisswitchbuttonID]);
-			}*/
 							        
         }
 
@@ -114,10 +114,10 @@ window.switchbuttonID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.datasourcename != currentSettings.datasourcename) {
-                discardSocket();
-                connectToServer(newSettings);
-            }
+            // if (newSettings.datasourcename != currentSettings.datasourcename) {
+                // discardSocket();
+                // connectToServer(newSettings);
+            // }
 
             if ((newSettings.yestext != currentSettings.yestext)
             	|| (newSettings.notext != currentSettings.notext)) {
@@ -135,7 +135,7 @@ window.switchbuttonID = 0;
         };
 
         this.onDispose = function () {
-			socket.close();
+			//socket.close();
         };
 
         this.getHeight = function () {
@@ -149,21 +149,21 @@ window.switchbuttonID = 0;
         type_name: "switchbutton",
         display_name: _t("Switch button"),
 		description : _t("A Switchbutton widget for serial or socket communications."),
-		external_scripts: [
-			"extensions/thirdparty/socket.io-1.3.5.js"
-		],
+		// external_scripts: [
+			// "extensions/thirdparty/socket.io-1.3.5.js"
+		// ],
         settings: [
             {
                 name: "title",
                 display_name: _t("Title"),
                 type: "text"
             },
-			{
-				name: "datasourcename",
-				display_name: _t("Datasource"),
-                type: "text",
-				description: _t("You *must* create first a datasource with the same name")
-			},
+			// {
+				// name: "datasourcename",
+				// display_name: _t("Datasource"),
+                // type: "text",
+				// description: _t("You *must* create first a datasource with the same name")
+			// },
             {
                 name: "variable",
                 display_name: _t("Variable"),

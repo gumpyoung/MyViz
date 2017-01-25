@@ -6,90 +6,98 @@
 	
 	var serialportDatasource = function (settings, updateCallback) {
 		var self = this;
+		var item;
 		var currentSettings = settings;
+		var myName;
+		
 		var com = require('serialport');
-		var refreshInterval;
-		var lastSentTime = 0;
-		var currentTime = new Date();
+		// var refreshInterval;
+		// var lastSentTime = 0;
+		// var currentTime = new Date();
 		var newData = {};
 		var listVariablesToRead = (currentSettings.variables_to_read).split(",");
 		listVariablesToRead.push('_rawdata');
 		var listVariablesToSend = (_.isUndefined(currentSettings.variables_to_send) ? "" : currentSettings.variables_to_send).split(",");
 		// Object with keys from list of variables to send, each value is 0
 		var newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
-		
-		// Will receive message from control widget through socket.io
-        var socket;
-        // The event is the name of serial port (on Linux based OS, take the name after the last /)
-        var event = (currentSettings.port).split("/").pop();
-        var io = require('socket.io')(9091);
+		// Object with keys from list of variables to read, each value is 0
+		newData = _.object(listVariablesToRead, _.range(listVariablesToRead.length).map(function () { return 0; }));
+        // Add the variables to send
+        $.extend(newData, newDataToSend);
         
-		io.on('connection', function (socket) {
-			console.log("Serial port socket connected");
-			
-			socket.on(event, function (msg) {
-				// Extract variable name from, for example,
-				// currentSettings.value = [datasources["datasourcename"]["variablename1"], datasources["datasourcename"]["variablename2"]]
-				var variableName = (_.keys(JSON.parse(msg))[0]).split('"')[3];
-				var currentObj = {};
-				currentObj[variableName] = _.values(JSON.parse(msg))[0];
-			
-				// Merge messages to send using jQuery
-				$.extend(dataObj, currentObj);
+        myName = updateCallback(newData);
 				
-				// Create CRC data
-				crcValue = 0;
-				for (var d in dataObj) {
-					if (d != '_crc') {
-						if (currentSettings.checksum == "sum") {
-							crcValue += Number(dataObj[d]);
-						}
-						else if (currentSettings.checksum == "concat") {
-							crcValue += dataObj[d];
-						}
-					}
-				}
-				
-				// Convert into a string of values
-				dataToSend = "";
-				for (var i = 0; i < listVariablesToSend.length; i++) {
-					dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
-				}
-				
-				if (currentSettings.checksum == "none") {
-					// Remove last separator
-					dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
-				}
-				else {
-					dataToSend += crcValue;
-				}
-				
-				// Very important ! Don't forget
-				dataToSend += "\r";
-				
-				
-				// When data arrives (from a slider, for example), send it
-				// "immediately" (but not faster than every 100 ms)
-				currentTime = new Date();
-				if ((currentTime - lastSentTime) > 100) {
-					lastSentTime = currentTime;
-					if (isOpen) {
-						serialPort.write(dataToSend, function (error) {
-							if (error) {
-						    	console.log("Error writing to the serial port immediate: ", error);
-						    }
-						});
-					}
-				}
-			});
-			
-			socket.on('disconnect', function () {
-				console.log("Serial port socket disconnected");
-			});
-			socket.on('error', function (error) {
-				console.log("Socket error: ", error);
-			});
-		});
+		// // Will receive message from control widget through socket.io
+        // var socket;
+        // // The event is the name of serial port (on Linux based OS, take the name after the last /)
+        // var event = (currentSettings.port).split("/").pop();
+        // var io = require('socket.io')(9091);
+        
+		// io.on('connection', function (socket) {
+			// console.log("Serial port socket connected");
+// 			
+			// socket.on(event, function (msg) {
+				// // Extract variable name from, for example,
+				// // currentSettings.value = [datasources["datasourcename"]["variablename1"], datasources["datasourcename"]["variablename2"]]
+				// var variableName = (_.keys(JSON.parse(msg))[0]).split('"')[3];
+				// var currentObj = {};
+				// currentObj[variableName] = _.values(JSON.parse(msg))[0];
+// 			
+				// // Merge messages to send using jQuery
+				// $.extend(dataObj, currentObj);
+// 				
+				// // Create CRC data
+				// crcValue = 0;
+				// for (var d in dataObj) {
+					// if (d != '_crc') {
+						// if (currentSettings.checksum == "sum") {
+							// crcValue += Number(dataObj[d]);
+						// }
+						// else if (currentSettings.checksum == "concat") {
+							// crcValue += dataObj[d];
+						// }
+					// }
+				// }
+// 				
+				// // Convert into a string of values
+				// dataToSend = "";
+				// for (var i = 0; i < listVariablesToSend.length; i++) {
+					// dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
+				// }
+// 				
+				// if (currentSettings.checksum == "none") {
+					// // Remove last separator
+					// dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
+				// }
+				// else {
+					// dataToSend += crcValue;
+				// }
+// 				
+				// // Very important ! Don't forget
+				// dataToSend += "\r";
+// 				
+				// // When data arrives (from a slider, for example), send it
+				// // "immediately" (but not faster than every 100 ms)
+				// currentTime = new Date();
+				// if ((currentTime - lastSentTime) > 100) {
+					// lastSentTime = currentTime;
+					// if (isOpen) {
+						// serialPort.write(dataToSend, function (error) {
+							// if (error) {
+						    	// console.log("Error writing to the serial port immediate: ", error);
+						    // }
+						// });
+					// }
+				// }
+			// });
+// 			
+			// socket.on('disconnect', function () {
+				// console.log("Serial port socket disconnected");
+			// });
+			// socket.on('error', function (error) {
+				// console.log("Socket error: ", error);
+			// });
+		// });
 		        
 		function discardSerialport() {
 			// Disconnect datasource serial port
@@ -115,30 +123,30 @@
 
 		function initializeDataSource(mySettings) {
 			
-			for (r in refreshIntervals) {
-			    clearInterval(refreshIntervals[r]);
-			}
-			refreshIntervals = [];
-			
-			// When no data is received (slider is not moved, for example),
-			// send it every second: the receiving program may have a safety timeout
-			// in case it doesn't receive data
-	        refreshInterval = setInterval(
-	        	function(){
-					// Write data to the serial port
-					currentTime = new Date();
-					if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
-						lastSentTime = currentTime;
-						serialPort.write(dataToSend, function (error) {
-							if (error) {
-						    	console.log("Error writing to the serial port: ", error);
-						    }
-						});
-					}
-	        	},
-	        	(_.isUndefined(mySettings.refresh_rate) ? 1000 : Math.max(1000, mySettings.refresh_rate))
-	        );
-	        refreshIntervals.push(refreshInterval);
+			// for (r in refreshIntervals) {
+			    // clearInterval(refreshIntervals[r]);
+			// }
+			// refreshIntervals = [];
+// 			
+			// // When no data is received (slider is not moved, for example),
+			// // send it every second: the receiving program may have a safety timeout
+			// // in case it doesn't receive data
+	        // refreshInterval = setInterval(
+	        	// function(){
+					// // Write data to the serial port
+					// currentTime = new Date();
+					// if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
+						// lastSentTime = currentTime;
+						// serialPort.write(dataToSend, function (error) {
+							// if (error) {
+						    	// console.log("Error writing to the serial port: ", error);
+						    // }
+						// });
+					// }
+	        	// },
+	        	// (_.isUndefined(mySettings.refresh_rate) ? 1000 : Math.max(1000, mySettings.refresh_rate))
+	        // );
+	        // refreshIntervals.push(refreshInterval);
 			
 			// Reset connection to Serial port
 			discardSerialport();
@@ -184,7 +192,7 @@
 		    serialPort.on('error',function(err) {
 		        console.log('Error: ', err.message);
 				// Allows to design the dashboard even if the is not serial port communication
-		        updateCallback(_.object(listVariablesToRead,Array(4)));
+		        //updateCallback(_.object(listVariablesToRead,Array(4)));
 		        alert('Error: ' + err.message);
 		        isOpen = false;
 		    });
@@ -225,30 +233,30 @@
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {
             	newSettings.refresh_rate = Math.max(1000, newSettings.refresh_rate);
-				for (r in refreshIntervals) {
-				    clearInterval(refreshIntervals[r]);
-				}
-				refreshIntervals = [];
-				
-				// When no data is received (slider is not moved, for example),
-				// send it every second: the receiving program may have a safety timeout
-				// in case it doesn't receive data
-		        refreshInterval = setInterval(
-		        	function(){
-						// Write data to the serial port
-						currentTime = new Date();
-						if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
-							lastSentTime = currentTime;
-							serialPort.write(dataToSend, function (error) {
-								if (error) {
-							    	console.log("Error writing to the serial port: ", error);
-							    }
-							});
-						}
-		        	},
-		        	newSettings.refresh_rate
-		        );
-		        refreshIntervals.push(refreshInterval);
+				// for (r in refreshIntervals) {
+				    // clearInterval(refreshIntervals[r]);
+				// }
+				// refreshIntervals = [];
+// 				
+				// // When no data is received (slider is not moved, for example),
+				// // send it every second: the receiving program may have a safety timeout
+				// // in case it doesn't receive data
+		        // refreshInterval = setInterval(
+		        	// function(){
+						// // Write data to the serial port
+						// currentTime = new Date();
+						// if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
+							// lastSentTime = currentTime;
+							// serialPort.write(dataToSend, function (error) {
+								// if (error) {
+							    	// console.log("Error writing to the serial port: ", error);
+							    // }
+							// });
+						// }
+		        	// },
+		        	// newSettings.refresh_rate
+		        // );
+		        // refreshIntervals.push(refreshInterval);
             }
             
             currentSettings = newSettings;
@@ -256,15 +264,77 @@
 		};
 		
 		initializeDataSource(currentSettings);
+		
+		
+		function readSessionStorage() {
+			//console.log("Read session storage from ", myName);
+			if (isOpen) {
+				var currentObj = {};
+	        	for (var i=0; i<listVariablesToSend.length; i++) {
+	    			item = 'datasources["' + myName + '"]["' + listVariablesToSend[i] + '"]';
+	    			var sessionStorageVar = sessionStorage.getItem(item);
+	    			currentObj[listVariablesToSend[i]] = sessionStorageVar;
+	    			//console.log(item);
+		        }
+		        
+				// Merge messages to send using jQuery
+				$.extend(dataObj, currentObj);
+				
+				// Create CRC data
+				crcValue = 0;
+				for (var d in dataObj) {
+					if (d != '_crc') {
+						if (currentSettings.checksum == "sum") {
+							crcValue += Number(dataObj[d]);
+						}
+						else if (currentSettings.checksum == "concat") {
+							crcValue += dataObj[d];
+						}
+					}
+				}
+				
+				// Convert into a string of values
+				dataToSend = "";
+				for (var i = 0; i < listVariablesToSend.length; i++) {
+					dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
+				}
+				
+				if (currentSettings.checksum == "none") {
+					// Remove last separator
+					dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
+				}
+				else {
+					dataToSend += crcValue;
+				}
+				
+				// Very important ! Don't forget
+				dataToSend += "\r";
+				//console.log(dataToSend);
+		        
+				serialPort.write(dataToSend, function (error) {
+					if (error) {
+				    	console.log("Error writing to the serial port immediate: ", error);
+				    }
+				});
+		    }
+			setTimeout(function() {
+					readSessionStorage();
+				},
+				currentSettings.refresh_rate
+			);		
+		}
+		readSessionStorage();
+		
+		
 	};
 
 	freeboard.loadDatasourcePlugin({
 		type_name: "serialport",
 		display_name: _t("Serialport"),
 		description : _t("A real-time stream datasource from Serial port."),
-		external_scripts : [
-		    "extensions/thirdparty/socket.io-1.3.5.js"
- 		],
+		// external_scripts : [
+		    // "extensions/thirdparty/socket.io-1.3.5.js"
+ 		// ],
 		settings: [
 			{
 				name: "port",

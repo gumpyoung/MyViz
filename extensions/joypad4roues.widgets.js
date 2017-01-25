@@ -22,62 +22,63 @@ window.switchbuttonID = 0;
 		var joypad4roues;
 		var switchbutton;
         var currentSettings = settings;
-        var socket;
-        var event;
         var vxref = 0;
         var vyref = 0;
         var xiref = 0;
+        
+        // var socket;
+        // var event;
 
-		function discardSocket() {
-			// Disconnect datasource websocket
-			if (socket) {
-				socket.disconnect();
-			}
-		}
+		// function discardSocket() {
+			// // Disconnect datasource websocket
+			// if (socket) {
+				// socket.disconnect();
+			// }
+		// }
 		
-		function connectToServer(mySettings) {
-	        // If the communication is on serial port, the event name is the serial port name,
-	        // otherwise it is 'message'
-	        
-        	// Get the type (serial port or socket) and the settings
-        	var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
-        	var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
-	        	
-	        if (hostDatasourceType == "serialport") {
-	        	// Get the name of serial port (on Linux based OS, take the name after the last /)
-	        	event = (hostDatasourceSettings.port).split("/").pop();
-	        	var host = "http://127.0.0.1:9091/";
-	        }
-	        else if (hostDatasourceType == "websocket") {
-	        	// Type = socket
-	        	event = 'message';
-	        	var host = "http://127.0.0.1:9092/";
-	        }
-	        else {
-	        	alert(_t("Datasource type not supported by this widget"));
-	        }
-	        
-            socket = io.connect(host,{'forceNew':true});
-	        			
-			// Events
-			socket.on('connect', function() {
-				console.info("Connecting to server at: %s", host);
-			});
-			
-			socket.on('connect_error', function(object) {
-				console.error("It was not possible to connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_error', function(object) {
-				console.error("Still was not possible to re-connect to server at: %s", host);
-			});
-			
-			socket.on('reconnect_failed', function(object) {
-				console.error("Re-connection to server failed at: %s", host);
-				discardSocket();
-			});
-			
-		}
+		// function connectToServer(mySettings) {
+	        // // If the communication is on serial port, the event name is the serial port name,
+	        // // otherwise it is 'message'
+// 	        
+        	// // Get the type (serial port or socket) and the settings
+        	// var hostDatasourceType = freeboard.getDatasourceType(mySettings.datasourcename);
+        	// var hostDatasourceSettings = freeboard.getDatasourceSettings(mySettings.datasourcename);
+// 	        	
+	        // if (hostDatasourceType == "serialport") {
+	        	// // Get the name of serial port (on Linux based OS, take the name after the last /)
+	        	// event = (hostDatasourceSettings.port).split("/").pop();
+	        	// var host = "http://127.0.0.1:9091/";
+	        // }
+	        // else if (hostDatasourceType == "websocket") {
+	        	// // Type = socket
+	        	// event = 'message';
+	        	// var host = "http://127.0.0.1:9092/";
+	        // }
+	        // else {
+	        	// alert(_t("Datasource type not supported by this widget"));
+	        // }
+// 	        
+            // socket = io.connect(host,{'forceNew':true});
+// 	        			
+			// // Events
+			// socket.on('connect', function() {
+				// console.info("Connecting to server at: %s", host);
+			// });
+// 			
+			// socket.on('connect_error', function(object) {
+				// console.error("It was not possible to connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_error', function(object) {
+				// console.error("Still was not possible to re-connect to server at: %s", host);
+			// });
+// 			
+			// socket.on('reconnect_failed', function(object) {
+				// console.error("Re-connection to server failed at: %s", host);
+				// discardSocket();
+			// });
+// 			
+		// }
 
  		function sendData() {
         	// Send data
@@ -102,13 +103,16 @@ window.switchbuttonID = 0;
 			}
 			toSend = {};
 			toSend[currentSettings.variablevxref] = parseInt(vxref2.toFixed(0));
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variablevxref, toSend[currentSettings.variablevxref]);
 			toSend = {};
 			toSend[currentSettings.variablevyref] = parseInt(vyref.toFixed(0));
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variablevyref, toSend[currentSettings.variablevyref]);
 			toSend = {};
 			toSend[currentSettings.variablexiref] = parseInt(xiref.toFixed(0));
-			socket.emit(event, JSON.stringify(toSend));
+			//socket.emit(event, JSON.stringify(toSend));
+			sessionStorage.setItem(currentSettings.variablexiref, toSend[currentSettings.variablexiref]);
 		}
         
         function createjoypad4roues(mySettings) {
@@ -116,7 +120,7 @@ window.switchbuttonID = 0;
                 return;
             }
 
-            connectToServer(mySettings);
+            //connectToServer(mySettings);
             
             joypad4rouesElement.empty();
             
@@ -151,6 +155,9 @@ window.switchbuttonID = 0;
 			joypad4roues.image("./img/joypad_fond.png", 5, 5, 160, 160);
 			joypad4roues.image("./img/joypad_exclusion.png", 0, 0, 170, 170);
 			var joypad4roues_manette = joypad4roues.image("./img/joypad_centre.png", 0, 0, 170, 170);
+			
+			// Send data at the creation
+			sendData();
 			
 			cart2pol = function(x,y) {
 				var r, theta;
@@ -221,10 +228,10 @@ window.switchbuttonID = 0;
         };
 
         this.onSettingsChanged = function (newSettings) {
-            if (newSettings.datasourcename != currentSettings.datasourcename) {
-                discardSocket();
-                connectToServer(newSettings);
-            }
+            // if (newSettings.datasourcename != currentSettings.datasourcename) {
+                // discardSocket();
+                // connectToServer(newSettings);
+            // }
             
 			currentSettings = newSettings;
             titleElement.html(currentSettings.title);
@@ -234,7 +241,7 @@ window.switchbuttonID = 0;
         };
 
         this.onDispose = function () {
-			socket.close();
+			//socket.close();
         };
 
         this.getHeight = function () {
@@ -248,8 +255,8 @@ window.switchbuttonID = 0;
         type_name: "joypad4roues",
         display_name: "Joypad 4 roues",
 		"external_scripts": [
-			"extensions/thirdparty/raphael.2.1.0.min.js",
-			"extensions/thirdparty/socket.io-1.3.5.js"
+			"extensions/thirdparty/raphael.2.1.0.min.js"
+			//"extensions/thirdparty/socket.io-1.3.5.js"
 		],
         settings: [
             {
@@ -257,12 +264,12 @@ window.switchbuttonID = 0;
                 display_name: "Title",
                 type: "text"
             },
-			{
-				name: "datasourcename",
-				display_name: _t("Datasource"),
-                type: "text",
-				description: _t("You *must* create first a datasource with the same name")
-			},
+			// {
+				// name: "datasourcename",
+				// display_name: _t("Datasource"),
+                // type: "text",
+				// description: _t("You *must* create first a datasource with the same name")
+			// },
             {
                 name: "variablevxref",
                 display_name: _t("Variable vxref"),
