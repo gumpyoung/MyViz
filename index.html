@@ -12,16 +12,18 @@
     <link href="css/nouislider.pips.css" rel="stylesheet" />
     <script src="js/freeboard.thirdparty.js"></script>
     <script src="lang/t.js"></script>
+    <!--<script src="lang/en_US.js"></script>-->
     <script type="text/javascript">
+    	sessionStorage.clear();
     	var refreshIntervals = [];
 		var translations;
 		var dashboardFile = "dashboard.json";
 		var languageCounter = 0;
 		var numberOfPlotWindows = 0;
     	
-		function waitForTranslation(){
-		    if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
-				if (typeof(require) !== "undefined") {					
+		if (typeof(require) !== "undefined") {
+			function waitForTranslation(){
+		    	if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
 					
 					var dir = require('node-dir');
 					
@@ -62,7 +64,7 @@
 						                        // La chaine de caractères ci-dessous est issue d'une sauvegarde en mode "minimized"
 						                        // Il n'est pas possible, pour des raisons de sécurité, de charger un fichier dont le chemin est écrit en dur
 						                        // Le "allow_edit" est passé à false manuellement
-												freeboard.loadDashboard(JSON.parse('{"version":1,"allow_edit":true,"plugins":[],"panes":[{"title":"Télémétrie","width":1,"row":{"2":9,"3":1,"4":1,"5":7},"col":{"2":2,"3":2,"4":3,"5":3},"col_width":"2","widgets":[{"type":"plot","settings":{"title":"Vitesses longitudinales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vx\\"]","datasources[\\"ws\\"][\\"vxmes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vxref,vxmes","height":3}},{"type":"plot","settings":{"title":"Vitesses latérales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vy\\"]","datasources[\\"ws\\"][\\"vymes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vyref, vymes","height":3}},{"type":"plot","settings":{"title":"Vitesses de rotation","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_xi\\"]","datasources[\\"ws\\"][\\"ximes\\"]","datasources[\\"ws\\"][\\"gz\\"]"],"y_axis_min_range":"-0.1,0.1","include_legend":true,"legendStr":"xiref,ximes,xigyro","height":3}},{"type":"plot","settings":{"title":"Distance","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"distance\\"]","datasources[\\"ws\\"][\\"distanceFiltre\\"]"],"y_axis_min_range":"-10,10","include_legend":true,"legendStr":"distance, distance filtrée","height":3}}]},{"title":"Démarrage","width":1,"row":{"3":1,"4":9},"col":{"3":1,"4":2},"col_width":1,"widgets":[{"type":"sshcommand","settings":{"title":"Marche / Arrêt de l\'application","host":"192.168.0.199","login":"root","password":"tquad","oncommand":"/root/programmes_python/startQuatreRoues.sh","offcommand":"/root/programmes_python/stopPython.sh","ontext":"ON","offtext":"OFF","initialstate":false}}]},{"title":"Pilotage","width":1,"row":{"3":5,"4":1},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"joypad4roues","settings":{"title":"Vitesses","datasourcename":"ws","variablevxref":"datasources[\\"ws\\"][\\"vxref\\"]","variablevyref":"datasources[\\"ws\\"][\\"vyref\\"]","variablexiref":"datasources[\\"ws\\"][\\"xiref\\"]"}}]},{"title":"Mesure de la vitesse de rotation","width":1,"row":{"3":17,"4":17},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"switchbutton","settings":{"datasourcename":"ws","variable":"datasources[\\"ws\\"][\\"source_ximes\\"]","yestext":"Gyro","notext":"Odo","initialstate":false}}]},{"title":"Moniteur","width":1,"row":{"3":21,"4":23},"col":{"3":1,"4":1},"col_width":"1","widgets":[{"type":"textarea","settings":{"nblines_window":"10","value":["datasources[\\"ws\\"][\\"Raw\\"]"]}}]}],"datasources":[{"name":"ws","type":"websocket","settings":{"host":"ws://192.168.0.199:9090/ws","variables_to_send":"vxref,vyref,xiref,source_ximes","refresh_rate":"500","checksum":"none"}}],"columns":3}'));
+												freeboard.loadDashboard(JSON.parse('{"version":1,"allow_edit":true,"plugins":[],"panes":[{"title":"Télémétrie","width":1,"row":{"2":9,"3":1,"4":1,"5":7},"col":{"2":2,"3":2,"4":3,"5":3},"col_width":"2","widgets":[{"type":"plot","settings":{"title":"Vitesses longitudinales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vx\\"]","datasources[\\"ws\\"][\\"vxmes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vxref,vxmes","height":3}},{"type":"plot","settings":{"title":"Vitesses latérales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vy\\"]","datasources[\\"ws\\"][\\"vymes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vyref, vymes","height":3}},{"type":"plot","settings":{"title":"Vitesses de rotation","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_xi\\"]","datasources[\\"ws\\"][\\"ximes\\"]","datasources[\\"ws\\"][\\"gz\\"]"],"y_axis_min_range":"-0.1,0.1","include_legend":true,"legendStr":"xiref,ximes,xigyro","height":3}},{"type":"plot","settings":{"title":"Distance","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"distance\\"]","datasources[\\"ws\\"][\\"distanceFiltre\\"]"],"y_axis_min_range":"-10,10","include_legend":true,"legendStr":"distance, distance filtrée","height":3}}]},{"title":"Démarrage","width":1,"row":{"3":1,"4":9},"col":{"3":1,"4":2},"col_width":1,"widgets":[{"type":"sshcommand","settings":{"title":"Marche / Arrêt de l\'application","host":"192.168.0.199","login":"root","password":"tquad","oncommand":"/root/programmes_python/startQuatreRoues.sh","offcommand":"/root/programmes_python/stopPython.sh","ontext":"ON","offtext":"OFF","initialstate":false}}]},{"title":"Pilotage","width":1,"row":{"3":5,"4":1},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"joypad4roues","settings":{"title":"Vitesses","variablevxref":"datasources[\\"ws\\"][\\"vxref\\"]","variablevyref":"datasources[\\"ws\\"][\\"vyref\\"]","variablexiref":"datasources[\\"ws\\"][\\"xiref\\"]"}}]},{"title":"Mesure de la vitesse de rotation","width":1,"row":{"3":17,"4":17},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"switchbutton","settings":{"variable":"datasources[\\"ws\\"][\\"source_ximes\\"]","yestext":"Gyro","notext":"Odo","initialstate":false}}]},{"title":"Moniteur","width":1,"row":{"3":21,"4":23},"col":{"3":1,"4":1},"col_width":"1","widgets":[{"type":"textarea","settings":{"nblines_window":"10","value":["datasources[\\"ws\\"][\\"Raw\\"]"]}}]}],"datasources":[{"name":"ws","type":"websocket","settings":{"host":"ws://192.168.0.199:9090/ws","variables_to_send":"vxref,vyref,xiref,source_ximes","refresh_rate":"500","checksum":"none"}}],"columns":3}'));
 												freeboard.setEditing(false, false);
 					                        }
 					
@@ -79,56 +81,98 @@
 				    var ipAddress = os.networkInterfaces();
 				    
 				}
-				else {
-			        head.js('js/freeboard.js',
-			                function(){
-			                    $(function()
-			                    { //DOM Ready
-			                        freeboard.initialize(true);
-			
-			                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
-			                        if (hashpattern !== null) {
-			                            $.getJSON(hashpattern[2], function(data) {
-			                                freeboard.loadDashboard(data, function() {
-			                                    freeboard.setEditing(false);
-			                                });
-			                            });
-			                        }
-			
-			                    });
-			                });
-		        }
-		    }
-		    else {
-		        setTimeout(function(){
-					if (typeof(require) !== "undefined") {
-						var lang = "en_US";
-						var osLocale = require('os-locale');
-						osLocale(function (err, locale) {
-							lang = locale;
-							// Modif spéciale pour version T-Quad
-							lang = "fr_FR";
-						    try {
-						    	var langFile = require("./lang/" + lang + ".js");
-						    	translations = langFile.translations;
-							}
-							catch(e) {
-								console.log(e);
-								languageCounter++;
-								if (languageCounter > 10) {
-							    	var langFile = require("./lang/en_US.js");
+			    else {
+			        setTimeout(function(){
+						if (typeof(require) !== "undefined") {
+							var lang = "en_US";
+							var osLocale = require('os-locale');
+							osLocale(function (err, locale) {
+								lang = locale;
+								// Modif spéciale pour version T-Quad
+								//lang = "fr_FR";
+	                            //lang = "en_US";
+							    try {
+							    	var langFile = require("./lang/" + lang + ".js");
 							    	translations = langFile.translations;
-							   }
-							}
-						});
-						
-			        	
-			        }
-		            waitForTranslation();
-		        },250);
-		    }
+								}
+								catch(e) {
+									console.log(e);
+									languageCounter++;
+									if (languageCounter > 10) {
+								    	var langFile = require("./lang/en_US.js");
+								    	translations = langFile.translations;
+								   }
+								}
+							});
+							
+				        	
+				        }
+			            waitForTranslation();
+			        },250);
+			    }
+			}
+			waitForTranslation();
 		}
-		waitForTranslation();
+		else {
+			// $.getScript( "lang/en_US.js" )
+				// .done(function( script, textStatus ) {
+					// console.log( textStatus );
+				// })
+			    // .fail(function( jqxhr, settings, exception ) {
+			        // //alert("Error loading en_US.js");
+			// });
+			var userLang = navigator.language || navigator.userLanguage;
+			if (userLang === "fr") {
+				var langFile = "lang/fr_FR.js";
+			}
+			else {
+				var langFile = "lang/en_US.js";
+			}
+	        head.js(langFile,
+	        		'js/freeboard.js',
+	        		"extensions/button.widgets.js",
+	        		"extensions/clock.datasources.js",
+	        		"extensions/colorwheel.widgets.js",
+	        		"extensions/dweetio.datasources.js",
+	        		"extensions/gauge.widgets.js",
+	        		"extensions/googlemap.widgets.js",
+	        		"extensions/html.widgets.js",
+	        		"extensions/iframe.widgets.js",
+	        		"extensions/indicator.widgets.js",
+	        		"extensions/joypad2roues.widgets.js",
+	        		"extensions/joypad4roues.widgets.js",
+	        		"extensions/json.datasources.js",
+	        		"extensions/octoblu.datasources.js",
+	        		"extensions/openweathermap.datasources.js",
+	        		"extensions/pahomqtt.datasources.js",
+	        		"extensions/picture.widgets.js",
+	        		"extensions/playback.datasources.js",
+	        		"extensions/plot.widgets.js",
+	        		"extensions/pointer.widgets.js",
+	        		"extensions/select.widgets.js",
+	        		"extensions/slider.widgets.js",
+	        		"extensions/sparkline.widgets.js",
+	        		"extensions/switchbutton.widgets.js",
+	        		"extensions/text.widgets.js",
+	        		"extensions/textarea.widgets.js",
+	        		"extensions/websocket.datasources.js",
+	                function(){
+	                    $(function()
+	                    { //DOM Ready
+	                        freeboard.initialize(true);
+	
+	                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
+	                        if (hashpattern !== null) {
+	                            $.getJSON(hashpattern[2], function(data) {
+	                                freeboard.loadDashboard(data, function() {
+	                                    freeboard.setEditing(false);
+	                                });
+	                            });
+	                        }
+	
+	                    });
+	                });
+        }
 		
               
     </script>
