@@ -33,6 +33,9 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 
 		var now = new Date();
 		self.last_updated(now.toLocaleTimeString());
+		
+		// Added so that the datasource can get its own name inside the plugin
+		return self.name();
 	};
 
 	this.type = ko.observable();
