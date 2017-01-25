@@ -142,7 +142,7 @@ window.identificationID = 0;
 			                }
 			                // if yData < 0.8 * yIdentMax, we close the window
 			                //if ((yData < 0.8 * yIdentMax) && (windowStarted1) && (!windowStopped1)) {
-			                if ((xData > 2.0) && (windowStarted1) && (!windowStopped1)) {
+			                if ((xData > parseFloat(currentSettings.current_window)) && (windowStarted1) && (!windowStopped1)) {
 			                	windowStopped1 = true;
 			                	// We keep 90% of the window
 			                	var nbData = xDataIdentArray.length;
@@ -202,7 +202,7 @@ window.identificationID = 0;
 			                
 				        }
 				    }
-				    else if ((settingName == "current") && (xData > 800)) {
+				    else if ((settingName == "current") && (xData > (parseFloat(currentSettings.current_window)/2))) {
 				    	// Compute mean of current during steadystate
 				    	meanCurrent = meanCurrent * (iMeanCurrent - 1) / iMeanCurrent + Number(newValue) / iMeanCurrent;
 	                	iMeanCurrent++;
@@ -359,8 +359,16 @@ window.identificationID = 0;
                 type: "calculated"
             },
 			{
+				name: "current_window",
+				display_name: _t("Fenêtre en courant (ms)"),
+				type: "text",
+				"required" : true,
+				default_value: "2.0",
+				description: _t("Longueur de la fenêtre d'identification en courant")
+			},
+			{
 				name: "voltage",
-				display_name: _t("Tension moteur"),
+				display_name: _t("Tension moteur (V)"),
 				type: "text",
 				"required" : true,
 				default_value: "6",
