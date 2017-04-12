@@ -73,6 +73,8 @@ window.sshcommandID = 0;
 
         this.onSettingsChanged = function (newSettings) {
             if ((newSettings.style != currentSettings.style)
+            	|| (newSettings.oncommand != currentSettings.oncommand)
+            	|| (newSettings.offcommand != currentSettings.offcommand)
             	|| (newSettings.ontext != currentSettings.ontext)
             	|| (newSettings.offtext != currentSettings.offtext)
             	|| (newSettings.caption != currentSettings.caption)) {

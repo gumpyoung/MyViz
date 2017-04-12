@@ -12,15 +12,21 @@
 		var lastSentTime = 0;
 		var currentTime = new Date();
 		
-		var listVariablesToSend = (currentSettings.topic).split(",");
+		var newData = {};
+		var listVariablesToRead = (currentSettings.topics_to_subscribe).split(",");
+		var listVariablesToSend = (currentSettings.topics_to_publish).split(",");
 		for (var i=0; i<(listVariablesToSend).length; i++) {
 			item = 'datasources["' + currentSettings.name + '"]["' + listVariablesToSend[i] + '"]';
 			lastData[item] = null;
 		}
 		// Object with keys from list of variables to send, each value is 0
 		var newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
+		// Object with keys from list of variables to read, each value is 0
+		newData = _.object(listVariablesToRead, _.range(listVariablesToRead.length).map(function () { return 0; }));
+        // Add the variables to send
+        $.extend(newData, newDataToSend);
 		// Make variables visible to other widgets
-		myName = updateCallback(newDataToSend);
+		myName = updateCallback(newData);
 		
 		// Will receive message from control widget through socket.io
         // var socket;
@@ -91,10 +97,12 @@
 		
 		function onConnect() {
 			console.log("Connected");
-			client.subscribe(currentSettings.topic);
-	        var message = new Paho.MQTT.Message("Hello CloudMQTT from MyViz");
-	        message.destinationName = ((currentSettings.topic).split(","))[0];
-	        client.send(message); 
+			for (var i=0; i<listVariablesToRead.length; i++) {
+				client.subscribe(listVariablesToRead[i]);
+			}
+	        //var message = new Paho.MQTT.Message("Hello CloudMQTT from MyViz");
+	        //message.destinationName = listVariablesToSend[0];
+	        //client.send(message); 
 		};
 		
 		function onConnectionLost(responseObject) {
@@ -103,17 +111,18 @@
 		};
 
 		function onMessageArrived(message) {
-			data.topic = message.destinationName;
+			//console.log(message);
+			var value;
 			if (currentSettings.json_data) {
-				data.msg = JSON.parse(message.payloadString);
+				value = JSON.parse(message.payloadString);
 			} else {
-				data.msg = message.payloadString;
+				value = message.payloadString;
 			}
 			
-	        // Add the variables to send
-	        $.extend(data, newDataToSend);
-			        
-			updateCallback(data);
+			newData[message.destinationName] = value;
+			//console.log(newData);
+						        
+			updateCallback(newData);
 		};
 
 		// **onSettingsChanged(newSettings)** (required) : A public function we must implement that will be called when a user makes a change to the settings.
@@ -232,10 +241,17 @@
             	"required"    : false
             },
             {
-            	"name"        : "topic",
-            	"display_name": "Topic",
+            	"name"        : "topics_to_subscribe",
+            	"display_name": "Topics to subscribe to",
             	"type"        : "text",
-            	"description" : "The topic to subscribe to",
+            	"description" : "The topic(s) to subscribe to, separated by commas",
+            	"required"    : true
+            },
+            {
+            	"name"        : "topics_to_publish",
+            	"display_name": "Topics to publish",
+            	"type"        : "text",
+            	"description" : "The topic(s) to publish, separated by commas",
             	"required"    : true
             },
             {

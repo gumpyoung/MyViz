@@ -3,6 +3,21 @@
 	var dataToSend = "";
 	var isOpen = false; // Problems with native methods
 	var serialPort;
+	var com = require('serialport');
+	var comDescription = [];
+    com.list(function (err, ports) {
+        ports.forEach(function(port) {
+        	comDescription.push(
+					{	
+						'name': port.comName + " - " + port.manufacturer,
+						'value': port.comName
+					}
+			);
+            // console.log(port.comName);
+            // console.log(port.pnpId);
+            // console.log(port.manufacturer);
+        });
+    });
 	
 	var serialportDatasource = function (settings, updateCallback) {
 		var self = this;
@@ -10,7 +25,6 @@
 		var currentSettings = settings;
 		var myName;
 		
-		var com = require('serialport');
 		// var refreshInterval;
 		// var lastSentTime = 0;
 		// var currentTime = new Date();
@@ -339,9 +353,10 @@
 			{
 				name: "port",
 				display_name: _t("Port"),
-				type: "text",
+				type: "option",
 				"required" : true,
-				description: ""
+				description: "",
+                options: comDescription
 			},
 			{
 				name: "baudrate",

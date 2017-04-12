@@ -27,7 +27,7 @@
 			}, refreshTime);
 		}
 
-		updateRefresh(currentSettings.refresh * 1000);
+		updateRefresh(currentSettings.refresh);
 
 		this.updateNow = function () {
 			if ((errorStage > 1 && !currentSettings.use_thingproxy) || errorStage > 2) // We've tried everything, let's quit
@@ -95,7 +95,7 @@
 			errorStage = 0;
 
 			currentSettings = newSettings;
-			updateRefresh(currentSettings.refresh * 1000);
+			updateRefresh(currentSettings.refresh);
 			self.updateNow();
 		};
 	};
@@ -119,8 +119,8 @@
 				name: "refresh",
 				display_name: _t("Refresh Every"),
 				type: "number",
-				suffix: _t("seconds"),
-				default_value: 5
+				suffix: _t("milliseconds"),
+				default_value: 5000
 			},
 			{
 				name: "method",

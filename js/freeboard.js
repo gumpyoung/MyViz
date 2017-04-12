@@ -261,6 +261,8 @@ function DialogBox(contentElement, title, okTitle, cancelTitle, okCallback)
 			{
 				closeModal();
 			}
+			var barHeight = 40 + $("#admin-menu").outerHeight();
+			$("#admin-bar").height(barHeight);
 		});
 	}
 
@@ -455,7 +457,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			{
 				finishedCallback();
 			}
-
+			self.setEditing(false);
 			freeboardUI.processResize(true);
 		}
 
@@ -669,7 +671,9 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		}
 
 		var animateLength = (animate) ? 250 : 0;
-		var barHeight = $("#admin-bar").outerHeight();
+		//var barHeight = $("#admin-bar").outerHeight();
+		var barHeight = 40 + $("#admin-menu").outerHeight();
+		$("#admin-bar").height(barHeight);
 
 		if(!editing)
 		{
@@ -2033,7 +2037,9 @@ ValueEditor = function(theFreeboardModel)
 
 		_autocompleteFromDatasource(inputString, theFreeboardModel.datasources(), expectsType);
 
-		if(_autocompleteOptions.length > 0)
+		var sorted_autocompleteOptions = _.sortBy(_autocompleteOptions, 'value');
+
+		if(sorted_autocompleteOptions.length > 0)
 		{
 			if(!dropdown)
 			{
@@ -2050,7 +2056,7 @@ ValueEditor = function(theFreeboardModel)
 			var selected = true;
 			selectedOptionIndex = 0;
 
-			_.each(_autocompleteOptions, function(option, index)
+			_.each(sorted_autocompleteOptions, function(option, index)
 			{
 				var li = _renderAutocompleteDropdownOption(element, inputString, option, index);
 				if(selected)

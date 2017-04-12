@@ -108,6 +108,7 @@ translations["seconds"] = "secondes";
 
 // extensions/plot.widgets.js
 translations["Plot"] = "Tracé";
+translations[" (right axis)"] = " (axe droit)";
 translations["Title"] = "Titre";
 translations["X axis"] = "Axe X";
 translations["Seconds from start"] = "Secondes depuis le début";
@@ -117,14 +118,17 @@ translations["Time (X axis)"] = "Temps (axe X)";
 translations['Fill only if you chose "Column of datasource" above.'] = 'Remplir uniquement si vous avez choisi "Colonne de la source de données" plus haut';
 translations["Time Window"] = "Fenêtre temporelle";
 translations["Length (in seconds) of sliding time window"] = "Longueur (en secondes) de la fenêtre temporelle glissante";
-translations["Value"] = "Valeur";
-translations["Y axis minimum range"] = "Intervalle minimum sur l'axe Y";
+translations["Left Y axis values"] = "Valeur de l'axe Y gauche";
+translations["Left Y axis minimum range"] = "Intervalle minimum sur l'axe Y gauche";
+translations["Right Y axis values"] = "Valeur de l'axe Y droit";
+translations["Right Y axis minimum range"] = "Intervalle minimum sur l'axe Y droit";
 translations["Two values separated by a comma. This range will be automatically extended if necessary, but it will not be reduced."] = "Deux valeurs séparées par des virgules. Cet intervalle sera automatiquement étendu si nécessaire, mais iil ne sera pas réduit";
 translations["Include Legend"] = "Inclure la légende";
 translations["Legend"] = "Légende";
-translations["Comma-separated for multiple plots"] = "Séparer par des virgules en cas de tracés multiples";
+translations["Comma-separated for multiple plots, left variables first, then right variables"] = "Séparer par des virgules en cas de tracés multiples. Commencer par les variables de l'axe gauche, puis celles de l'axe droit";
 translations["Height Blocks"] = "Hauteur en nombre de blocs";
 translations["A height block is around 60 pixels"] = "La hauteur d'un bloc est environ 60 pixels";
+translations["Pausable"] = "Pausable";
 
 // extensions/pointer.widgets.js
 translations["Pointer"] = "Pointeur";

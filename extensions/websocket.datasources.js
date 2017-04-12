@@ -66,7 +66,9 @@
 		// });
 		
 		function onNewMessageHandler(msg) {
+			//console.log("msg: ", msg);
         	newData = JSON.parse(msg.data);
+			//console.log("newData: ", newData);
 			        
 	        // Add the variables to send
 	        $.extend(newData, newDataToSend);

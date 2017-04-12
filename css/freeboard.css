@@ -431,6 +431,13 @@ body {
 	margin: 0;
 }
 
+/* Hacky hack. Remove scrollbars for 320 width screens */
+@media screen and (max-width : 320px) {
+	body::-webkit-scrollbar {
+		display: none;
+	}
+}
+
 /* ==========================================================================
    Links
    ========================================================================== */
@@ -1163,6 +1170,7 @@ header h1 {
 }
 
 #toggle-header {
+	position: relative;
 	margin: 0 auto;
 	left: 0;
 	right: 0;
@@ -2035,7 +2043,7 @@ input.table-row-value {
 }
 
 .datasource-list-container {
-	max-height: 110px;
+	/*max-height: 110px;*/
 	overflow-x: hidden;
 	overflow-y: auto;
 	border-bottom: solid 1px #3d3d3d;
@@ -2354,7 +2362,7 @@ h2.title {
 	}
 
 	.datasource-list-container {
-		max-height: 77px;
+		/*max-height: 77px;*/
 	}
 
 	.form-label {

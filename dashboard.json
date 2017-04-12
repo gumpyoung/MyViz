@@ -1,0 +1,75 @@
+{
+	"version": 1,
+	"allow_edit": true,
+	"plugins": [],
+	"panes": [
+		{
+			"title": "Ay",
+			"width": 1,
+			"row": {
+				"3": 1
+			},
+			"col": {
+				"3": 1
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "text_widget",
+					"settings": {
+						"size": "regular",
+						"value": "datasources[\"accel\"][\"ay\"]",
+						"animate": false,
+						"units": "m/s^2"
+					}
+				}
+			]
+		},
+		{
+			"title": "Az",
+			"width": 1,
+			"row": {
+				"3": 1
+			},
+			"col": {
+				"3": 2
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "text_widget",
+					"settings": {
+						"size": "regular",
+						"value": "datasources[\"accel\"][\"az\"]",
+						"animate": false,
+						"units": "m/s^2"
+					}
+				}
+			]
+		}
+	],
+	"datasources": [
+		{
+			"name": "accel",
+			"type": "accelerometer",
+			"settings": {
+				"ax_variable": "",
+				"ay_variable": "datasources[\"ws\"][\"xiref\"]",
+				"ay_formula": "-36*ay",
+				"az_variable": "datasources[\"ws\"][\"vxref\"]",
+				"az_formula": "7*az"
+			}
+		},
+		{
+			"name": "ws",
+			"type": "websocket",
+			"settings": {
+				"host": "ws://192.168.0.199:9090/ws",
+				"variables_to_send": "vxref,xiref",
+				"refresh_rate": "100",
+				"checksum": "none"
+			}
+		}
+	],
+	"columns": 3
+}
