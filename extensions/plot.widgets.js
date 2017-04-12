@@ -30,7 +30,7 @@ window.plotID = 0;
 		
         var titleElement = $('<h2 class="section-title"></h2>');
         var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:80%"></div>');
-        var pauseElement = $('<ul style="margin-top:-5px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thisplotID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thisplotID + '" data-bind="click: pausePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li></ul>');
+        var pauseElement = $('<div id="pause-' + thisplotID + '"><ul style="margin-top:-5px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thisplotID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thisplotID + '" data-bind="click: pausePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li></ul></div>');
 		//var legendElement = $('<div id="chartLegend"></div>');
 
         var plotObject;
@@ -244,12 +244,15 @@ window.plotID = 0;
 
         this.render = function (element) {
             rendered = true;
-            //$(element).append(titleElement).append(plotElement).append(legendElement);
-            if (currentSettings.pausable) {
-            	$(element).append(titleElement).append(plotElement).append(pauseElement);
-           	}
-           	else {
-           		$(element).append(titleElement).append(plotElement);
+            $(element).append(titleElement).append(plotElement).append(pauseElement);
+            // if (currentSettings.pausable) {
+            	// $(element).append(titleElement).append(plotElement).append(pauseElement);
+           	// }
+           	// else {
+           		// $(element).append(titleElement).append(plotElement);
+           	// }
+           	if (!currentSettings.pausable) {
+           		$("#pause-" + thisplotID).hide();
            	}
             setYaxisRange(currentSettings);
             setY2axisRange(currentSettings);
@@ -268,6 +271,12 @@ window.plotID = 0;
             	|| newSettings.pausable != currentSettings.pausable) {
             	plotCreated = false;
             	plotdata = [];
+	           	if (newSettings.pausable) {
+	           		$("#pause-" + thisplotID).show();
+	           	}
+	           	else {
+	           		$("#pause-" + thisplotID).hide();
+	           	}
                 setYaxisRange(newSettings);
                 setY2axisRange(newSettings);
                 createPlot(newSettings);

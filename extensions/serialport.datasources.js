@@ -240,6 +240,7 @@
             if (newSettings.variables_to_read != currentSettings.variables_to_read) {
             	listVariablesToRead = (newSettings.variables_to_read).split(",");
             	listVariablesToRead.push('_rawdata');
+            	initializeDataSource(newSettings);
             }
             if (newSettings.variables_to_send != currentSettings.variables_to_send) {
             	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
