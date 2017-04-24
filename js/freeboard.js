@@ -2699,6 +2699,34 @@ var freeboard = (function()
 
 					if(options.type == 'datasource')
 					{
+						// Scan serial ports
+						if (typeof(require) !== "undefined") {
+							var com = require('serialport');
+						    com.list(function (err, ports) {
+								for (var i=0; i<comDescription.length; i++) {
+									comDescription.pop();
+								}
+						        ports.forEach(function(port) {
+									var exists = false;
+									for (var i=0; i<comDescription.length; i++) {
+										if (port.comName === comDescription[i].value) {
+											exists = true;
+										}
+									}
+									if (!exists) {
+							        	comDescription.push(
+												{	
+													'name': port.comName + " - " + port.manufacturer,
+													'value': port.comName
+												}
+										);
+									}
+						            // console.log(port.comName);
+						            // console.log(port.pnpId);
+						            // console.log(port.manufacturer);
+						        });
+						    });
+						}
 						if(options.operation == 'add')
 						{
 							settings = {};
