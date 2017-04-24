@@ -4,6 +4,7 @@ window.plotID = 0;
         var self = this;
         if (window.plotID == 0) {
         	pausePlot = Array();
+        	explorePlot = Array();
         }
         var thisplotID = "plot-" + window.plotID++;
         numberOfPlotWindows++;
@@ -18,6 +19,8 @@ window.plotID = 0;
 				$("#pauseresume-" + thisplotID).removeClass("icon-pause");
 				$("#pauseresume-" + thisplotID).addClass("icon-play");
 				$("#labelpauseresume-" + thisplotID).html(_t("Play"));
+				$("#explore-" + thisplotID).removeClass("icon-search");
+				$("#labelexplore-" + thisplotID).html("");
 			}
 			else {
 				pause = false;
@@ -25,12 +28,28 @@ window.plotID = 0;
 				$("#pauseresume-" + thisplotID).removeClass("icon-play");
 				$("#pauseresume-" + thisplotID).addClass("icon-pause");
 				$("#labelpauseresume-" + thisplotID).html(_t("Pause"));
+				$("#explore-" + thisplotID).addClass("icon-search");
+				$("#labelexplore-" + thisplotID).html(_t("Pause and Explore"));
+			}
+		});
+		
+		explorePlot.push( function() {
+			if (!pause) {
+				window.titleToShare = titleElement.html();
+				window.dataToShare = plotdata;
+				var child_window = window.open("flotpopup.html");
+				pause = true;
+				$("#pauseresume-" + thisplotID).removeClass("icon-pause");
+				$("#pauseresume-" + thisplotID).addClass("icon-play");
+				$("#labelpauseresume-" + thisplotID).html(_t("Play"));
+				$("#explore-" + thisplotID).removeClass("icon-search");
+				$("#labelexplore-" + thisplotID).html("");
 			}
 		});
 		
         var titleElement = $('<h2 class="section-title"></h2>');
-        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:80%"></div>');
-        var pauseElement = $('<div id="pause-' + thisplotID + '"><ul style="margin-top:-5px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thisplotID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thisplotID + '" data-bind="click: pausePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li></ul></div>');
+        var plotElement = $('<div id="' + thisplotID + '" style="width: 100%; height:350px"></div>');
+        var pauseElement = $('<div id="pause-' + thisplotID + '"><ul style="margin-top:-5px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thisplotID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thisplotID + '" data-bind="click: pausePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li><li><i id="explore-' + thisplotID + '" class="icon-search icon-white"></i>&nbsp;<label id="labelexplore-' + thisplotID + '" data-bind="click: explorePlot[' + (window.plotID - 1) +']" style="color: #B88F51; margin-top:1px">' + _t("Pause and Explore") + '</label></li></ul></div>');
 		//var legendElement = $('<div id="chartLegend"></div>');
 
         var plotObject;
@@ -433,7 +452,9 @@ window.plotID = 0;
         };
 
         this.getHeight = function () {
-            return Number(currentSettings.height);
+        	H = Number(currentSettings.height);
+        	plotElement.height(H * 60 - 42);
+            return H;
         };
 
         this.onSettingsChanged(settings);
@@ -446,7 +467,9 @@ window.plotID = 0;
             "extensions/thirdparty/flot/jquery.flot.js",
             "extensions/thirdparty/flot/jquery.flot.time.js",
             "extensions/thirdparty/flot/jquery.flot.resize.js",
-            "extensions/thirdparty/flot/jquery.flot.selection.js"
+            "extensions/thirdparty/flot/jquery.flot.selection.js",
+            "extensions/thirdparty/flot/jquery.flot.crosshair.js",
+            "extensions/thirdparty/flot/jquery.flot.cursors.js"
         ],
         settings: [
             {
