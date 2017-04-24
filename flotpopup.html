@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Flot Examples: Basic Usage</title>
+	<link href="./css/flotpopup.css" rel="stylesheet" type="text/css">
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../../excanvas.min.js"></script><![endif]-->
+	<script type="text/javascript" src="./js/jquery.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.time.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.resize.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.selection.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.symbol.js"></script>
+	<script type="text/javascript" src="./extensions/thirdparty/flot/jquery.flot.cursors.js"></script>
+	
+	<script type="text/javascript">
+
+	$(function() {
+
+		var parent_window = window.opener;
+		var titleFromParent = parent_window.titleToShare;
+		$("#plotTitle").text(titleFromParent);
+		
+		var dataFromParent = parent_window.dataToShare;
+		var dataLength = dataFromParent[0].data.length;
+		var xmin = dataFromParent[0].data[0][0];
+		var xmax = dataFromParent[0].data[dataLength-1][0];
+		
+    	var options = {
+            series: {
+                lines: {
+                    show: true
+                },
+                points: {
+                    show: false
+                }
+            },
+            grid: {
+                hoverable: true,
+                clickable: true
+            },
+            xaxis: { 
+                // min: 0,
+                // max: 10,
+                show: true
+            },
+            yaxes: [{ 
+		                // min: 0,
+		                // max: 10,
+		                position: "left"
+            		},
+            		{ 
+		                // min: 0,
+		                // max: 10,
+		                position: "right"
+            		}
+            ],
+	        cursors: [
+	            {
+	                name: 'Curseur rouge',
+	                mode: 'xy',
+	                color: 'red',
+	                showIntersections: true,
+	                snapToPlot: 0,
+	                showLabel: true,
+	                //symbol: 'triangle',
+	                position: {
+	                    relativeX: 200,
+	                    relativeY: 300
+	                }
+	            },
+	            {
+	                name: 'Curseur violet',
+	                mode: 'xy',
+	                color: 'violet',
+	                showIntersections: true,
+	                snapToPlot: 0,
+	                showLabel: true,
+	                //symbol: 'triangle',
+	                position: {
+	                    relativeX: 300,
+	                    relativeY: 300
+	                }
+	            },
+	            {
+	                name: 'Curseur bleu',
+	                mode: 'xy',
+	                color: 'blue',
+	                showIntersections: true,
+	                snapToPlot: 1,
+	                showLabel: true,
+	                //symbol: 'diamond',
+	                position: {
+	                    relativeX: 400,
+	                    relativeY: 20
+	                }
+	            },
+	            {
+	                name: 'Curseur vert',
+	                mode: 'xy',
+	                color: 'green',
+	                showIntersections: true,
+	                snapToPlot: 1,
+	                showLabel: true,
+	                //symbol: 'diamond',
+	                position: {
+	                    relativeX: 500,
+	                    relativeY: 20
+	                }
+	            }
+	        ],
+            legend: {
+                position: "nw",
+                backgroundColor: "#fff",
+                //container: $("#chartLegend"),
+                //noColumns: legendArray.length
+            },
+			selection: {
+				mode: "xy"
+			}
+        };
+
+		var y2valueLength = 0;
+		
+		plotObject = $.plot("#placeholder", dataFromParent, options);
+		var axes_data = plotObject.getAxes();
+
+        plotObject.resize(function () {
+		});
+        
+		$("#placeholder").bind("plotselected", function (event, ranges) {
+
+			// clamp the zooming to prevent eternal zoom
+
+			if (ranges.xaxis.to - ranges.xaxis.from < 0.00001) {
+				ranges.xaxis.to = ranges.xaxis.from + 0.00001;
+			}
+
+			if (ranges.yaxis.to - ranges.yaxis.from < 0.00001) {
+				ranges.yaxis.to = ranges.yaxis.from + 0.00001;
+			}
+			if (y2valueLength > 0) {
+				if (ranges.y2axis.to - ranges.y2axis.from < 0.00001) {
+					ranges.y2axis.to = ranges.y2axis.from + 0.00001;
+				}
+			}
+
+			// do the zooming
+
+			if (y2valueLength > 0) {
+				plotObject = $.plot("#placeholder", dataFromParent,
+					$.extend(true, {}, options, {
+						xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+						yaxes: [
+								{ min: ranges.yaxis.from, max: ranges.yaxis.to },
+								{ min: ranges.y2axis.from, max: ranges.y2axis.to }
+								]
+					})
+				);
+			}
+			else {
+				plotObject = $.plot("#placeholder", dataFromParent,
+					$.extend(true, {}, options, {
+						xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+						yaxes: [
+								{ min: ranges.yaxis.from, max: ranges.yaxis.to }
+								]
+					})
+				);
+			}
+
+		});
+
+        $("<div id='tooltip'></div>").css({
+            position: "absolute",
+            display: "none",
+            border: "1px solid #fdd",
+            padding: "2px",
+            "background-color": "#fee",
+            opacity: 0.80
+        }).appendTo("body");
+
+
+	    $("#placeholder").bind("cursorupdates", function (event, cursordata) {
+	        
+	        $('#hoverdata1').empty();
+	        var ul11 = $('#hoverdata1').append('<UL style="padding-left: 30px;">').find("UL");
+	        for (var i=0; i<2; i++) {
+	        	if (i == 0) {
+		            ul11.append("<LI style='color:red'>" + cursordata[i].cursor + "</LI>");
+		            var ul12 = ul11.append('<UL style="padding-left: 30px; color:red">').find("UL").last();
+		        }
+		        else {
+		            ul11.append("<LI style='color:violet'>" + cursordata[i].cursor + "</LI>");
+		            var ul12 = ul11.append('<UL style="padding-left: 30px; color:violet">').find("UL").last();
+		        }
+	            var j = 0;
+	            cursordata[i].points.forEach(function (point) {
+	                ul12.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	j++;
+	            });	        	
+	        }
+	        
+	        $('#hoverdata2').empty();
+	        var ul21 = $('#hoverdata2').append('<UL style="padding-left: 30px;">').find("UL");
+	        for (var i=2; i<4; i++) {
+	        	if (i == 2) {
+		            ul21.append("<LI style='color:blue'>" + cursordata[i].cursor + "</LI>");
+		            var ul22 = ul21.append('<UL style="padding-left: 30px; color:blue">').find("UL").last();
+		        }
+		        else {
+		            ul21.append("<LI style='color:green'>" + cursordata[i].cursor + "</LI>");
+		            var ul22 = ul21.append('<UL style="padding-left: 30px; color:green">').find("UL").last();
+		        }
+	            var j = 0;
+	            cursordata[i].points.forEach(function (point) {
+	                ul22.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	j++;
+	            });	        	
+	        }
+	    });
+     
+        $("#placeholder").bind("plotclick", function (event, pos, item) {
+            if (item) {
+                plotObject.highlight(item.series, item.datapoint);
+            }
+        });
+        
+		$("#placeholder").bind('dblclick', function (event) {
+			// Unzoom
+			if (y2valueLength > 0) {
+				plotObject = $.plot("#placeholder", dataFromParent,
+					$.extend(true, {}, options, {
+						xaxis: { min: axes_data.xaxis.min, max: axes_data.xaxis.max },
+						yaxes: [
+								{ min: axes_data.yaxis.min, max: axes_data.yaxis.max },
+								{ min: axes_data.y2axis.min, max: axes_data.y2axis.max }
+								]
+					})
+				);
+			}
+			else {
+				plotObject = $.plot("#placeholder", dataFromParent,
+					$.extend(true, {}, options, {
+						xaxis: { min: axes_data.xaxis.min, max: axes_data.xaxis.max },
+						yaxes: [
+								{ min: axes_data.yaxis.min, max: axes_data.yaxis.max }
+								]
+					})
+				);
+			}
+		});
+	});
+	
+
+	</script>
+</head>
+<body>
+
+	<div id="content">
+		<h2 id="plotTitle"></h2>
+	
+		<div class="demo-container">
+			<div id="placeholder" class="demo-placeholder"></div>
+		</div>
+
+		<p>
+		Utiliser le bouton gauche de la souris pour zoomer. Double-cliquer pour dézoomer.<br>
+		Utiliser le bouton droit de la souris pour déplacer les curseurs.</p>
+		<table width="100%" border="0" cellspacing="20">
+		  <tr>
+		    <td><p id="hoverdata1"></p></td>
+		    <td><p id="hoverdata2"></p></td>
+		  </tr>
+		</table>
+	</div>
+
+</body>
+</html>
