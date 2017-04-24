@@ -223,6 +223,7 @@ translations["Units"] = "Unité";
 // extensions/textarea.widgets.js
 translations["Play"] = "Redémarrer";
 translations["Pause"] = "Pause";
+translations["Pause and Explore"] = "Pauser et Explorer";
 translations["Save to file"] = "Enregistrer";
 translations["Text Area"] = "Zone de texte déroulante";
 translations["Title"] = "Titre";
