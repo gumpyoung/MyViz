@@ -196,7 +196,12 @@
 		        }
 	            var j = 0;
 	            cursordata[i].points.forEach(function (point) {
-	                ul12.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	if (dataFromParent[j].label === undefined) {
+	                	ul12.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + "</LI>");	            		
+	            	}
+	            	else {
+	                	ul12.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	}
 	            	j++;
 	            });	        	
 	        }
@@ -214,7 +219,12 @@
 		        }
 	            var j = 0;
 	            cursordata[i].points.forEach(function (point) {
-	                ul22.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	if (dataFromParent[j].label === undefined) {
+	                	ul22.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + "</LI>");	            		
+	            	}
+	            	else {
+	                	ul22.append("<LI> x:" + point.x.toFixed(4) + " y: " + point.y.toFixed(4) + " (" + dataFromParent[j].label.trim() + ")</LI>");
+	            	}
 	            	j++;
 	            });	        	
 	        }
