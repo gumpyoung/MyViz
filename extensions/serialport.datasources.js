@@ -4,20 +4,6 @@
 	var isOpen = false; // Problems with native methods
 	var serialPort;
 	var com = require('serialport');
-	var comDescription = [];
-    com.list(function (err, ports) {
-        ports.forEach(function(port) {
-        	comDescription.push(
-					{	
-						'name': port.comName + " - " + port.manufacturer,
-						'value': port.comName
-					}
-			);
-            // console.log(port.comName);
-            // console.log(port.pnpId);
-            // console.log(port.manufacturer);
-        });
-    });
 	
 	var serialportDatasource = function (settings, updateCallback) {
 		var self = this;
