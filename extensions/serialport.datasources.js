@@ -2,6 +2,7 @@
 	var dataObj = {};
 	var dataToSend = "";
 	var isOpen = false; // Problems with native methods
+	var restart = true;
 	var serialPort;
 	var com = require('serialport');
 	
@@ -111,14 +112,24 @@
 					}
 				});			
 			}
+			serialPort = undefined;
 		}
 		
 		function connectToSerialport(port, baudrate) {
 		    serialPort = new com.SerialPort(port, {
 		        baudrate: baudrate,
-		        parser: com.parsers.readline('\r\n')
-		    });
-						
+		        parser: com.parsers.readline('\r\n'),
+		    },false);
+		    
+			serialPort.open(function (err) {
+				if (err) {
+			        console.log('Error opening port: ', err.message);
+					// Allows to design the dashboard even if the is not serial port communication
+			        //updateCallback(_.object(listVariablesToRead,Array(4)));
+			        alert('Error: ' + err.message);
+			        isOpen = false;
+				}
+			});						
 		}
 
 		function initializeDataSource(mySettings) {
@@ -153,9 +164,10 @@
 			
 			console.log("Open port");
 			isOpen = true; // Needed to avoid a double open by updateNow
+			restart = true;
 			connectToSerialport(mySettings.port, mySettings.baudrate);
 			
-		    serialPort.on('open',function() {
+		    serialPort.on('open',function(error) {
 		    	isOpen = true;
 		        console.log('Port open');
 		    });
@@ -212,10 +224,13 @@
 
 		this.onDispose = function () {
 			// Stop responding to messages
-		    serialPort.on('data', function(data) {
-		        // We do nothing 
-		    });
-			discardSerialport();
+			
+		    if (serialPort) {
+		    	serialPort.on('data', function(data) {
+			        // We do nothing 
+			    });
+				discardSerialport();
+			}
 		};
 
 		this.onSettingsChanged = function (newSettings) {
@@ -233,7 +248,7 @@
             	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {
-            	newSettings.refresh_rate = Math.max(1000, newSettings.refresh_rate);
+            	newSettings.refresh_rate = Math.max(500, newSettings.refresh_rate);
 				// for (r in refreshIntervals) {
 				    // clearInterval(refreshIntervals[r]);
 				// }
@@ -310,13 +325,18 @@
 				
 				// Very important ! Don't forget
 				dataToSend += "\r";
-				//console.log(dataToSend);
-		        
-				serialPort.write(dataToSend, function (error) {
-					if (error) {
-				    	console.log("Error writing to the serial port immediate: ", error);
-				    }
-				});
+
+				// Important not to send data immediately, otherwise it doesn't work on the Arduino Mega
+		        if (restart) {
+					restart = false;					
+				}
+				else {
+					serialPort.write(dataToSend, function (error) {
+						if (error) {
+					    	console.log("Error writing to the serial port immediate: ", error);
+					    }
+					});
+				}
 		    }
 			setTimeout(function() {
 					readSessionStorage();
@@ -373,7 +393,7 @@
 				"required" : false,
 				default_value: 2000,
 				suffix: _t("milliseconds"),
-				description: _t("Refresh rate for sending data ( > 1000 ms). Data will be sent even if control values are not changed")
+				description: _t("Refresh rate for sending data ( >= 500 ms). Data will be sent even if control values are not changed")
 			},
 			{
 				name: "separator",
