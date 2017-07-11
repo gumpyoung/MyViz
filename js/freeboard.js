@@ -2727,6 +2727,7 @@ var freeboard = (function()
 						        });
 						    });
 						}
+						
 						if(options.operation == 'add')
 						{
 							settings = {};
