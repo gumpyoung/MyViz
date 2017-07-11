@@ -24,7 +24,44 @@
 		var comDescription = [];
     	
 		if (typeof(require) !== "undefined") {
+			function listSerialPorts() {
+				// List serial ports
+				var com = require('serialport');
+			    com.list(function (err, ports) {
+					for (var i=0; i<comDescription.length; i++) {
+						comDescription.pop();
+					}
+			        ports.forEach(function(port) {
+						var exists = false;
+						for (var i=0; i<comDescription.length; i++) {
+							if (port.comName === comDescription[i].value) {
+								exists = true;
+							}
+						}
+						if (!exists) {
+				        	comDescription.push(
+									{	
+										'name': port.comName + " - " + port.manufacturer,
+										'value': port.comName
+									}
+							);
+						}
+			            // console.log(port.comName);
+			            // console.log(port.pnpId);
+			            // console.log(port.manufacturer);
+			            // console.log(comDescription);
+			        });
+			    });
+						    
+			}
+			
 			function waitForTranslation(){
+				// React to USB events
+				var usbDetect = require('usb-detection');
+				usbDetect.on('change', function(device) { listSerialPorts(); });
+				
+				listSerialPorts();
+				
 		    	if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
 					
 					var dir = require('node-dir');
@@ -138,6 +175,7 @@
 	        		"extensions_mobiles/accelerometer.datasources.js",
 	        		"extensions/button.widgets.js",
 	        		"extensions/clock.datasources.js",
+	        		"extensions/closedloop.widgets.js",
 	        		"extensions/colorwheel.widgets.js",
 	        		"extensions/dweetio.datasources.js",
 	        		"extensions/gauge.widgets.js",
