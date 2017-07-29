@@ -16,7 +16,7 @@
     <script type="text/javascript">
     	sessionStorage.clear();
     	var refreshIntervals = [];
-		var translations;
+		var translations = undefined;
 		var dashboardFile = "dashboard.json";
 		var languageCounter = 0;
 		var numberOfPlotWindows = 0;
@@ -24,6 +24,34 @@
 		var comDescription = [];
     	
 		if (typeof(require) !== "undefined") {
+			// var gui = require('nw.gui');
+			// var menu = new gui.Menu({ 'type': 'menubar' });
+			// menu.append(new gui.MenuItem({ label: 'Item A' }));
+			// menu.append(new gui.MenuItem({ label: 'Item B' }));
+			// menu.append(new gui.MenuItem({ type: 'separator' }));
+			// menu.append(new gui.MenuItem({ label: 'Item C' }));
+// 			
+			// item = new gui.MenuItem({
+			  	// label: "Click me",
+			  	// click: function() {
+			    	// console.log("I'm clicked");
+			  	// },
+			  	// key: "s",
+			  	// modifiers: "ctrl-alt",
+			// });
+			// var submenu = new gui.Menu();
+			// submenu.append(new gui.MenuItem({ label: 'Item 1' }));
+			// submenu.append(new gui.MenuItem({ label: 'Item 2' }));
+			// submenu.append(new gui.MenuItem({ label: 'Item 3' }));
+			// item.submenu = submenu;
+			// menu.append(item);
+			// // And everything can be changed at runtime
+			// item.label = 'New label';
+			// item.click = function() { console.log('New click callback'); };
+// 
+			// //menu.popup(10, 10);
+			// gui.Window.get().menu = menu;
+			
 			function listSerialPorts() {
 				// List serial ports
 				var com = require('serialport');
@@ -57,8 +85,14 @@
 			
 			function waitForTranslation(){
 				// React to USB events
-				var usbDetect = require('usb-detection');
-				usbDetect.on('change', function(device) { listSerialPorts(); });
+				try {
+					var usbDetect = require('usb-detection');
+					usbDetect.on('change', function(device) { listSerialPorts(); });
+				}
+				catch(err) {
+					console.log("USB Detection Error");
+					console.log(err);
+				}
 				
 				listSerialPorts();
 				
@@ -128,24 +162,40 @@
 						if (typeof(require) !== "undefined") {
 							var lang = "en_US";
 							var osLocale = require('os-locale');
-							osLocale(function (err, locale) {
-								lang = locale;
-								// Modif spéciale pour version T-Quad
-								lang = "fr_FR";
-	                            //lang = "en_US";
-							    try {
-							    	var langFile = require("./lang/" + lang + ".js");
+							lang = osLocale.sync();
+							console.log(lang);
+						    try {
+						    	var langFile = require("./lang/" + lang + ".js");
+						    	translations = langFile.translations;
+							}
+							catch(e) {
+								console.log(e);
+								languageCounter++;
+								if (languageCounter > 10) {
+							    	var langFile = require("./lang/en_US.js");
 							    	translations = langFile.translations;
-								}
-								catch(e) {
-									console.log(e);
-									languageCounter++;
-									if (languageCounter > 10) {
-								    	var langFile = require("./lang/en_US.js");
-								    	translations = langFile.translations;
-								   }
-								}
-							});
+							   }
+							}
+							
+							// osLocale(function (err, locale) {
+								// lang = locale;
+								// console.log(lang);
+								// // Modif spéciale pour version T-Quad
+								// //lang = "fr_FR";
+	                            // //lang = "en_US";
+							    // try {
+							    	// var langFile = require("./lang/" + lang + ".js");
+							    	// translations = langFile.translations;
+								// }
+								// catch(e) {
+									// console.log(e);
+									// languageCounter++;
+									// if (languageCounter > 10) {
+								    	// var langFile = require("./lang/en_US.js");
+								    	// translations = langFile.translations;
+								   // }
+								// }
+							// });
 							
 				        	
 				        }
