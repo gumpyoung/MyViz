@@ -57,36 +57,36 @@ window.closedloopID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "closedloop",
-        display_name: _t("Affichage boucle fermée"),
+        display_name: _t("Display closed loop"),
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
             {
                 name: "ref",
-                display_name: _t("Consigne"),
+                display_name: _t("Reference"),
                 type: "calculated",
-				description: _t("Variable correspondant à la consigne d'asservissement")
+				description: _t("Variable corresponding to control reference")
             },
             {
                 name: "error",
-                display_name: _t("Erreur"),
+                display_name: _t("Error"),
                 type: "calculated",
-				description: _t("Variable correspondant à l'erreur (différence entre la consigne et la sortie)")
+				description: _t("Variable corresponding to the error between the reference and the output")
             },
             {
                 name: "command",
-                display_name: _t("Commande"),
+                display_name: _t("Command"),
                 type: "calculated",
-				description: _t("Variable correspondant à la sortie du correcteur")
+				description: _t("Variable corresponding to the output of the controller")
             },
             {
                 name: "output",
-                display_name: _t("Sortie"),
+                display_name: _t("Output"),
                 type: "calculated",
-				description: _t("Variable correspondant à la sortie de la boucle fermée")
+				description: _t("Variable corresponding to the output of the closed loop")
             }
        ],
         newInstance: function (settings, newInstanceCallback) {

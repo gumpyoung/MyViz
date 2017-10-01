@@ -1,5 +1,23 @@
 var translations = [];
 
+// Menu
+translations["File"] = "Fichier";
+translations["New"] = "Nouveau";
+translations["Open"] = "Ouvrir";
+translations["Save"] = "Enregistrer";
+translations["View"] = "Affichage";
+translations["Theme"] = "Thème";
+translations["Dark"] = "Sombre";
+translations["Light"] = "Clair";
+translations["The modification will be applied at the next startup of MyViz"] = "La modification sera appliquée au prochain démarrage de MyViz";
+translations["Systems"] = "Systèmes";
+translations["Load"] = "Ouvrir";
+translations["About T-Quad"] = "A propos de T-Quad";
+translations["Help"] = "Aide";
+translations["About MyViz"] = "A propos de Myviz";
+translations["Tutorials"] = "Tutoriels";
+
+
 // index.html
 translations["#load"] = "Ouvrir";
 translations["#save"] = "Enregistrer";
@@ -28,10 +46,47 @@ translations["<option>Select a type...</option>"] = "<option>Sélectionner un ty
 translations["Name"] = "Nom";
 translations["Type"] = "Type";
 
+// extensions/button.widgets.js
+translations["Button"] = "Bouton";
+translations["A Button widget for serial or socket communications."] = "Contrôle de type bouton pour les communications série ou socket";
+translations["Title"] = "Titre";
+translations["Variable"] = "Variable";
+translations["On value"] = 'Valeur "allumé"';
+translations["Off value"] = 'Valeur "éteint"';
+translations["Caption on button"] = 'Texte sur le bouton';
+translations["Switch on"] = 'Allumer';
+
+// extensions/buttonloaddashboard.widgets.js
+translations["Button Load Dashboard"] = "Bouton ouverture dashboard";
+translations["A Button widget that loads a dashboard when clicked."] = "Contrôle de type bouton permettant de charger un nouveau tableau de bord";
+translations["Title"] = "Titre";
+translations["Caption on button"] = 'Texte sur le bouton';
+translations["Load"] = 'Ouvrir';
+translations["Dashboard"] = 'Tableau de bord';
+translations["Height"] = 'Hauteur';
+
 // extensions/clock.datasources.js
 translations["Clock"] = "Horloge";
 translations["Refresh Every"] = "Rafraîchir toutes les";
 translations["seconds"] = "secondes";
+
+// extensions/closedloop.widgets.js
+translations["Display closed loop"] = "Affichage boucle fermée";
+translations["Reference"] = "Consigne";
+translations["Variable corresponding to control reference"] = "Variable correspondant à la consigne d'asservissement";
+translations["Error"] = "Erreur";
+translations["Variable corresponding to the error between the reference and the output"] = "Variable correspondant à l'erreur (différence entre la consigne et la sortie)";
+translations["Command"] = "Commande";
+translations["Variable corresponding to the output of the controller"] = "Variable correspondant à la sortie du correcteur";
+translations["Output"] = "Sortie";
+translations["Variable corresponding to the output of the closed loop"] = "Variable correspondant à la sortie de la boucle fermée";
+
+// extensions/colorwheel.widgets.js
+translations["Color Wheel"] = "Roue des couleurs";
+translations["Title"] = "Titre";
+translations["Variable"] = "Variable";
+translations["Variable corresponding to the color (in hexadecimal)"] = "Variable correspondant à la couleur (en hexadécimal)";
+translations["Initial value of the color"] = "Valeur initiale de la couleur";
 
 // extensions/dweetio.datasources.js
 translations["Thing Name"] = "Nom de l'objet";
@@ -52,6 +107,31 @@ translations["Latitude"] = "Latitude";
 translations["Can be literal HTML, or javascript that outputs HTML."] = "Peut être du HTML brut ou du javascript qui produit du HTML";
 translations["Height Blocks"] = "Hauteur en nombre de blocs";
 translations["A height block is around 60 pixels"] = "La hauteur d'un bloc est environ 60 pixels";
+
+// extensions/identification.widgets.js
+translations["Identification of electrical parameters"] = "Identification des paramètres électriques";
+translations["Identification of mechanical parameters"] = "Identification des paramètres mécaniques";
+translations["Resistance: "] = "Résistance: ";
+translations["Inductance: "] = "Inductance: ";
+translations["Measured current"] = 'Courant mesuré';
+translations["Identified current"] = 'Courant identifié';
+translations["Torque constant: "] = "Constante de couple: ";
+translations["Inertia: "] = "Inertie: ";
+translations["Damping: "] = "Frottement: ";
+translations["Measured speed"] = 'Vitesse mesurée';
+translations["Identified speed"] = 'Vitesse identifiée';
+translations["Identification"] = "Identification";
+translations["Identification of DC Motor parameters"] = "Identification des paramètres d'un moteur à courant continu.";
+translations["Time (X axis)"] = "Temps (axe X)";
+translations["Current"] = "Courant";
+translations["Angular speed"] = "Vitesse de rotation";
+translations["Current window (ms)"] = "Fenêtre en courant (ms)";
+translations["Length of identification window for the current"] = "Longueur de la fenêtre d'identification en courant";
+translations["Steady state start time on speed (ms)"] = "Début du régime permanent sur la vitesse (ms)";
+translations["Take a margin so that you are sure that the speed has reached the steady state"] = "Prenez une marge pour être sûr qu'après cet instant la vitesse a atteint le régime permanent";
+translations["Motor voltage during current try (V)"] = "Tension moteur essai en courant (V)";
+translations["Motor voltage during speed try (V)"] = "Tension moteur essai en vitesse (V)";
+translations["Gear ratio"] = "Rapport de réduction";
 
 // extensions/indicator.widgets.js
 translations["Indicator Light"] = "Indicateur lumineux";
@@ -116,6 +196,8 @@ translations["Column of datasource"] = "Colonne de la source de données";
 translations['When choosing "Seconds from start", the data are timestamped when they are received'] = 'Si vous avez choisi "Secondes depuis le début", les données sont étiquettées temporellement lorsqu\\\'elles sont reçues';
 translations["Time (X axis)"] = "Temps (axe X)";
 translations['Fill only if you chose "Column of datasource" above.'] = 'Remplir uniquement si vous avez choisi "Colonne de la source de données" plus haut';
+translations["X stop value"] = "Valeur de fin en X";
+translations['X value at which the plot should stop. Put "inf" for continuous plot.'] = 'Valeur de X à laquelle arrêter le tracé. Mettre "inf" pour un tracé continu.';
 translations["Time Window"] = "Fenêtre temporelle";
 translations["Length (in seconds) of sliding time window"] = "Longueur (en secondes) de la fenêtre temporelle glissante";
 translations["Left Y axis values"] = "Valeur de l'axe Y gauche";
@@ -168,6 +250,8 @@ translations["If values are sent, a checksum will be automatically added in vari
 translations["None"] = "Aucune";
 translations["Sum"] = "Somme";
 translations["String concatenation"] = "Concaténation de chaîne de caractères";
+translations["Immediate startup"] = "Démarrage immédiat";
+translations["Define whether or not you want to start the communication when the dashboard is loaded."] = "Permet de définir si vous souhaitez ou non démarrer la communication lors de l'ouverture du tableau de bord.";
 
 // extensions/slider.widgets.js
 translations["Datasource type not supported by this widget"] = "Type de source de données non supporté par ce contrôle";
@@ -209,12 +293,24 @@ translations['"NO" text'] = 'Texte correspondant à "NO"';
 translations["Corresponding numeric value is 0"] = "La valeur numérique correspondante est 0";
 translations["Initial state"] = "Etat initial";
 
+// extensions/switchserialport.widgets.js
+translations["Datasource type not supported by this widget"] = "Type de source de données non supporté par ce contrôle";
+translations["Switch Serial Port"] = "Interrupteur Port Série";
+translations["A Switchbutton widget for serial communications."] = "Contrôle de type interrupteur pour les communications série";
+translations["Title"] = "Titre";
+translations["Serial datasource"] = "Source de données séries";
+translations["Datasource name corresponding to the serial port to switch. You *must* create first a datasource with the same name"] = "Source de données correspondant au port série à commuter. Vous *devez* créer tout d'abord une source de données avec ce nom";
+translations['"ON" text'] = 'Texte correspondant à "ON"';
+translations['"OFF" text'] = 'Texte correspondant à "OFF"';
+translations["Initial state"] = "Etat initial";
+
 // extensions/text.widgets.js
 translations["Text"] = "Texte";
 translations["Title"] = "Titre";
 translations["Size"] = "Taille";
 translations["Regular"] = "Normale";
 translations["Big"] = "Grande";
+translations["Small"] = "Petite";
 translations["Value"] = "Valeur";
 translations["Include Sparkline"] = "Inclure une sparkline";
 translations["Animate Value Changes"] = "Animer les changements de valeur";

@@ -281,6 +281,7 @@ window.plotID = 0;
         this.onSettingsChanged = function (newSettings) {
             if (newSettings.time_window != currentSettings.time_window 
             	|| newSettings.xaxis != currentSettings.xaxis
+            	|| newSettings.x_stop != currentSettings.x_stop
             	|| newSettings.time != currentSettings.time
             	|| newSettings.value != currentSettings.value
             	|| newSettings.y2value != currentSettings.y2value
@@ -362,7 +363,7 @@ window.plotID = 0;
 			                
 			                // First point of a new serie
 				            if ((!_.isUndefined(xData)) && (!_.isUndefined(yData))) {
-				            	if (xData < lastDate) {
+				            	if ((xData < lastDate) && (xData != -100)) { // xData == -100: corupted value
 				            		if (i===0) {
 				            			plotdata = [{ label: legendArray[i], yaxis:1, data: [] }];
 				           			}
@@ -378,69 +379,88 @@ window.plotID = 0;
 				            		yDataArray2 = [];
 				            		lastPlot = -1000000;
 				            	}
-				            	lastDate = xData;
-					            (plotdata[i].data).push([xData, yData]);
-					            
-					            // Remove old data out of time window
-					            if (!pause) {
-						            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
-						            	(plotdata[i].data).shift();
-				           				if (i < yvalueLength) {
-						            		yDataArray.shift();
-						            	}
-						            	else {
-						            		yDataArray2.shift();
-						            	}
+				            	// If time is not corupted
+				            	if (xData != -100) {
+					            	lastDate = xData;
+					            	if ((_.isUndefined(currentSettings.x_stop)) || ((currentSettings.x_stop).indexOf("inf") >= 0)) {
+						            	(plotdata[i].data).push([xData, yData]);
+						           	}
+						           	else {
+						           		if ((xData >= Number(currentSettings.x_stop) - Number(currentSettings.time_window)) && (xData <= Number(currentSettings.x_stop))) {
+						           			(plotdata[i].data).push([xData, yData]);
+						           		}
+						           	}
+						            
+						            // Remove old data out of time window
+						            if (!pause) {
+						            	if ((_.isUndefined(currentSettings.x_stop)) || ((currentSettings.x_stop).indexOf("inf") >= 0)) {
+								            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
+								            	(plotdata[i].data).shift();
+						           				if (i < yvalueLength) {
+								            		yDataArray.shift();
+								            	}
+								            	else {
+								            		yDataArray2.shift();
+								            	}
+									        }
+									    }
+							        }
+						            last_ymin = Math.min.apply(null, yDataArray);
+						            last_ymax = Math.max.apply(null, yDataArray);
+						            last_y2min = Math.min.apply(null, yDataArray2);
+						            last_y2max = Math.max.apply(null, yDataArray2);
+						            
+					                plotObject.setData(plotdata);	                
+					                
+				                	opts = plotObject.getOptions();
+					                var nbData = (plotdata[i].data).length;
+					                
+					                if ((_.isUndefined(currentSettings.x_stop)) || ((currentSettings.x_stop).indexOf("inf") >= 0)) {
+						                opts.xaxes[0].max = ((plotdata[i].data)[nbData-1])[0];
+						                opts.xaxes[0].min = Math.max(0, opts.xaxes[0].max - Number(currentSettings.time_window));
+						            }
+						            else {
+						            	opts.xaxes[0].min = Number(currentSettings.x_stop) - Number(currentSettings.time_window);
+						            	opts.xaxes[0].max = Number(currentSettings.x_stop);
+						            }
+					                
+					                if (last_ymin < opts.yaxes[0].min) {
+					                	opts.yaxes[0].min = center - 1.5 * (center - last_ymin);
+					                }
+					                else if (last_ymin > (opts.yaxes[0].min / 2)) {
+					                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
+					                }
+					                
+					                if (last_ymax > opts.yaxes[0].max) {
+					                	opts.yaxes[0].max = center + 1.5 * (last_ymax - center);
+					                }
+					                else if (last_ymax < (opts.yaxes[0].max / 2)) {
+					                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
+					                }
+					                
+					                if (last_y2min < opts.yaxes[1].min) {
+					                	opts.yaxes[1].min = center2 - 1.5 * (center2 - last_y2min);
+					                }
+					                else if (last_y2min > (opts.yaxes[1].min / 2)) {
+					                	opts.yaxes[1].min = Math.min(last_y2min, y2min);
+					                }
+					                
+					                if (last_y2max > opts.yaxes[1].max) {
+					                	opts.yaxes[1].max = center2 + 1.5 * (last_y2max - center2);
+					                }
+					                else if (last_y2max < (opts.yaxes[1].max / 2)) {
+					                	opts.yaxes[1].max = Math.max(last_y2max, y2max);
+					                }
+					                
+					                // Max plot frequency: 10 ms * number of plot windows
+					                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
+					                	if (!pause) {
+							                plotObject.setupGrid();
+							                plotObject.draw();
+							            }
+						                lastPlot = lastDate;
 						            }
 						        }
-					            last_ymin = Math.min.apply(null, yDataArray);
-					            last_ymax = Math.max.apply(null, yDataArray);
-					            last_y2min = Math.min.apply(null, yDataArray2);
-					            last_y2max = Math.max.apply(null, yDataArray2);
-					            
-				                plotObject.setData(plotdata);	                
-				                
-			                	opts = plotObject.getOptions();
-				                var nbData = (plotdata[i].data).length;
-				                opts.xaxes[0].max = ((plotdata[i].data)[nbData-1])[0];
-				                opts.xaxes[0].min = Math.max(0, opts.xaxes[0].max - Number(currentSettings.time_window));
-				                
-				                if (last_ymin < opts.yaxes[0].min) {
-				                	opts.yaxes[0].min = center - 1.5 * (center - last_ymin);
-				                }
-				                else if (last_ymin > (opts.yaxes[0].min / 2)) {
-				                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
-				                }
-				                
-				                if (last_ymax > opts.yaxes[0].max) {
-				                	opts.yaxes[0].max = center + 1.5 * (last_ymax - center);
-				                }
-				                else if (last_ymax < (opts.yaxes[0].max / 2)) {
-				                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
-				                }
-				                
-				                if (last_y2min < opts.yaxes[1].min) {
-				                	opts.yaxes[1].min = center2 - 1.5 * (center2 - last_y2min);
-				                }
-				                else if (last_y2min > (opts.yaxes[1].min / 2)) {
-				                	opts.yaxes[1].min = Math.min(last_y2min, y2min);
-				                }
-				                
-				                if (last_y2max > opts.yaxes[1].max) {
-				                	opts.yaxes[1].max = center2 + 1.5 * (last_y2max - center2);
-				                }
-				                else if (last_y2max < (opts.yaxes[1].max / 2)) {
-				                	opts.yaxes[1].max = Math.max(last_y2max, y2max);
-				                }
-				                
-				                // Max plot frequency: 10 ms * number of plot windows
-				                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
-				                	if (!pause) {
-						                plotObject.setupGrid();
-						                plotObject.draw();
-						            }
-					                lastPlot = lastDate;
-					            }
 				            }
 					    }
 					}
@@ -498,6 +518,12 @@ window.plotID = 0;
                 display_name: _t("Time (X axis)"),
                 type: "calculated",
                 description: _t('Fill only if you chose "Column of datasource" above.')
+            },
+            {
+                name: "x_stop",
+                display_name: _t("X stop value"),
+                type: "text",
+                description: _t('X value at which the plot should stop. Put "inf" for continuous plot.')
             },
             {
                 name: "time_window",

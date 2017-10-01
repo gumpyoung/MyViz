@@ -570,20 +570,73 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 
 	this.saveDashboard = function(_thisref, event)
 	{
-		var pretty = $(event.currentTarget).data('pretty');
-		var contentType = 'application/octet-stream';
-		var a = document.createElement('a');
-		if(pretty){
-			var blob = new Blob([JSON.stringify(self.serialize(), null, '\t')], {'type': contentType});
-		}else{
-			var blob = new Blob([JSON.stringify(self.serialize())], {'type': contentType});
-		}
-		document.body.appendChild(a);
-		a.href = window.URL.createObjectURL(blob);
-		a.download = dashboardFile;
-		document.title = "MyViz - " + dashboardFile;
-		a.target="_self";
-		a.click();
+	    var file = 'my-settings-file.json';
+	    var filePath = path.join(gui.App.dataPath, file);
+		fs.readFile(filePath, function(err, data) {
+	        if (err) {
+	            console.info("There was an error attempting to read your data.");
+	            return;
+	        } 
+	        else {
+	        	var mySettings = JSON.parse(data);
+	            // console.log(mySettings);
+	            // console.log(mySettings.language);
+	            // console.log(mySettings.theme);
+	            // console.log(mySettings.lastdir);
+	            
+				var toSave = JSON.stringify(self.serialize(), null, '\t');
+		        var node        = document.createElement('input');
+		        node.type       = 'file';
+		        node.id         = 'save-file-dialog';
+		        // console.log(mySettings.lastdir);
+		        if ((dashboardFile.replace(/\\/g,"/")).lastIndexOf('/') >= 0) {
+		        	node.setAttribute('nwsaveas', dashboardFile);
+		       	}
+		       	else {
+		       		node.setAttribute('nwsaveas', mySettings.lastdir + "/" + dashboardFile);
+		       	}
+		        node.setAttribute('accept', '.json');
+		        node.setAttribute('style', 'display: none;');
+		        node.setAttribute('nwworkingdir', mySettings.lastdir);
+		        document.body.appendChild(node);
+		        node.addEventListener('change', function() {
+		        	// console.log(node.value);
+		        	var pathWithSlahes = (node.value).replace(/\\/g,"/");
+		        	// console.log(pathWithSlahes);
+		        	// console.log(pathWithSlahes.substring(0, pathWithSlahes.lastIndexOf('/')));
+		        	saveSetting("lastdir",pathWithSlahes.substring(0, pathWithSlahes.lastIndexOf('/')));
+					fs.writeFile(node.value, toSave, function(err) {
+			            if(err) {
+			                console.log(err);
+			            }
+			            else {
+			            	dashboardFile = node.value;
+			            	document.title = "MyViz - " + dashboardFile;
+			            }
+		 				node.remove();
+		       		});
+		        });
+		        node.click();
+	        }
+		});
+				
+			
+		// var pretty = $(event.currentTarget).data('pretty');
+		// var contentType = 'application/octet-stream';
+		// var a = document.createElement('a');
+		// if(pretty){
+			// var toSave = JSON.stringify(self.serialize(), null, '\t');
+			// console.log(toSave);
+			// var blob = new Blob([JSON.stringify(self.serialize(), null, '\t')], {'type': contentType});
+		// }else{
+			// var blob = new Blob([JSON.stringify(self.serialize())], {'type': contentType});
+		// }
+		// document.body.appendChild(a);
+		// a.href = window.URL.createObjectURL(blob);
+		// a.download = dashboardFile;
+		// document.title = "MyViz - " + dashboardFile;
+		// a.target="_self";
+		// a.click();
 	};
 
 	this.addDatasource = function(datasource)
@@ -2637,14 +2690,25 @@ var freeboard = (function()
 	var pluginEditor = new PluginEditor(jsEditor, valueEditor);
 
 	var developerConsole = new DeveloperConsole(theFreeboardModel);
-
-	var currentStyle = {
-		values: {
-			"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
-			"color"      : "#d3d4d4",
-			"font-weight": 100
-		}
-	};
+	var currentStyle;
+    if (theme == "light") {
+		currentStyle = {
+			values: {
+				"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
+				"color"      : "#3f3f3f",
+				"font-weight": 100
+			}
+		};
+    }
+    else {
+		currentStyle = {
+			values: {
+				"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
+				"color"      : "#d3d4d4",
+				"font-weight": 100
+			}
+		};
+	}
 
 	ko.bindingHandlers.pluginEditor = {
 		init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2951,6 +3015,14 @@ var freeboard = (function()
 		loadDashboard       : function(configuration, callback)
 		{
 			theFreeboardModel.loadDashboard(configuration, callback);
+		},
+		loadDashboardFromLocalFile       : function()
+		{
+			theFreeboardModel.loadDashboardFromLocalFile();
+		},
+		saveDashboard       : function()
+		{
+			theFreeboardModel.saveDashboard();
 		},
 		serialize           : function()
 		{

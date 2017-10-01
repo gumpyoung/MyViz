@@ -7,11 +7,66 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="viewport" content = "width = device-width, initial-scale = 1, user-scalable = no" />
-    <link href="css/freeboard.css" rel="stylesheet" />
+    <!--<link href="css/freeboard.css" rel="stylesheet" />-->
     <link href="css/nouislider.css" rel="stylesheet" />
     <link href="css/nouislider.pips.css" rel="stylesheet" />
     <script src="js/freeboard.thirdparty.js"></script>
     <script src="lang/t.js"></script>
+	<script type="text/javascript">
+		var theme = "dark";
+	    if (typeof(require) !== "undefined") {
+			var fs = require('fs');
+			var path = require('path');
+			var gui = require('nw.gui');
+			
+		    var file = 'my-settings-file.json';
+		    var filePath = path.join(gui.App.dataPath, file);
+		    var mySettings;
+		    
+			fs.readFile(filePath, function(err, data) {
+		        if (err) {
+		            console.info("There was an error attempting to read your data.");
+		            console.warn(err.message);
+		            // Open the default stylesheet
+		            $('head').append('<link href="css/freeboard.css" rel="stylesheet" />');
+		            // Add the missing file
+					var mySettings = {
+					    "language": "en",
+					    "theme": "dark",
+					    "lastdir": ""
+					};
+				    fs.writeFile(filePath, JSON.stringify(mySettings), function (err) {
+				        if (err) {
+				            console.info("There was an error attempting to save your data.");
+				            console.warn(err.message);
+				            return;
+				        }
+				    });
+		            return;
+		        } 
+		        else {
+		        	readSettings = JSON.parse(data);
+		            // console.log(readSettings);
+		            // console.log(readSettings.language);
+		            // console.log(readSettings.theme);
+		            // console.log(readSettings.lastdir);
+		            theme = readSettings.theme;
+		            mySettings = readSettings;
+		            if (theme == "light") {
+		            	$('head').append('<link href="css/freeboard_light.css" rel="stylesheet" />');
+		            }
+		            else {
+		            	$('head').append('<link href="css/freeboard.css" rel="stylesheet" />');
+		            }
+		        }
+			});
+				
+	        
+	    }
+	    else {
+	    	$('head').append('<link href="css/freeboard.css" rel="stylesheet" />');
+	    }
+	</script>
     <!--<script src="lang/en_US.js"></script>-->
     <script type="text/javascript">
     	sessionStorage.clear();
@@ -22,36 +77,59 @@
 		var numberOfPlotWindows = 0;
 		// List of serial ports
 		var comDescription = [];
+		var tabSwitchSerialPort = [];
+		var tabSerialPortIsOpen = [];
     	
 		if (typeof(require) !== "undefined") {
-			// var gui = require('nw.gui');
-			// var menu = new gui.Menu({ 'type': 'menubar' });
-			// menu.append(new gui.MenuItem({ label: 'Item A' }));
-			// menu.append(new gui.MenuItem({ label: 'Item B' }));
-			// menu.append(new gui.MenuItem({ type: 'separator' }));
-			// menu.append(new gui.MenuItem({ label: 'Item C' }));
-// 			
-			// item = new gui.MenuItem({
-			  	// label: "Click me",
-			  	// click: function() {
-			    	// console.log("I'm clicked");
-			  	// },
-			  	// key: "s",
-			  	// modifiers: "ctrl-alt",
-			// });
-			// var submenu = new gui.Menu();
-			// submenu.append(new gui.MenuItem({ label: 'Item 1' }));
-			// submenu.append(new gui.MenuItem({ label: 'Item 2' }));
-			// submenu.append(new gui.MenuItem({ label: 'Item 3' }));
-			// item.submenu = submenu;
-			// menu.append(item);
-			// // And everything can be changed at runtime
-			// item.label = 'New label';
-			// item.click = function() { console.log('New click callback'); };
-// 
-			// //menu.popup(10, 10);
-			// gui.Window.get().menu = menu;
+			var fs = require('fs');
+			var path = require('path');
+			var gui = require('nw.gui');
 			
+		    var file = 'my-settings-file.json';
+		    var filePath = path.join(gui.App.dataPath, file);
+			function saveSetting(setting, value, callback) {
+			    // console.log(filePath);
+				fs.readFile(filePath, function(err, data) {
+			        if (err) {
+			            console.info("There was an error attempting to read your data.");
+			            console.warn(err.message);
+			            return;
+			        } 
+			        else {
+			        	settings = JSON.parse(data);
+			            // console.log(settings);
+			            // console.log(settings.language);
+			            // console.log(settings.theme);
+			            // console.log(settings.lastdir);
+			            settings[setting] = value;
+					    fs.writeFile(filePath, JSON.stringify(settings), function (err) {
+					        if (err) {
+					            console.info("There was an error attempting to save your data.");
+					            console.warn(err.message);
+					            return;
+					        }
+					        else if (callback) {
+					            callback();
+					        }
+					    });
+			        }
+				});
+			}
+			
+			var mySettings = {
+			    "language": "en",
+			    "theme": "dark",
+			    "lastdir": ""
+			};
+		    
+			
+			
+			var nwPath = process.execPath;
+			var nwDir = path.dirname(nwPath);
+			// console.log(nwDir);
+			var osenv = require('osenv');
+			var homePath = osenv.home();
+			// console.log(homePath);
 			function listSerialPorts() {
 				// List serial ports
 				var com = require('serialport');
@@ -139,9 +217,18 @@
 						                        // // Le "allow_edit" est passé à false manuellement
 						                        // For T-Quad
 												//freeboard.loadDashboard(JSON.parse('{"version":1,"allow_edit":true,"plugins":[],"panes":[{"title":"Télémétrie","width":1,"row":{"2":9,"3":1,"4":1,"5":7},"col":{"2":2,"3":2,"4":3,"5":3},"col_width":"2","widgets":[{"type":"plot","settings":{"title":"Vitesses longitudinales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vx\\"]","datasources[\\"ws\\"][\\"vxmes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vxref,vxmes","height":3}},{"type":"plot","settings":{"title":"Vitesses latérales","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_vy\\"]","datasources[\\"ws\\"][\\"vymes\\"]"],"y_axis_min_range":"-0.2,0.2","include_legend":true,"legendStr":"vyref, vymes","height":3}},{"type":"plot","settings":{"title":"Vitesses de rotation","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"consigne_xi\\"]","datasources[\\"ws\\"][\\"ximes\\"]","datasources[\\"ws\\"][\\"gz\\"]"],"y_axis_min_range":"-0.1,0.1","include_legend":true,"legendStr":"xiref,ximes,xigyro","height":3}},{"type":"plot","settings":{"title":"Distance","xaxis":"datasource_column","time":"datasources[\\"ws\\"][\\"Temps\\"]","time_window":10,"value":["datasources[\\"ws\\"][\\"distance\\"]","datasources[\\"ws\\"][\\"distanceFiltre\\"]"],"y_axis_min_range":"-10,10","include_legend":true,"legendStr":"distance, distance filtrée","height":3}}]},{"title":"Démarrage","width":1,"row":{"3":1,"4":9},"col":{"3":1,"4":2},"col_width":1,"widgets":[{"type":"sshcommand","settings":{"title":"Marche / Arrêt de l\'application","host":"192.168.0.199","login":"root","password":"tquad","oncommand":"/root/programmes_python/startQuatreRoues.sh","offcommand":"/root/programmes_python/stopPython.sh","ontext":"ON","offtext":"OFF","initialstate":false}}]},{"title":"Pilotage","width":1,"row":{"3":5,"4":1},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"joypad4roues","settings":{"title":"Vitesses","variablevxref":"datasources[\\"ws\\"][\\"vxref\\"]","variablevyref":"datasources[\\"ws\\"][\\"vyref\\"]","variablexiref":"datasources[\\"ws\\"][\\"xiref\\"]"}}]},{"title":"Mesure de la vitesse de rotation","width":1,"row":{"3":17,"4":17},"col":{"3":1,"4":1},"col_width":1,"widgets":[{"type":"switchbutton","settings":{"variable":"datasources[\\"ws\\"][\\"source_ximes\\"]","yestext":"Gyro","notext":"Odo","initialstate":false}}]},{"title":"Moniteur","width":1,"row":{"3":21,"4":23},"col":{"3":1,"4":1},"col_width":"1","widgets":[{"type":"textarea","settings":{"nblines_window":"10","value":["datasources[\\"ws\\"][\\"Raw\\"]"]}}]}],"datasources":[{"name":"ws","type":"websocket","settings":{"host":"ws://192.168.0.199:9090/ws","variables_to_send":"vxref,vyref,xiref,source_ximes","refresh_rate":"500","checksum":"none"}}],"columns":3}'));
+												
 												// General
-												freeboard.loadDashboard(JSON.parse('{"version":1,"allow_edit":true,"plugins":[],"panes":[{"title":"CPU","width":1,"row":{"3":1},"col":{"3":2},"col_width":1,"widgets":[{"type":"plot","settings":{"title":"CPU Usage (%)","xaxis":"seconds_from_start","time_window":"60","value":["datasources[\\"osinfos\\"][\\"cpuUsage\\"]"],"y_axis_min_range":"0,100","y2_axis_min_range":"-10,10","height":3,"pausable":false}},{"type":"text_widget","settings":{"title":"CPU Usage","size":"regular","value":"datasources[\\"osinfos\\"][\\"cpuUsage\\"]","animate":false,"units":"%"}}]},{"title":"System","width":1,"row":{"3":1},"col":{"3":1},"col_width":1,"widgets":[{"type":"text_widget","settings":{"title":"Platform","size":"regular","value":"datasources[\\"osinfos\\"][\\"platform\\"]","animate":false}},{"type":"text_widget","settings":{"title":"CPU Count","size":"regular","value":"datasources[\\"osinfos\\"][\\"cpuCount\\"]","animate":false}},{"type":"text_widget","settings":{"title":"System Uptime","size":"regular","value":"datasources[\\"osinfos\\"][\\"sysUptime\\"]","animate":false,"units":"s"}},{"type":"text_widget","settings":{"title":"Process Uptime","size":"regular","value":"datasources[\\"osinfos\\"][\\"processUptime\\"]","animate":false,"units":"s"}}]},{"title":"Memory","width":1,"row":{"3":1},"col":{"3":3},"col_width":1,"widgets":[{"type":"plot","settings":{"title":"Free Memory (%)","xaxis":"seconds_from_start","time_window":"60","value":["datasources[\\"osinfos\\"][\\"freememPercentage\\"]"],"y_axis_min_range":"0,100","y2_axis_min_range":"-10,10","height":3,"pausable":false}},{"type":"text_widget","settings":{"title":"Free Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"freememPercentage\\"]","animate":false,"units":"%"}},{"type":"text_widget","settings":{"title":"Free Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"freemem\\"]","animate":false,"units":"MB"}},{"type":"text_widget","settings":{"title":"Total Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"totalmem\\"]","animate":false,"units":"MB"}}]}],"datasources":[{"name":"osinfos","type":"osinfos","settings":{"refresh":1}}],"columns":3}'));
-												freeboard.setEditing(false, false);
+												//freeboard.loadDashboard(JSON.parse('{"version":1,"allow_edit":true,"plugins":[],"panes":[{"title":"CPU","width":1,"row":{"3":1},"col":{"3":2},"col_width":1,"widgets":[{"type":"plot","settings":{"title":"CPU Usage (%)","xaxis":"seconds_from_start","time_window":"60","value":["datasources[\\"osinfos\\"][\\"cpuUsage\\"]"],"y_axis_min_range":"0,100","y2_axis_min_range":"-10,10","height":3,"pausable":false}},{"type":"text_widget","settings":{"title":"CPU Usage","size":"regular","value":"datasources[\\"osinfos\\"][\\"cpuUsage\\"]","animate":false,"units":"%"}}]},{"title":"System","width":1,"row":{"3":1},"col":{"3":1},"col_width":1,"widgets":[{"type":"text_widget","settings":{"title":"Platform","size":"regular","value":"datasources[\\"osinfos\\"][\\"platform\\"]","animate":false}},{"type":"text_widget","settings":{"title":"CPU Count","size":"regular","value":"datasources[\\"osinfos\\"][\\"cpuCount\\"]","animate":false}},{"type":"text_widget","settings":{"title":"System Uptime","size":"regular","value":"datasources[\\"osinfos\\"][\\"sysUptime\\"]","animate":false,"units":"s"}},{"type":"text_widget","settings":{"title":"Process Uptime","size":"regular","value":"datasources[\\"osinfos\\"][\\"processUptime\\"]","animate":false,"units":"s"}}]},{"title":"Memory","width":1,"row":{"3":1},"col":{"3":3},"col_width":1,"widgets":[{"type":"plot","settings":{"title":"Free Memory (%)","xaxis":"seconds_from_start","time_window":"60","value":["datasources[\\"osinfos\\"][\\"freememPercentage\\"]"],"y_axis_min_range":"0,100","y2_axis_min_range":"-10,10","height":3,"pausable":false}},{"type":"text_widget","settings":{"title":"Free Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"freememPercentage\\"]","animate":false,"units":"%"}},{"type":"text_widget","settings":{"title":"Free Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"freemem\\"]","animate":false,"units":"MB"}},{"type":"text_widget","settings":{"title":"Total Memory","size":"regular","value":"datasources[\\"osinfos\\"][\\"totalmem\\"]","animate":false,"units":"MB"}}]}],"datasources":[{"name":"osinfos","type":"osinfos","settings":{"refresh":1}}],"columns":3}'));
+												//freeboard.setEditing(false, false);
+												//console.log(process.cwd());
+												//var filePath = "file:///" + process.cwd() + "/dashboard_osinfos_mini.json";
+												//console.log(filePath);
+												var jsonText = fs.readFileSync('dashboard_osinfos.json');
+												var jsonObject = JSON.parse(jsonText);
+												freeboard.loadDashboard(jsonObject);
+												freeboard.setEditing(false);
+												
 					                        // }
 					
 					                    });
@@ -197,6 +284,180 @@
 								// }
 							// });
 							
+							// Open browser module
+							const opn = require('opn');
+							
+							// Menu module
+							var menu = new gui.Menu({ 'type': 'menubar' });
+							
+							// item = new gui.MenuItem({
+							  	// label: "Click me",
+							  	// click: function() {
+							    	// console.log("I'm clicked");
+							  	// },
+							  	// key: "s",
+							  	// modifiers: "ctrl-alt",
+							// });
+							
+							// File menu
+							var submenu_File = new gui.Menu();
+							
+							item_File_New = new gui.MenuItem({
+							  	label: _t("New"),
+							  	click: function() {
+									var jsonText = fs.readFileSync('dashboard_empty.json');
+									var jsonObject = JSON.parse(jsonText);
+									freeboard.loadDashboard(jsonObject);
+									freeboard.setEditing(true);
+							  	}
+							});
+							submenu_File.append(item_File_New);
+							
+							item_File_Open = new gui.MenuItem({
+							  	label: _t("Open"),
+							  	click: function() {
+							    	freeboard.loadDashboardFromLocalFile();
+							  	}
+							});
+							submenu_File.append(item_File_Open);
+							
+							item_File_Save = new gui.MenuItem({
+							  	label: _t("Save"),
+							  	click: function() {
+							    	freeboard.saveDashboard();
+							  	}
+							});							
+							submenu_File.append(item_File_Save);
+							
+							item_File = new gui.MenuItem({
+							  	label: _t("File")
+							});
+							item_File.submenu = submenu_File;
+							
+							menu.append(item_File);
+							
+							// View menu
+							item_View_Theme_Dark = new gui.MenuItem({
+							  	label: _t("Dark"),
+							  	click: function() {
+									saveSetting("theme","dark", function () {
+									    alert(_t("The modification will be applied at the next startup of MyViz"));
+									});
+							  	}
+							});							
+							item_View_Theme_Light = new gui.MenuItem({
+							  	label: _t("Light"),
+							  	click: function() {
+									saveSetting("theme","light", function () {
+									    alert(_t("The modification will be applied at the next startup of MyViz"));
+									});
+							  	}
+							});							
+							var submenu_View_Theme = new gui.Menu();
+							submenu_View_Theme.append(item_View_Theme_Dark);
+							submenu_View_Theme.append(item_View_Theme_Light);
+							
+							item_View_Theme = new gui.MenuItem({
+							  	label: _t("Theme")
+							});
+							item_View_Theme.submenu = submenu_View_Theme;
+							
+							var submenu_View = new gui.Menu();							
+							submenu_View.append(item_View_Theme);
+							item_View = new gui.MenuItem({
+							  	label: _t("View")
+							});
+							item_View.submenu = submenu_View;
+							menu.append(item_View);
+							
+							// Systems menu
+							var submenu_Systems_Robots_Tquad = new gui.Menu();							
+							item_Systems_Robots_Tquad_Load = new gui.MenuItem({
+							  	label: _t("Load"),
+							  	click: function() {
+									var jsonText = fs.readFileSync("./Systems/Robots/T-Quad/T-Quad_Principal.json");
+									var jsonObject = JSON.parse(jsonText);
+									freeboard.loadDashboard(jsonObject);
+									freeboard.setEditing(false);
+							  	}
+							});							
+							item_Systems_Robots_Tquad_About = new gui.MenuItem({
+							  	label: _t("About T-Quad"),
+							  	click: function() {
+							    	alert("About T-Quad");
+							  	}
+							});
+							submenu_Systems_Robots_Tquad.append(item_Systems_Robots_Tquad_Load);
+							submenu_Systems_Robots_Tquad.append(item_Systems_Robots_Tquad_About);							
+							item_Systems_Robots_Tquad = new gui.MenuItem({
+							  	label: _t("T-Quad"),
+							  	click: function() {
+							    	alert("T-Quad");
+							  	}
+							});							
+							item_Systems_Robots_Tquad.submenu = submenu_Systems_Robots_Tquad;
+							
+							
+							var submenu_Systems_Robots = new gui.Menu();							
+							submenu_Systems_Robots.append(item_Systems_Robots_Tquad);
+							item_Systems_Robots = new gui.MenuItem({
+							  	label: _t("Robots")
+							});
+							item_Systems_Robots.submenu = submenu_Systems_Robots;
+							
+							var submenu_Systems = new gui.Menu();							
+							submenu_Systems.append(item_Systems_Robots);
+							item_Systems = new gui.MenuItem({
+							  	label: _t("Systems")
+							});
+							item_Systems.submenu = submenu_Systems;
+							// Décommenter la ligne ci-dessous pour ajouter le menu "Systèmes"
+							//menu.append(item_Systems);
+							
+							// Help menu
+							var submenu_Help = new gui.Menu();
+							
+							item_Help_Tutorials = new gui.MenuItem({
+							  	label: _t("Tutorials"),
+							  	click: function() {
+							    	opn('https://www.myviz.io/tutorials/');
+							  	}
+							});
+							// Décommenter la ligne ci-dessous pour ajouter le sous-menu "Tutoriels"
+							//submenu_Help.append(item_Help_Tutorials);
+							
+							item_Help_About = new gui.MenuItem({
+							  	label: _t("About MyViz"),
+							  	click: function() {
+									fs.readFile("config.json", function(err, data) {
+								        if (err) {
+								            console.info("There was an error attempting to read your data.");
+								            console.warn(err.message);
+								        } 
+								        else {
+								        	dataObj = JSON.parse(data);
+								            // console.log(dataObj.version);
+							    			alert("MyViz version " + dataObj.version);
+								        }
+									});
+							  	}
+							});
+							submenu_Help.append(item_Help_About);
+							
+							item_Help = new gui.MenuItem({
+							  	label: _t("Help")
+							});
+							item_Help.submenu = submenu_Help;
+							menu.append(item_Help);
+							
+							
+							// // And everything can be changed at runtime
+							// item.label = 'New label';
+							// item.click = function() { console.log('New click callback'); };
+				// 
+							// //menu.popup(10, 10);
+							gui.Window.get().menu = menu;
+			
 				        	
 				        }
 			            waitForTranslation();

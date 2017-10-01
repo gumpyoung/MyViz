@@ -12,8 +12,8 @@ window.identificationID = 0;
         var constanteCoupleID = "constantecouple-" + window.identificationID;
         var inertieID = "inertie-" + window.identificationID;
         var frottementID = "frottement-" + window.identificationID++;
-        var titleElement1 = $('<h2 class="section-title"><strong>Identification des paramètres électriques</strong></h2>');
-        var titleElement2 = $('<h2 class="section-title"><strong>Identification des paramètres mécaniques</strong></h2>');
+        var titleElement1 = $('<h2 class="section-title"><strong>' + _t("Identification of electrical parameters") + '</strong></h2>');
+        var titleElement2 = $('<h2 class="section-title"><strong>' + _t("Identification of mechanical parameters") + '</strong></h2>');
 		var resistanceElement = $('<span id="' + resistanceID + '"></span><br />');
 		var inductanceElement = $('<span id="' + inductanceID + '"></span><br /><br />');
 		var constanteCoupleElement = $('<span id="' + constanteCoupleID + '"></span><br />');
@@ -33,6 +33,7 @@ window.identificationID = 0;
 	    var yDataIdentArray = [];
 	    var dataIdentArray = [];
 	    var yDataArray = [];
+	    var yIdentMean = 0;
 	    var meanCurrent = 0;
 	    var meanOmega = 0;
 	    var iMeanCurrent = 1;
@@ -68,7 +69,10 @@ window.identificationID = 0;
             	|| newSettings.time != currentSettings.time
             	|| newSettings.current != currentSettings.current
             	|| newSettings.omega != currentSettings.omega
-            	|| newSettings.voltage != currentSettings.voltage
+            	|| newSettings.current_window != currentSettings.current_window
+            	|| newSettings.steady_state_omega != currentSettings.steady_state_omega
+            	|| newSettings.voltage_current != currentSettings.voltage_current
+            	|| newSettings.voltage_speed != currentSettings.voltage_speed
             	|| newSettings.ratio != currentSettings.ratio) {
             	identificationCreated = false;
                 createIdentification(newSettings);
@@ -98,6 +102,11 @@ window.identificationID = 0;
 			            		windowStopped1 = false;
 	
 			            		yDataArray = [];
+			            		yIdentMean = 0;
+							    meanCurrent = 0;
+							    meanOmega = 0;
+							    iMeanCurrent = 1;
+							    iMeanOmega = 1;
 			            	}
 			            	
 			            	lastDate = xData;
@@ -107,7 +116,7 @@ window.identificationID = 0;
 			                
 			                // Waiting for an identification window
 			                if (!windowStarted1) {
-			                	if (yData > 0.01) {
+			                	if (yData > 0.1) {
 			                		// We "open" an identification windows
 			                		windowStarted1 = true;
 				                	// xDataIdentArray.push(xData);
@@ -138,10 +147,15 @@ window.identificationID = 0;
 			                		xDataIdentArray[nbPoints - 1] -= trueX0;
 			                	}
 			                	
-			                	yIdentMax = Math.max.apply(null, yDataIdentArray);
+			                	// Compute the mean of the steady state from half the window
+							    if (xData > (parseFloat(currentSettings.current_window) / 2)) {
+							    	// Compute mean of current during steadystate
+							    	yIdentMean = yIdentMean * (iMeanCurrent - 1) / iMeanCurrent + yData / iMeanCurrent;
+				                	iMeanCurrent++;
+								}
+								
+			                	//yIdentMax = Math.max.apply(null, yDataIdentArray);
 			                }
-			                // if yData < 0.8 * yIdentMax, we close the window
-			                //if ((yData < 0.8 * yIdentMax) && (windowStarted1) && (!windowStopped1)) {
 			                if ((xData > parseFloat(currentSettings.current_window)) && (windowStarted1) && (!windowStopped1)) {
 			                	windowStopped1 = true;
 			                	// We keep 90% of the window
@@ -155,13 +169,13 @@ window.identificationID = 0;
 			                	var xmin = Math.min.apply(null, xDataIdentArray2);
 			                	var xDataIdentArray3 = _.map(xDataIdentArray2, function(num){ return num - xmin + 0.001; });
 			                	
-			                	// Modify the data: a-b*exp(-x*t) --> b*exp(-x*t). a is equal to yIdentMax
+			                	// Modify the data: a-b*exp(-x*t) --> b*exp(-x*t). a is equal to yIdentMean
 			                	// We put a threshold at 0.001 in order to avoid 0
-			                	var yDataIdentArray3 = _.map(yDataIdentArray2, function(num){ return Math.max(-(num - yIdentMax),0.001); });
+			                	var yDataIdentArray3 = _.map(yDataIdentArray2, function(num){ return Math.max(-(num - yIdentMean),0.001); });
 			                	
 			                	// Identify the data
 			                	dataIdentArray = _.zip(xDataIdentArray3,yDataIdentArray3);
-			                	var yTau1 = 0.632 * yIdentMax;
+			                	var yTau1 = 0.632 * yIdentMean;
 			                	var indexYTau1 = bs.closest(yDataIdentArray2,yTau1);
 			                	var tau1 = xDataIdentArray3[indexYTau1] + (xDataIdentArray3[indexYTau1+1]-xDataIdentArray3[indexYTau1]) * (yTau1 - yDataIdentArray2[indexYTau1])/(yDataIdentArray2[indexYTau1+1]-yDataIdentArray2[indexYTau1]);
 			                	
@@ -169,20 +183,20 @@ window.identificationID = 0;
 			                	var physicalPoints = _.zip(xDataIdentArray3,yDataIdentArray2);
 			                	
 								// Print the results out
-								var voltage = Number(currentSettings.voltage);
-								resistance = voltage / yIdentMax;
+								var voltage = Number(currentSettings.voltage_current);
+								resistance = voltage / yIdentMean;
 								var inductance = tau1 * resistance;
-								$("#" + resistanceID).text("Resistance: " + resistance.toFixed(1) + " Ohms");
-								$("#" + inductanceID).text("Inductance: " + inductance.toFixed(1) + " mH");
+								$("#" + resistanceID).text(_t("Resistance: ") + resistance.toFixed(1) + " Ohms");
+								$("#" + inductanceID).text(_t("Inductance: ") + inductance.toFixed(1) + " mH");
 								
 			                	var yResults2 = Array();
 			                	for (var i=0; i<xDataIdentArray3.length; i++) {
-			                		yResults2.push(yIdentMax * (1 - Math.exp(-0.001 * resistance * xDataIdentArray3[i]/(0.001 * inductance))));
+			                		yResults2.push(yIdentMean * (1 - Math.exp(-0.001 * resistance * xDataIdentArray3[i]/(0.001 * inductance))));
 			                	}
 			                	
 								$.plot($("#" + thisidentificationID1), [
-									{data: physicalPoints, lines: { show: false }, label: 'Courant mesuré', points: { show: true, radius: 1 }},
-									{data: _.zip(xDataIdentArray3,yResults2), label: 'Courant identifié', color: "#FF0000"},
+									{data: physicalPoints, lines: { show: false }, label: _t('Measured current'), points: { show: true, radius: 1 }},
+									{data: _.zip(xDataIdentArray3,yResults2), label: _t('Identified current'), color: "#FF0000"},
 								], {legend: {position: "se"}});
 					
 								// Reinitialize for next identification
@@ -200,7 +214,7 @@ window.identificationID = 0;
 			                
 				        }
 				    }
-				    else if ((settingName == "current") && (xData > (parseFloat(currentSettings.current_window)/2))) {
+				    else if ((settingName == "current") && (xData > (parseFloat(currentSettings.steady_state_omega)))) {
 				    	// Compute mean of current during steadystate
 				    	meanCurrent = meanCurrent * (iMeanCurrent - 1) / iMeanCurrent + Number(newValue) / iMeanCurrent;
 	                	iMeanCurrent++;
@@ -246,8 +260,8 @@ window.identificationID = 0;
 			                	xDataIdentArray.push(xData);
 			                	yDataIdentArray.push(yData);
 			                	yIdentMax = Math.max.apply(null, yDataIdentArray);
-							    if ((xData > 800) && (yData > 0)) {
-							    	// Compute mean of oomega during steadystate
+							    if ((xData > currentSettings.steady_state_omega) && (yData > 0)) {
+							    	// Compute mean of omega during steadystate
 							    	meanOmega = meanOmega * (iMeanOmega - 1) / iMeanOmega + Number(yData) / iMeanOmega;
 				                	iMeanOmega++;
 								}
@@ -281,13 +295,13 @@ window.identificationID = 0;
 			                	
 								// Print the results out
 								var ratio = Number(currentSettings.ratio);
-								// Voltage is 6V for the speed measurement try
-								var frottement = (-resistance * Math.pow(meanCurrent,2) + 6. * meanCurrent)/(Math.pow(meanOmega,2));
-								var constanteCouple = frottement * meanOmega / (meanCurrent * ratio);
+								var frottement = (-resistance * Math.pow(meanCurrent,2) + Number(currentSettings.voltage_speed) * meanCurrent)/(Math.pow(meanOmega,2));
+								//var constanteCouple = frottement * meanOmega / (meanCurrent * ratio);
+								var constanteCouple = (Number(currentSettings.voltage_speed) - resistance * Math.max(meanCurrent,0)) / (ratio * meanOmega);
 								var inertie = 0.001 * Math.pow(constanteCouple,2) * tau2 / resistance;
-								$("#" + constanteCoupleID).text("Constante de couple: " + constanteCouple.toFixed(4) + " N.m/A");
-								$("#" + inertieID).text("Inertie: " + inertie.toFixed(10) + " kg.m^2");
-								$("#" + frottementID).text("Frottement: " + frottement.toFixed(4) + " N.m.s/rad");
+								$("#" + constanteCoupleID).text(_t("Torque constant: ") + constanteCouple.toFixed(4) + " N.m/A");
+								$("#" + inertieID).text(_t("Inertia: ") + inertie.toFixed(10) + " kg.m^2");
+								$("#" + frottementID).text(_t("Damping: ") + Math.max(frottement,0).toFixed(6) + " N.m.s/rad");
 								
 			                	var yResults2 = Array();
 			                	for (var i=0; i<xDataIdentArray3.length; i++) {
@@ -295,8 +309,8 @@ window.identificationID = 0;
 			                	}
 			                	
 								$.plot($("#" + thisidentificationID2), [
-									{data: physicalPoints, lines: { show: false }, label: 'Vitesse mesurée', points: { show: true, radius: 1 }},
-									{data: _.zip(xDataIdentArray3,yResults2), label: 'Vitesse identifiée', color: "#FF0000"},
+									{data: physicalPoints, lines: { show: false }, label: _t('Measured speed'), points: { show: true, radius: 1 }},
+									{data: _.zip(xDataIdentArray3,yResults2), label: _t('Identified speed'), color: "#FF0000"},
 								], {legend: {position: "se"}});					
 								
 								// Reinitialize for next identification
@@ -330,45 +344,59 @@ window.identificationID = 0;
     freeboard.loadWidgetPlugin({
         type_name: "identification",
         display_name: _t("Identification"),
-		description : _t("Identification des paramètres d'un moteur à courant continu."),
+		description : _t("Identification of DC Motor parameters"),
 		external_scripts : [
 		    "extensions/thirdparty/flot/jquery.flot.js"
  		],
         settings: [
             {
                 name: "time",
-                display_name: _t("Temps (axe X)"),
+                display_name: _t("Time (X axis)"),
                 type: "calculated",
             },
             {
                 name: "current",
-                display_name: _t("Courant"),
+                display_name: _t("Current"),
                 type: "calculated"
             },
             {
                 name: "omega",
-                display_name: _t("Vitesse de rotation"),
+                display_name: _t("Angular speed"),
                 type: "calculated"
             },
 			{
 				name: "current_window",
-				display_name: _t("Fenêtre en courant (ms)"),
+				display_name: _t("Current window (ms)"),
 				type: "text",
 				"required" : true,
 				default_value: "2.0",
-				description: _t("Longueur de la fenêtre d'identification en courant")
+				description: _t("Length of identification window for the current")
 			},
 			{
-				name: "voltage",
-				display_name: _t("Tension moteur (V)"),
+				name: "steady_state_omega",
+				display_name: _t("Steady state start time on speed (ms)"),
+				type: "text",
+				"required" : true,
+				default_value: "800",
+				description: _t("Take a margin so that you are sure that the speed has reached the steady state")
+			},
+			{
+				name: "voltage_current",
+				display_name: _t("Motor voltage during current try (V)"),
 				type: "text",
 				"required" : true,
 				default_value: "6",
-				description: _t("Tension appliquée au moteur pendant l'essai en courant")
+			},
+			{
+				name: "voltage_speed",
+				display_name: _t("Motor voltage during speed try (V)"),
+				type: "text",
+				"required" : true,
+				default_value: "6",
 			},
 			{
 				name: "ratio",
-				display_name: _t("Rapport de réduction"),
+				display_name: _t("Gear ratio"),
 				type: "text",
 				"required" : true,
 				default_value: "100"

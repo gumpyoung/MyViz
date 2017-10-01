@@ -122,10 +122,6 @@ window.buttonID = 0;
             	|| newSettings.offvalue != currentSettings.offvalue 
             	|| newSettings.caption != currentSettings.caption) {
             		
-                
-                if (!_.isUndefined(button)) {
-                	button.noUiButton.destroy();
-                }
                 createButton(newSettings);
             }
             

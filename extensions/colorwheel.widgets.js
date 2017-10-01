@@ -147,7 +147,7 @@ window.colorwheelID = 0;
 
     freeboard.loadWidgetPlugin({
         type_name: "colorwheel",
-        display_name: "Color Wheel",
+        display_name: _t("Color Wheel"),
 		external_scripts: [
 			"extensions/thirdparty/raphael.2.1.0.min.js",
 			"extensions/thirdparty/colorwheel.js"
@@ -156,7 +156,7 @@ window.colorwheelID = 0;
         settings: [
             {
                 name: "title",
-                display_name: "Title",
+                display_name: _t("Title"),
                 type: "text"
             },
 			// {
@@ -169,11 +169,11 @@ window.colorwheelID = 0;
                 name: "variableRGB",
                 display_name: _t("Variable"),
                 type: "calculated",
-				description: _t("Variable correspondant à la couleur (en hexadécimal)")
+				description: _t("Variable corresponding to the color (in hexadecimal)")
             },
             {
                 name: "initialvalue",
-                display_name: _t("Valeur initiale de la couleur"),
+                display_name: _t("Initial value of the color"),
                 type: "text"
             },
         ],

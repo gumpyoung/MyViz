@@ -1,7 +1,7 @@
 (function () {
 	var dataObj = {};
 	var dataToSend = "";
-	var isOpen = false; // Problems with native methods
+	//var isOpen = false; // Problems with native methods
 	var restart = true;
 	var serialPort;
 	var com = require('serialport');
@@ -11,6 +11,7 @@
 		var item;
 		var currentSettings = settings;
 		var myName;
+		
 		
 		// var refreshInterval;
 		// var lastSentTime = 0;
@@ -27,6 +28,8 @@
         $.extend(newData, newDataToSend);
         
         myName = updateCallback(newData);
+        tabSerialPortIsOpen[myName] = false;
+        hasStarted = currentSettings.immediate_startup;
 				
 		// // Will receive message from control widget through socket.io
         // var socket;
@@ -102,17 +105,40 @@
 		        
 		function discardSerialport() {
 			// Disconnect datasource serial port
-			if (serialPort) {
+			//if (serialPort) {
+				// serialPort.close(function (error) {
+					// if ( error ) {
+						// console.log('Failed to close: ', error);
+					// } 
+					// else {
+						// tabSerialPortIsOpen[myName] = false;
+						// serialPort = undefined;
+					// }
+				// });			
+			// }
+			function closeSerialPort() {
+		    	serialPort.on('data', function(data) {
+			        // We do nothing 
+			    });
 				serialPort.close(function (error) {
 					if ( error ) {
 						console.log('Failed to close: ', error);
+						setTimeout(function() {
+								closeSerialPort();
+							},
+							1000
+						);		
 					} 
 					else {
-						isOpen = false;
+						serialPort = undefined;
+						console.log('Serial port closed');
+						tabSerialPortIsOpen[myName] = false;
 					}
 				});			
 			}
-			serialPort = undefined;
+			if (!_.isUndefined(serialPort)) {
+				closeSerialPort();
+			}
 		}
 		
 		function connectToSerialport(port, baudrate) {
@@ -127,12 +153,12 @@
 					// Allows to design the dashboard even if the is not serial port communication
 			        //updateCallback(_.object(listVariablesToRead,Array(4)));
 			        alert('Error: ' + err.message);
-			        isOpen = false;
+			        tabSerialPortIsOpen[myName] = false;
 				}
 			});						
 		}
 
-		function initializeDataSource(mySettings) {
+		function initializeDataSource(mySettings, fromUpdateNow) {
 			
 			// for (r in refreshIntervals) {
 			    // clearInterval(refreshIntervals[r]);
@@ -162,58 +188,67 @@
 			// Reset connection to Serial port
 			discardSerialport();
 			
-			console.log("Open port");
-			isOpen = true; // Needed to avoid a double open by updateNow
-			restart = true;
-			connectToSerialport(mySettings.port, mySettings.baudrate);
-			
-		    serialPort.on('open',function(error) {
-		    	isOpen = true;
-		        console.log('Port open');
-		    });
-		
-		    serialPort.on('data', function(data) {
-			    try {
-			    	// Create list [var1, var2,...] from data like var1, var2,...
-			    	
-			    	var arrData = "[" + data + "]";
-			    	var listData = JSON.parse(arrData);
-			    	
-			    	// Add raw data to the object
-			    	listData.push(data);
-			        
-			        // Create JSON object from the list of variables to read
-			        newData = _.object(listVariablesToRead, listData);
-			        
-			        // Add the variables to send
-			        $.extend(newData, newDataToSend);
-			        
-			        updateCallback(newData);
-			    }
-			    catch(e) {
-			        console.log("Parse error: ", e); //error in the above string
-			    }
-	        		            
-		    });
+		    if ((currentSettings.immediate_startup) || (tabSwitchSerialPort[myName] == 1) || (fromUpdateNow == true)) {
+				tabSwitchSerialPort[myName] = 0;
+				console.log("Open port");
+				tabSerialPortIsOpen[myName] = true; // Needed to avoid a double open by updateNow
+				restart = true;
+				connectToSerialport(mySettings.port, mySettings.baudrate);
 
-		    serialPort.on('close',function() {
-		        console.log('Port closed');
-		        isOpen = false;
-		    });
-		
-		    serialPort.on('error',function(err) {
-		        console.log('Error: ', err.message);
-				// Allows to design the dashboard even if the is not serial port communication
-		        //updateCallback(_.object(listVariablesToRead,Array(4)));
-		        alert('Error: ' + err.message);
-		        isOpen = false;
-		    });
+			    serialPort.on('open',function(error) {
+			    	tabSerialPortIsOpen[myName] = true;
+			        console.log('Port open');
+			    });
+			
+			    serialPort.on('data', function(data) {
+				    try {
+				    	// Create list [var1, var2,...] from data like var1, var2,...
+				    	
+				    	var arrData = "[" + data + "]";
+				    	var listData = JSON.parse(arrData);
+				    	
+				    	// Add raw data to the object
+				    	listData.push(data);
+				        
+				        // Create JSON object from the list of variables to read
+				        newData = _.object(listVariablesToRead, listData);
+				        
+				        // Add the variables to send
+				        $.extend(newData, newDataToSend);
+	
+				        updateCallback(newData);
+				    }
+				    catch(e) {
+				        console.log("Parse error: ", e); //error in the above string
+				    }
+		        		            
+			    });
+	
+			    serialPort.on('close',function() {
+			        console.log('Port closed');
+			        tabSerialPortIsOpen[myName] = false;
+			    });
+			
+			    serialPort.on('error',function(err) {
+			        console.log('Error: ', err.message);
+					// Allows to design the dashboard even if the is not serial port communication
+			        //updateCallback(_.object(listVariablesToRead,Array(4)));
+			        alert('Error: ' + err.message);
+			        tabSerialPortIsOpen[myName] = false;
+			    });
+			}
+			
 		
 		}
 
 		this.updateNow = function () {
-			if (!isOpen) {
-				initializeDataSource(currentSettings);
+			if (hasStarted == true) {
+				if (!tabSerialPortIsOpen[myName]) {
+					initializeDataSource(currentSettings, true);
+				}
+			}
+			else {
+				hasStarted = true;
 			}
 			return;
 		};
@@ -236,16 +271,23 @@
 		this.onSettingsChanged = function (newSettings) {
             if ((newSettings.port != currentSettings.port)
             	|| (newSettings.baudrate != currentSettings.baudrate)) {
-            	initializeDataSource(newSettings);
+            	initializeDataSource(newSettings, false);
             }
             if (newSettings.variables_to_read != currentSettings.variables_to_read) {
             	listVariablesToRead = (newSettings.variables_to_read).split(",");
             	listVariablesToRead.push('_rawdata');
-            	initializeDataSource(newSettings);
+            	// Necessary in order to have the new variables accessible from other widgets
+            	// but reopens the port if already opened (and then generates an alert) or starts
+            	// the communication if it is stopped. Correct this in initializeDataSource() function
+            	initializeDataSource(newSettings, false);
             }
             if (newSettings.variables_to_send != currentSettings.variables_to_send) {
             	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
             	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
+            	// Necessary in order to have the new variables accessible from other widgets
+            	// but reopens the port if already opened (and then generates an alert) or starts
+            	// the communication if it is stopped. Correct this in initializeDataSource() function
+            	initializeDataSource(newSettings, false);
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {
             	newSettings.refresh_rate = Math.max(500, newSettings.refresh_rate);
@@ -279,12 +321,24 @@
 
 		};
 		
-		initializeDataSource(currentSettings);
+		initializeDataSource(currentSettings, false);
 		
-		
+		function checkSwitch(refreshTime) {
+			updateTimer = setInterval(function () {
+				if (tabSwitchSerialPort[myName] == 1) {
+					self.updateNow();
+				}
+				else if (tabSwitchSerialPort[myName] == -1) {
+					tabSwitchSerialPort[myName] = 0;
+					self.stop();
+				}
+			}, refreshTime);
+		}
+		checkSwitch(100);
+
 		function readSessionStorage() {
 			//console.log("Read session storage from ", myName);
-			if (isOpen) {
+			if (tabSerialPortIsOpen[myName]) {
 				var currentObj = {};
 	        	for (var i=0; i<listVariablesToSend.length; i++) {
 	    			item = 'datasources["' + myName + '"]["' + listVariablesToSend[i] + '"]';
@@ -325,6 +379,7 @@
 				
 				// Very important ! Don't forget
 				dataToSend += "\r";
+				//console.log(dataToSend);
 
 				// Important not to send data immediately, otherwise it doesn't work on the Arduino Mega
 		        if (restart) {
@@ -421,6 +476,13 @@
                         value: "concat"
                     }
                 ]
+			},
+			{
+				name: "immediate_startup",
+				display_name: _t("Immediate startup"),
+				type: "boolean",
+                default_value: true,
+                description: _t("Define whether or not you want to start the communication when the dashboard is loaded.")
 			}
 		],
 		newInstance: function (settings, newInstanceCallback, updateCallback) {

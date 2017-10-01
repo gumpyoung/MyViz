@@ -251,6 +251,15 @@
 					valueFontSize = 60;
 				}
 			}
+			else if(newSettings.size == "small")
+			{
+				valueFontSize = 16;
+
+				if(newSettings.sparkline)
+				{
+					valueFontSize = 12;
+				}
+			}
 
 			valueElement.css({"font-size" : valueFontSize + "px"});
 
@@ -318,6 +327,10 @@
                     {
                         name: _t("Big"),
                         value: "big"
+                    },
+                    {
+                        name: _t("Small"),
+                        value: "small"
                     }
                 ]
             },

@@ -154,6 +154,7 @@ window.sliderID = 0;
             	|| newSettings.max != currentSettings.max 
             	|| newSettings.resolution != currentSettings.resolution 
             	|| newSettings.resetcaption != currentSettings.resetcaption 
+            	|| newSettings.formula != currentSettings.formula 
             	|| newSettings.resetvalue != currentSettings.resetvalue) {
             		
                 
@@ -161,6 +162,10 @@ window.sliderID = 0;
                 	slider.noUiSlider.destroy();
                 }
                 createSlider(newSettings);
+                // Rafraichissement de l'envoi des données
+                currentSettings.formula = newSettings.formula;
+                currentSettings.variable = newSettings.variable;
+                sendData();
             }
             
 			currentSettings = newSettings;
