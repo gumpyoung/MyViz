@@ -11,6 +11,12 @@
 		var item;
 		var currentSettings = settings;
 		var myName;
+		var readSessionStorageTimeout1;
+		var readSessionStorageTimeout2;
+		sessionStorage.clear();
+		var readSessionStorage = undefined;
+		
+		var updateTimer = undefined;
 		
 		
 		// var refreshInterval;
@@ -187,7 +193,6 @@
 			
 			// Reset connection to Serial port
 			discardSerialport();
-			
 		    if ((currentSettings.immediate_startup) || (tabSwitchSerialPort[myName] == 1) || (fromUpdateNow == true)) {
 				tabSwitchSerialPort[myName] = 0;
 				console.log("Open port");
@@ -236,6 +241,26 @@
 			        alert('Error: ' + err.message);
 			        tabSerialPortIsOpen[myName] = false;
 			    });
+			    
+				//readSessionStorage();
+				newData = {};
+				listVariablesToRead = (currentSettings.variables_to_read).split(",");
+				listVariablesToRead.push('_rawdata');
+				listVariablesToSend = (_.isUndefined(currentSettings.variables_to_send) ? "" : currentSettings.variables_to_send).split(",");
+				// Object with keys from list of variables to send, each value is 0
+				newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
+				// Object with keys from list of variables to read, each value is 0
+				newData = _.object(listVariablesToRead, _.range(listVariablesToRead.length).map(function () { return 0; }));
+		        // Add the variables to send
+		        $.extend(newData, newDataToSend);
+        
+				if (tabSerialPortIsOpen[myName]) {
+					readSessionStorageTimeout2 = setTimeout(function() {
+							readSessionStorage();
+						},
+						currentSettings.refresh_rate
+					);		
+				}
 			}
 			
 		
@@ -259,7 +284,9 @@
 
 		this.onDispose = function () {
 			// Stop responding to messages
-			
+			if (!_.isUndefined(updateTimer)) {
+				clearInterval(updateTimer);
+			}
 		    if (serialPort) {
 		    	serialPort.on('data', function(data) {
 			        // We do nothing 
@@ -336,71 +363,80 @@
 		}
 		checkSwitch(100);
 
-		function readSessionStorage() {
+		readSessionStorage = function () {
 			//console.log("Read session storage from ", myName);
-			if (tabSerialPortIsOpen[myName]) {
-				var currentObj = {};
-	        	for (var i=0; i<listVariablesToSend.length; i++) {
-	    			item = 'datasources["' + myName + '"]["' + listVariablesToSend[i] + '"]';
-	    			var sessionStorageVar = sessionStorage.getItem(item);
-	    			currentObj[listVariablesToSend[i]] = sessionStorageVar;
-	    			//console.log(item);
-		        }
-		        
-				// Merge messages to send using jQuery
-				$.extend(dataObj, currentObj);
-				
-				// Create CRC data
-				crcValue = 0;
-				for (var d in dataObj) {
-					if (d != '_crc') {
-						if (currentSettings.checksum == "sum") {
-							crcValue += Number(dataObj[d]);
-						}
-						else if (currentSettings.checksum == "concat") {
-							crcValue += dataObj[d];
-						}
+			var currentObj = {};
+        	for (var i=0; i<listVariablesToSend.length; i++) {
+    			item = 'datasources["' + myName + '"]["' + listVariablesToSend[i] + '"]';
+    			var sessionStorageVar = sessionStorage.getItem(item);
+    			currentObj[listVariablesToSend[i]] = sessionStorageVar;
+    			//console.log(item);
+	        }
+	        
+			// Merge messages to send using jQuery
+			$.extend(dataObj, currentObj);
+			
+			// Create CRC data
+			crcValue = 0;
+			for (var d in dataObj) {
+				if (d != '_crc') {
+					if (currentSettings.checksum == "sum") {
+						crcValue += Number(dataObj[d]);
+					}
+					else if (currentSettings.checksum == "concat") {
+						crcValue += dataObj[d];
 					}
 				}
-				
-				// Convert into a string of values
-				dataToSend = "";
-				for (var i = 0; i < listVariablesToSend.length; i++) {
-					dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
-				}
-				
-				if (currentSettings.checksum == "none") {
-					// Remove last separator
-					dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
-				}
-				else {
-					dataToSend += crcValue;
-				}
-				
-				// Very important ! Don't forget
-				dataToSend += "\r";
-				//console.log(dataToSend);
+			}
+			
+			// Convert into a string of values
+			dataToSend = "";
+			for (var i = 0; i < listVariablesToSend.length; i++) {
+				dataToSend += _.isUndefined(dataObj[listVariablesToSend[i]]) ? "0" + currentSettings.separator : dataObj[listVariablesToSend[i]] + currentSettings.separator;
+			}
+			
+			if (currentSettings.checksum == "none") {
+				// Remove last separator
+				dataToSend = dataToSend.slice(0,-(currentSettings.separator).length);
+			}
+			else {
+				dataToSend += crcValue;
+			}
+			
+			// Very important ! Don't forget
+			dataToSend += "\r";
+			//console.log(dataToSend);
 
-				// Important not to send data immediately, otherwise it doesn't work on the Arduino Mega
-		        if (restart) {
-					restart = false;					
-				}
-				else {
+			// Important not to send data immediately, otherwise it doesn't work on the Arduino Mega
+	        if (restart) {
+				restart = false;					
+			}
+			else {
+				if (!_.isUndefined(serialPort)) {
 					serialPort.write(dataToSend, function (error) {
 						if (error) {
 					    	console.log("Error writing to the serial port immediate: ", error);
 					    }
 					});
 				}
-		    }
-			setTimeout(function() {
-					readSessionStorage();
-				},
-				currentSettings.refresh_rate
-			);		
-		}
-		readSessionStorage();
-		
+			}
+
+			if (tabSerialPortIsOpen[myName]) {
+				readSessionStorageTimeout1 = setTimeout(function() {
+						readSessionStorage();
+					},
+					currentSettings.refresh_rate
+				);
+			}
+		};
+		dataObj = {};
+		dataToSend = "";
+		//readSessionStorage();
+		setTimeout(function() {
+				readSessionStorage();
+			},
+			2000
+		);		
 		
 	};
 
