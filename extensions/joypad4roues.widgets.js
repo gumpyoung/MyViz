@@ -196,10 +196,14 @@ window.switchbuttonID = 0;
 				vxref_calc = Math.max(vxref_calc-30,0);
 				vxref_calc = vxref_calc*0.5/40;
 				xiref_calc = (pol.theta*180/Math.PI);
-				// if (xiref_calc<0) {
-					// xiref_calc = 90;
-					// vxref_calc = -vxref_calc;
-				// }
+				// Only in rotation mode
+				if (($( "#" + thisswitchbuttonID + "-onoff" )).prop("checked")) {
+					if (xiref_calc<0) {
+						xiref_calc = 90;
+						vxref_calc = -vxref_calc;
+					}
+				}
+				
 				vxref = 100*(vxref_calc.toFixed(2));				
 				xiref = -(180. - 2. * xiref_calc);
 				sendData();
