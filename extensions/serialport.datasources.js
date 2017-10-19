@@ -301,19 +301,31 @@
             	initializeDataSource(newSettings, false);
             }
             if (newSettings.variables_to_read != currentSettings.variables_to_read) {
+				newData = {};
             	listVariablesToRead = (newSettings.variables_to_read).split(",");
             	listVariablesToRead.push('_rawdata');
-            	// Necessary in order to have the new variables accessible from other widgets
-            	// but reopens the port if already opened (and then generates an alert) or starts
-            	// the communication if it is stopped. Correct this in initializeDataSource() function
+				listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
+				// Object with keys from list of variables to send, each value is 0
+				newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
+				// Object with keys from list of variables to read, each value is 0
+				newData = _.object(listVariablesToRead, _.range(listVariablesToRead.length).map(function () { return 0; }));
+		        // Add the variables to send
+		        $.extend(newData, newDataToSend);
+            	updateCallback(newData);
             	initializeDataSource(newSettings, false);
             }
             if (newSettings.variables_to_send != currentSettings.variables_to_send) {
-            	listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
-            	newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
-            	// Necessary in order to have the new variables accessible from other widgets
-            	// but reopens the port if already opened (and then generates an alert) or starts
-            	// the communication if it is stopped. Correct this in initializeDataSource() function
+				newData = {};
+            	listVariablesToRead = (newSettings.variables_to_read).split(",");
+            	listVariablesToRead.push('_rawdata');
+				listVariablesToSend = (_.isUndefined(newSettings.variables_to_send) ? "" : newSettings.variables_to_send).split(",");
+				// Object with keys from list of variables to send, each value is 0
+				newDataToSend = _.object(listVariablesToSend, _.range(listVariablesToSend.length).map(function () { return 0; }));
+				// Object with keys from list of variables to read, each value is 0
+				newData = _.object(listVariablesToRead, _.range(listVariablesToRead.length).map(function () { return 0; }));
+		        // Add the variables to send
+		        $.extend(newData, newDataToSend);
+            	updateCallback(newData);
             	initializeDataSource(newSettings, false);
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {

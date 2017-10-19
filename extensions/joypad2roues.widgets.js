@@ -95,7 +95,19 @@ window.joypad2rouesID = 0;
             
             //joypad2rouesElement.empty();
             
-            var joypad2roues = Raphael('joypad2roues-' + thisjoypad2rouesID, 170, 170);
+            gain_longi = (_.isUndefined(mySettings.gain_longi) ? 1 : mySettings.gain_longi);
+            gain_rot = (_.isUndefined(mySettings.gain_rot) ? 1 : mySettings.gain_rot);
+            
+            // In case the Raphael paper already exists, we remove it
+			try{
+			    joypad2roues.remove();
+			}
+			catch (error) {
+			    console.log(error);
+			    console.log("It seems that the paper doesn't exist yet...");
+			}
+			
+            joypad2roues = Raphael('joypad2roues-' + thisjoypad2rouesID, 170, 170);
 			joypad2roues.image("./img/joypad_fond.png", 5, 5, 160, 160);
 			joypad2roues.image("./img/joypad_exclusion.png", 0, 0, 170, 170);
 			var joypad2roues_manette = joypad2roues.image("./img/joypad_centre.png", 0, 0, 170, 170);
@@ -140,14 +152,14 @@ window.joypad2rouesID = 0;
 				vxref_calc = Math.max(vxref_calc-30,0);
 				vxref_calc = vxref_calc*0.5/40;
 				xiref_calc = (pol.theta*180/Math.PI);
-				// if (xiref_calc<0) {
-					// xiref_calc = 90;
-					// vxref_calc = -vxref_calc;
-				// }
-				vxref = 100*(vxref_calc.toFixed(2));
+				if (xiref_calc<0) {
+					xiref_calc = 90;
+					vxref_calc = -vxref_calc;
+				}
+				vxref = gain_longi * 100*(vxref_calc.toFixed(2));
 				$("#value1-" + thisjoypad2rouesID).html(vxref.toFixed(0));
 				
-				xiref = -(180. - 2. * xiref_calc);
+				xiref = gain_rot * (-(180. - 2. * xiref_calc));
 				$("#value2-" + thisjoypad2rouesID).html(xiref.toFixed(0));
 				sendData();
 				
@@ -181,6 +193,7 @@ window.joypad2rouesID = 0;
             // }
             
 			currentSettings = newSettings;
+			createjoypad2roues(currentSettings);
             titleElement.html(currentSettings.title);
         };
 
@@ -223,11 +236,25 @@ window.joypad2rouesID = 0;
                 type: "calculated",
 				description: _t("Variable correspondant à la consigne de vitesse longitudinale")
             },
-             {
+            {
+                name: "gain_longi",
+                display_name: _t("Gain en longitudinal"),
+                type: "text",
+                default_value: 1,
+				description: _t("Facteur de multiplication sur la consigne longitudinale. Celle-ci vaut 0.5 m/s au maximum quand le gain est égal à 1")
+            },
+            {
                 name: "variablexiref",
                 display_name: _t("Variable xiref"),
                 type: "calculated",
 				description: _t("Variable correspondant à la consigne de vitesse de rotation")
+            },
+            {
+                name: "gain_rot",
+                display_name: _t("Gain en rotation"),
+                type: "text",
+                default_value: 1,
+				description: _t("Facteur de multiplication sur la consigne de rotation. Celle-ci est comprise entre -180 et 180 deg/s quand le gain est égal à 1")
             }
        ],
         newInstance: function (settings, newInstanceCallback) {

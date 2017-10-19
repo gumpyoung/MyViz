@@ -48,7 +48,7 @@
   },
   "js-flags": "",
   "name": "MyViz",
-  "single-instance": true,
+  "single-instance": false,
   "snapshot": "",
   "node-main": "",
   "dependencies": {
