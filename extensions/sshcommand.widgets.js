@@ -73,6 +73,9 @@ window.sshcommandID = 0;
 
         this.onSettingsChanged = function (newSettings) {
             if ((newSettings.style != currentSettings.style)
+            	|| (newSettings.host != currentSettings.host)
+            	|| (newSettings.login != currentSettings.login)
+            	|| (newSettings.password != currentSettings.password)
             	|| (newSettings.oncommand != currentSettings.oncommand)
             	|| (newSettings.offcommand != currentSettings.offcommand)
             	|| (newSettings.ontext != currentSettings.ontext)

@@ -183,7 +183,10 @@ window.sliderID = 0;
         };
 
         this.getHeight = function () {
-            return 2;
+        	// The height depends on the number or <br> or <br /> in the title
+        	// Number of <br
+        	var count = ((titleElement[0].innerHTML).match(/<br/g) || []).length;
+            return 2 + count/3;
         };
 
         this.onSettingsChanged(settings);

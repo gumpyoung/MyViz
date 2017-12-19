@@ -329,7 +329,7 @@
             	initializeDataSource(newSettings, false);
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {
-            	newSettings.refresh_rate = Math.max(500, newSettings.refresh_rate);
+            	newSettings.refresh_rate = Math.max(10, newSettings.refresh_rate);
 				// for (r in refreshIntervals) {
 				    // clearInterval(refreshIntervals[r]);
 				// }
@@ -496,7 +496,7 @@
 				"required" : false,
 				default_value: 2000,
 				suffix: _t("milliseconds"),
-				description: _t("Refresh rate for sending data ( >= 500 ms). Data will be sent even if control values are not changed")
+				description: _t("Refresh rate for sending data ( >= 10 ms). Data will be sent even if control values are not changed")
 			},
 			{
 				name: "separator",
