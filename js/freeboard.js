@@ -763,7 +763,7 @@ function FreeboardUI()
 {
 	var PANE_MARGIN = 10;
 	var PANE_WIDTH = 300;
-	var MIN_COLUMNS = 3;
+	var MIN_COLUMNS = 4;
 	var COLUMN_WIDTH = PANE_MARGIN + PANE_WIDTH + PANE_MARGIN;
 
 	var userColumns = MIN_COLUMNS;
@@ -866,7 +866,7 @@ function FreeboardUI()
 	function updateGridColumnControls()
 	{
 		var col_controls = $(".column-tool");
-		var available_width = $("#board-content").width();
+		var available_width = $("#board-content").width() + 4; // +4: resize problems without it
 		var max_columns = Math.floor(available_width / COLUMN_WIDTH);
 
 		if(grid.cols <= MIN_COLUMNS)
@@ -890,7 +890,7 @@ function FreeboardUI()
 
 	function getMaxDisplayableColumnCount()
 	{
-		var available_width = $("#board-content").width();
+		var available_width = $("#board-content").width() + 4; // +4: resize problems without it
 		return Math.floor(available_width / COLUMN_WIDTH);
 	}
 

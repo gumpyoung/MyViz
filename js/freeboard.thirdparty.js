@@ -18696,7 +18696,7 @@ new a.w;var b=new a.Ba;0<b.Rb&&a.La(b);a.b("jqueryTmplTemplateEngine",a.Ba)})()}
 	 */
 	fn.generate_grid_and_stylesheet = function()
 	{
-		var aw = this.$wrapper.width();
+		var aw = this.$wrapper.width() + 4; // +4: resize problems without it
 		var ah = this.$wrapper.height();
 		var max_cols = this.options.max_cols;
 
