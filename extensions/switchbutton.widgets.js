@@ -73,10 +73,10 @@ window.switchbuttonID = 0;
 			// Store message in session storage
 			toSend = {};
 			if (($( "#" + thisswitchbuttonID + "-onoff" )).prop("checked")) {
-				toSend[currentSettings.variable] = 1;
+				toSend[currentSettings.variable] = currentSettings.yesvalue;
 			}
 			else {
-				toSend[currentSettings.variable] = 0;
+				toSend[currentSettings.variable] = currentSettings.novalue;
 			}
 			//socket.emit(event, JSON.stringify(toSend));
 			sessionStorage.setItem(currentSettings.variable, toSend[currentSettings.variable]);
@@ -148,7 +148,7 @@ window.switchbuttonID = 0;
     freeboard.loadWidgetPlugin({
         type_name: "switchbutton",
         display_name: _t("Switch button"),
-		description : _t("A Switchbutton widget for serial or socket communications."),
+		description : _t("A Switchbutton widget for serial, socket or http communications."),
 		// external_scripts: [
 			// "extensions/thirdparty/socket.io-1.3.5.js"
 		// ],
@@ -174,14 +174,28 @@ window.switchbuttonID = 0;
                 display_name: _t('"YES" text'),
                 type: "text",
                 default_value: "YES",
-                description: _t("Corresponding numeric value is 1")
+                description: _t("Corresponding value is defined below")
+            },
+            {
+                name: "yesvalue",
+                display_name: _t('"YES" value'),
+                type: "text",
+                default_value: "1",
+                description: _t('Value corresponding to "YES" position')
             },
             {
                 name: "notext",
                 display_name: _t('"NO" text'),
                 type: "text",
                 default_value: "NO",
-                description: _t("Corresponding numeric value is 0")
+                description: _t("Corresponding value is defined below")
+            },
+            {
+                name: "novalue",
+                display_name: _t('"NO" value'),
+                type: "text",
+                default_value: "0",
+                description: _t('Value corresponding to "NO" position')
             },
             {
                 name: "initialstate",

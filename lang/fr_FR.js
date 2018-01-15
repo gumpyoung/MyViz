@@ -108,6 +108,12 @@ translations["Can be literal HTML, or javascript that outputs HTML."] = "Peut ê
 translations["Height Blocks"] = "Hauteur en nombre de blocs";
 translations["A height block is around 60 pixels"] = "La hauteur d'un bloc est environ 60 pixels";
 
+// extensions/http.datasources.js
+translations["Variables (if any) used in the URL above, separated by comma"] = "Variables éventuellement utilisées dans l'URL ci-dessus, séparées par des virgules";
+translations["Put -1 for a one-shot request."] = "Mettre -1 pour un envoi manuel";
+translations["Send if request has not changed"] = "Envoyer si la requête est inchangée";
+translations['Whether or not the request must be sent if the "refresh" parameter above is > 0 and if the request has not changed.'] = 'Détermine si la requête doit être envoyée même si elle est inchangée et si le paramètre de rafraîchissement ci-dessus est > 0';
+
 // extensions/identification.widgets.js
 translations["Identification of electrical parameters"] = "Identification des paramètres électriques";
 translations["Identification of mechanical parameters"] = "Identification des paramètres mécaniques";
@@ -283,14 +289,20 @@ translations["Comma-separated for multiple sparklines"] = "Séparer par des virg
 translations["Datasource type not supported by this widget"] = "Type de source de données non supporté par ce contrôle";
 translations["Switch button"] = "Interrupteur";
 translations["A Switchbutton widget for serial or socket communications."] = "Contrôle de type interrupteur pour les communications série ou socket";
+translations["A Switchbutton widget for serial, socket or http communications."] = "Contrôle de type interrupteur pour les communications série, socket ou http";
 translations["Title"] = "Titre";
 translations["Datasource"] = "Source de données";
 translations["You *must* create first a datasource with the same name"] = "Vous *devez* créer tout d'abord une source de données avec ce nom";
 translations["Variable"] = "Variable";
 translations['"YES" text'] = 'Texte correspondant à "YES"';
+translations['"YES" value'] = 'Valeur "YES"';
+translations['Value corresponding to "YES" position'] = 'Valeur corrspondant à la position "YES"';
 translations["Corresponding numeric value is 1"] = "La valeur numérique correspondante est 1";
 translations['"NO" text'] = 'Texte correspondant à "NO"';
+translations['"NO" value'] = 'Valeur "NO"';
+translations['Value corresponding to "NO" position'] = 'Valeur corrspondant à la position "NO"';
 translations["Corresponding numeric value is 0"] = "La valeur numérique correspondante est 0";
+translations["Corresponding value is defined below"] = "La valeur correspondante est définie ci-dessous";
 translations["Initial state"] = "Etat initial";
 
 // extensions/switchserialport.widgets.js

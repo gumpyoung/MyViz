@@ -49,6 +49,7 @@
 					body = JSON.parse(body);
 				}
 				catch (e) {
+					console.log(e);
 				}
 			}
 
@@ -69,6 +70,7 @@
 						});
 					}
 					catch (e) {
+						console.log(e);
 					}
 				},
 				success: function (data) {

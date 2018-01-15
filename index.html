@@ -80,6 +80,8 @@
 		var comDescription = [];
 		var tabSwitchSerialPort = [];
 		var tabSerialPortIsOpen = [];
+		var tabButtonRefresh = [];
+		
     	
 		if (typeof(require) !== "undefined") {
 			var fs = require('fs');
@@ -172,7 +174,7 @@
 					console.log("USB Detection Error");
 					console.log(err);
 				}
-				
+								
 				listSerialPorts();
 				
 		    	if ((typeof translations !== "undefined") && (typeof _t !== "undefined")) {
