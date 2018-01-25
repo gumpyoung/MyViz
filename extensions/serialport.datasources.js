@@ -93,32 +93,7 @@
 		}
 
 		function initializeDataSource(mySettings, fromUpdateNow) {
-			
-			// for (r in refreshIntervals) {
-			    // clearInterval(refreshIntervals[r]);
-			// }
-			// refreshIntervals = [];
-// 			
-			// // When no data is received (slider is not moved, for example),
-			// // send it every second: the receiving program may have a safety timeout
-			// // in case it doesn't receive data
-	        // refreshInterval = setInterval(
-	        	// function(){
-					// // Write data to the serial port
-					// currentTime = new Date();
-					// if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
-						// lastSentTime = currentTime;
-						// serialPort.write(dataToSend, function (error) {
-							// if (error) {
-						    	// console.log("Error writing to the serial port: ", error);
-						    // }
-						// });
-					// }
-	        	// },
-	        	// (_.isUndefined(mySettings.refresh_rate) ? 1000 : Math.max(1000, mySettings.refresh_rate))
-	        // );
-	        // refreshIntervals.push(refreshInterval);
-			
+						
 			// Reset connection to Serial port
 			discardSerialport();
 		    if ((currentSettings.immediate_startup) || (tabSwitchSerialPort[myName] == 1) || (fromUpdateNow == true)) {
@@ -258,30 +233,6 @@
             }
             if (newSettings.refresh_rate != currentSettings.refresh_rate) {
             	newSettings.refresh_rate = Math.max(10, newSettings.refresh_rate);
-				// for (r in refreshIntervals) {
-				    // clearInterval(refreshIntervals[r]);
-				// }
-				// refreshIntervals = [];
-// 				
-				// // When no data is received (slider is not moved, for example),
-				// // send it every second: the receiving program may have a safety timeout
-				// // in case it doesn't receive data
-		        // refreshInterval = setInterval(
-		        	// function(){
-						// // Write data to the serial port
-						// currentTime = new Date();
-						// if ((isOpen) && ((currentTime - lastSentTime) > 100)) {
-							// lastSentTime = currentTime;
-							// serialPort.write(dataToSend, function (error) {
-								// if (error) {
-							    	// console.log("Error writing to the serial port: ", error);
-							    // }
-							// });
-						// }
-		        	// },
-		        	// newSettings.refresh_rate
-		        // );
-		        // refreshIntervals.push(refreshInterval);
             }
             
             currentSettings = newSettings;
@@ -424,7 +375,7 @@
 				"required" : false,
 				default_value: 2000,
 				suffix: _t("milliseconds"),
-				description: _t("Refresh rate for sending data ( >= 10 ms). Data will be sent even if control values are not changed")
+				description: _t("Refresh rate for sending data ( >= 10 ms). Data will be sent even if control values are not changed.<br>The dashboard must be reloaded if the refresh rate is modified.")
 			},
 			{
 				name: "separator",

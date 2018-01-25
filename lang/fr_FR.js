@@ -247,7 +247,7 @@ translations["Name of the variables to read, separated by comma"] = "Nom des var
 translations["Variables to send"] = "Variables à envoyer";
 translations["Name of the variables to send, separated by comma"] = "Nom des variables à envoyer, séparées par des virgules";
 translations["Refresh rate for sending data"] = "Taux de rafraîchissement pour l'envoi des données";
-translations["Refresh rate for sending data. Data will be sent even if control values are not changed"] = "Taux de rafraîchissement pour l'envoi des données. Les données seront envoyées même si la valeur des contrôles auxquelles elles sont connectées sur le tableau de bord est inchangé";
+translations["Refresh rate for sending data ( >= 10 ms). Data will be sent even if control values are not changed.<br>The dashboard must be reloaded if the refresh rate is modified."] = "Taux de rafraîchissement pour l'envoi des données. Les données seront envoyées même si la valeur des contrôles auxquelles elles sont connectées sur le tableau de bord est inchangé.<br>Le tableau de bord doit être rechargé si ce taux de rafraîchissement est modifié.";
 translations["milliseconds"] = "millisecondes";
 translations["Separator"] = "Séparateur";
 translations["Separator character for received and (optionally) sent values"] = "Séparateur des données reçues (et éventuellement envoyées)";
@@ -333,6 +333,8 @@ translations["Play"] = "Redémarrer";
 translations["Pause"] = "Pause";
 translations["Pause and Explore"] = "Pauser et Explorer";
 translations["Save to file"] = "Enregistrer";
+translations["Save "] = "Enreg.";
+translations["Clear"] = "Vider";
 translations["Text Area"] = "Zone de texte déroulante";
 translations["Title"] = "Titre";
 translations["Number of lines to keep"] = "Nombre de lignes à conserver";

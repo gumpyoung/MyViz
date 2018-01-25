@@ -21,7 +21,14 @@ window.textareaID = 0;
 			// currentSettings.value = [datasources["datasourcename"]["variablename1"], datasources["datasourcename"]["variablename2"]]
 			var savedata = [];
 			for (var i=0; i<(currentSettings.value).length; i++) {
-				savedata.push(currentSettings.value[i].split('"')[3]);
+				// If _rawdata and serialport, "explode" _rawdata names
+				elems = currentSettings.value[i].split('"');
+				if ((elems[3] == "_rawdata") && (freeboard.getDatasourceType(elems[1]) == "serialport")) {
+					savedata.push((freeboard.getDatasourceSettings(elems[1])).variables_to_read);
+				}
+				else {
+					savedata.push(elems[3]);
+				}
 			}
 			
 			var blob = new Blob([savedata.join(",") + "\n" + textdata.join("\n")], {'type': contentType});
@@ -50,10 +57,16 @@ window.textareaID = 0;
 			}
 		};
 		
+		clearText = function()
+		{
+			textdata = [];
+			textAreaElement.empty();
+		};
+	
         var self = this;
         var titleElement = $('<h2 class="section-title"></h2>');
         var textAreaElement = $('<div id="' + thistextareaID + '" style="margin-top:10px; width: 100%; height:110px; overflow:auto"></div>');
-        var saveElements = $('<ul style="margin-top:10px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thistextareaID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thistextareaID + '" data-bind="click: pauseText" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li><li><i class="icon-download-alt icon-white"></i>&nbsp;<label data-bind="click: saveText" style="color: #B88F51; margin-top:1px">' + _t("Save to file") + '</label></li></ul>');
+        var saveElements = $('<ul style="margin-top:10px" class="board-toolbar horizontal"><li><i id="pauseresume-' + thistextareaID + '" class="icon-pause icon-white"></i>&nbsp;<label id="labelpauseresume-' + thistextareaID + '" data-bind="click: pauseText" style="color: #B88F51; margin-top:1px">' + _t("Pause") + '</label></li><li><i class="icon-download-alt icon-white"></i>&nbsp;<label data-bind="click: saveText" style="color: #B88F51; margin-top:1px">' + _t("Save ") + '</label></li><li><i class="icon-trash icon-white"></i>&nbsp;<label data-bind="click: clearText" style="color: #B88F51; margin-top:1px">' + _t("Clear") + '</label></li></ul>');
 		
 
         var rendered = false;

@@ -50,6 +50,7 @@
   "node-main": "",
   "dependencies": {
     "arch": "^2.1.0",
+    "binarysearch": "^1.0.0",
     "brace-expansion": "^1.1.8",
     "nan": "^2.8.0",
     "node-dir": "^0.1.17",
@@ -60,6 +61,7 @@
     "os-utils": "0.0.14",
     "osenv": "^0.1.4",
     "serialport": "^2.1.2",
+    "ssh-exec": "^2.0.0",
     "usb-detection": "^2.0.1"
   }
 }
