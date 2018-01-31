@@ -197,7 +197,7 @@ window.identificationID = 0;
 								$.plot($("#" + thisidentificationID1), [
 									{data: physicalPoints, lines: { show: false }, label: _t('Measured current'), points: { show: true, radius: 1 }},
 									{data: _.zip(xDataIdentArray3,yResults2), label: _t('Identified current'), color: "#FF0000"},
-								], {legend: {position: "se"}});
+								], {legend: {position: "se"}, axisLabels: {show: true}, xaxes: [{axisLabel: "Temps (ms)"}]});					
 					
 								// Reinitialize for next identification
 							    identificationdata = [];
@@ -311,7 +311,7 @@ window.identificationID = 0;
 								$.plot($("#" + thisidentificationID2), [
 									{data: physicalPoints, lines: { show: false }, label: _t('Measured speed'), points: { show: true, radius: 1 }},
 									{data: _.zip(xDataIdentArray3,yResults2), label: _t('Identified speed'), color: "#FF0000"},
-								], {legend: {position: "se"}});					
+								], {legend: {position: "se"}, axisLabels: {show: true}, xaxes: [{axisLabel: "Temps (ms)"}]});					
 								
 								// Reinitialize for next identification
 							    xDataIdentArray = [];
@@ -346,7 +346,8 @@ window.identificationID = 0;
         display_name: _t("Identification"),
 		description : _t("Identification of DC Motor parameters"),
 		external_scripts : [
-		    "extensions/thirdparty/flot/jquery.flot.js"
+		    "extensions/thirdparty/flot/jquery.flot.js",
+            "extensions/thirdparty/flot/jquery.flot.axislabels.js"
  		],
         settings: [
             {

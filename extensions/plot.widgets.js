@@ -67,12 +67,17 @@ window.plotID = 0;
 	    var ymin, ymax;
 	    var y2min, y2max;
 	    var last_ymin, last_ymax, center;
+	    var mean_y = 0;
 	    var last_y2min, last_y2max, center2;
+	    var mean_y2 = 0;
 	    var lastDate = initialDate;
 	    var lastPlot = -1000000;
 
         var currentSettings = settings;
+	    var legendX;
 	    var legendArray = (_.isUndefined(currentSettings.legendStr) || !currentSettings.include_legend ? [] : (currentSettings.legendStr).split(","));
+	    var offset_y = (_.isUndefined(currentSettings.offset_y) ? "0" : currentSettings.offset_y);
+	    var offset_y2 = (_.isUndefined(currentSettings.offset_y2) ? "0" : currentSettings.offset_y2);
         
         function setYaxisRange(mySettings) {
             if ((_.isUndefined(mySettings.y_axis_min_range)) || ((mySettings.y_axis_min_range).indexOf(",") === -1)) {
@@ -82,10 +87,17 @@ window.plotID = 0;
             	y_axis_min_range_array = ((mySettings.y_axis_min_range).split(",")).map(parseFloat);
            	}
         	ymin = Math.min.apply(null, y_axis_min_range_array);
-        	last_ymin = ymin;
         	ymax = Math.max.apply(null, y_axis_min_range_array);
+	    	offset_y = (_.isUndefined(mySettings.offset_y) ? "0" : mySettings.offset_y);
+	    	center = (ymin + ymax)/2;
+	    	if (offset_y == "mean_value") {
+	    		mean_y = center;
+	    	}
+	    	else {
+	    		mean_y = 0;
+	    	}
+        	last_ymin = ymin;
         	last_ymax = ymax;
-        	center = (ymin + ymax)/2;
         }
 
         function setY2axisRange(mySettings) {
@@ -96,15 +108,30 @@ window.plotID = 0;
             	y2_axis_min_range_array = ((mySettings.y2_axis_min_range).split(",")).map(parseFloat);
            	}
         	y2min = Math.min.apply(null, y2_axis_min_range_array);
-        	last_y2min = y2min;
         	y2max = Math.max.apply(null, y2_axis_min_range_array);
-        	last_y2max = y2max;
+	    	offset_y2 = (_.isUndefined(mySettings.offset_y2) ? "0" : mySettings.offset_y2);
         	center2 = (y2min + y2max)/2;
+	    	if (offset_y2 == "mean_value") {
+	    		mean_y2 = center2;
+	    	}
+	    	else {
+	    		mean_y2 = 0;
+	    	}
+        	last_y2min = y2min;
+        	last_y2max = y2max;
         }
 
         function createPlot(mySettings) {
             if (!rendered) {
                 return;
+            }
+            
+            legendX = (_.isUndefined(mySettings.legendX) ? "" : mySettings.legendX);
+            if (legendX == "") {
+            	showAxisLabels = false;
+            }
+            else {
+            	showAxisLabels = true;
             }
 
             plotElement.empty();
@@ -130,6 +157,12 @@ window.plotID = 0;
 	                max: (_.isUndefined(mySettings.time_window) ? 10 : mySettings.time_window),
 	                show: true
 	            },
+		        axisLabels: {
+		            show: showAxisLabels
+		        },
+		        xaxes: [{
+		            axisLabel: legendX,
+		        }],
 	            yaxes: [{ 
 			                min: ymin,
 			                max: ymax,
@@ -281,13 +314,16 @@ window.plotID = 0;
         this.onSettingsChanged = function (newSettings) {
             if (newSettings.time_window != currentSettings.time_window 
             	|| newSettings.xaxis != currentSettings.xaxis
+            	|| newSettings.legendX != currentSettings.legendX
             	|| newSettings.x_stop != currentSettings.x_stop
             	|| newSettings.time != currentSettings.time
             	|| newSettings.value != currentSettings.value
             	|| newSettings.y2value != currentSettings.y2value
             	|| newSettings.height != currentSettings.height
             	|| newSettings.y_axis_min_range != currentSettings.y_axis_min_range
+            	|| newSettings.offset_y != currentSettings.offset_y
             	|| newSettings.y2_axis_min_range != currentSettings.y2_axis_min_range
+            	|| newSettings.offset_y2 != currentSettings.offset_y2
             	|| newSettings.pausable != currentSettings.pausable) {
             	plotCreated = false;
             	plotdata = [];
@@ -308,7 +344,9 @@ window.plotID = 0;
                 //rendered = false;
                 plotdata = [];
                 yDataArray = [];
+                mean_y = 0;
                 yDataArray2 = [];
+                mean_y2 = 0;
                 createPlot(newSettings);
             }
             
@@ -353,9 +391,11 @@ window.plotID = 0;
 		                	yData = Number(newValue[i]);
 		                	if (i < yvalueLength) {
 		                		yDataArray.push(yData);
+		                		mean_y += yData;
 		                	}
 		                	else {
 		                		yDataArray2.push(yData);
+		                		mean_y2 += yData;
 		                	}
 			                if (currentSettings.xaxis == "seconds_from_start") {
 			                	xData = (new Date() - initialDate)/1000;
@@ -363,7 +403,7 @@ window.plotID = 0;
 			                
 			                // First point of a new serie
 				            if ((!_.isUndefined(xData)) && (!_.isUndefined(yData))) {
-				            	if ((xData < lastDate) && (xData != -100)) { // xData == -100: corupted value
+				            	if ((xData < lastDate) && (xData != -100)) { // xData == -100: corrupted value
 				            		if (i===0) {
 				            			plotdata = [{ label: legendArray[i], yaxis:1, data: [] }];
 				           			}
@@ -376,10 +416,12 @@ window.plotID = 0;
 						        		}
 				           			}
 				            		yDataArray = [];
+				            		mean_y = 0;
 				            		yDataArray2 = [];
+				            		mean_y2 = 0;
 				            		lastPlot = -1000000;
 				            	}
-				            	// If time is not corupted
+				            	// If time is not corrupted
 				            	if (xData != -100) {
 					            	lastDate = xData;
 					            	if ((_.isUndefined(currentSettings.x_stop)) || ((currentSettings.x_stop).indexOf("inf") >= 0)) {
@@ -397,10 +439,12 @@ window.plotID = 0;
 								            while ((xData - ((plotdata[i].data)[0])[0]) > Number(currentSettings.time_window)) {
 								            	(plotdata[i].data).shift();
 						           				if (i < yvalueLength) {
-								            		yDataArray.shift();
+								            		shifted = yDataArray.shift();
+								            		mean_y -= shifted;
 								            	}
 								            	else {
-								            		yDataArray2.shift();
+								            		shifted = yDataArray2.shift();
+								            		mean_y2 -= shifted;
 								            	}
 									        }
 									    }
@@ -414,6 +458,12 @@ window.plotID = 0;
 					                
 				                	opts = plotObject.getOptions();
 					                var nbData = (plotdata[i].data).length;
+					                if (offset_y == "mean_value") {
+					                	center = mean_y / (nbData * yvalueLength);
+					                }
+					                if (offset_y2 == "mean_value") {
+					                	center2 = mean_y2 / (nbData * y2valueLength);
+					                }
 					                
 					                if ((_.isUndefined(currentSettings.x_stop)) || ((currentSettings.x_stop).indexOf("inf") >= 0)) {
 						                opts.xaxes[0].max = ((plotdata[i].data)[nbData-1])[0];
@@ -424,33 +474,45 @@ window.plotID = 0;
 						            	opts.xaxes[0].max = Number(currentSettings.x_stop);
 						            }
 					                
-					                if (last_ymin < opts.yaxes[0].min) {
-					                	opts.yaxes[0].min = center - 1.5 * (center - last_ymin);
+					                if (offset_y == "mean_value") {
+						                opts.yaxes[0].min = Math.min(center + ymin, last_ymin + ymin);
+						                opts.yaxes[0].max = Math.max(center + ymax, last_ymax + ymax);
 					                }
-					                else if (last_ymin > (opts.yaxes[0].min / 2)) {
-					                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
+					                else {
+						                if (last_ymin < opts.yaxes[0].min) {
+						                	opts.yaxes[0].min = center - 1.5 * (center - last_ymin);
+						                }
+						                else if (last_ymin > (opts.yaxes[0].min / 2)) {
+						                	opts.yaxes[0].min = Math.min(last_ymin, ymin);
+						                }
+						                
+						                if (last_ymax > opts.yaxes[0].max) {
+						                	opts.yaxes[0].max = center + 1.5 * (last_ymax - center);
+						                }
+						                else if (last_ymax < (opts.yaxes[0].max / 2)) {
+						                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
+						                }
 					                }
 					                
-					                if (last_ymax > opts.yaxes[0].max) {
-					                	opts.yaxes[0].max = center + 1.5 * (last_ymax - center);
-					                }
-					                else if (last_ymax < (opts.yaxes[0].max / 2)) {
-					                	opts.yaxes[0].max = Math.max(last_ymax, ymax);
-					                }
-					                
-					                if (last_y2min < opts.yaxes[1].min) {
-					                	opts.yaxes[1].min = center2 - 1.5 * (center2 - last_y2min);
-					                }
-					                else if (last_y2min > (opts.yaxes[1].min / 2)) {
-					                	opts.yaxes[1].min = Math.min(last_y2min, y2min);
-					                }
-					                
-					                if (last_y2max > opts.yaxes[1].max) {
-					                	opts.yaxes[1].max = center2 + 1.5 * (last_y2max - center2);
-					                }
-					                else if (last_y2max < (opts.yaxes[1].max / 2)) {
-					                	opts.yaxes[1].max = Math.max(last_y2max, y2max);
-					                }
+					                if (offset_y2 == "mean_value") {
+						                opts.yaxes[1].min = Math.min(center2 + y2min, last_y2min + y2min);
+						                opts.yaxes[1].max = Math.max(center2 + y2max, last_y2max + y2max);
+						            }
+					                else {
+						                if (last_y2min < opts.yaxes[1].min) {
+						                	opts.yaxes[1].min = center2 - 1.5 * (center2 - last_y2min);
+						                }
+						                else if (last_y2min > (opts.yaxes[1].min / 2)) {
+						                	opts.yaxes[1].min = Math.min(last_y2min, y2min);
+						                }
+						                
+						                if (last_y2max > opts.yaxes[1].max) {
+						                	opts.yaxes[1].max = center2 + 1.5 * (last_y2max - center2);
+						                }
+						                else if (last_y2max < (opts.yaxes[1].max / 2)) {
+						                	opts.yaxes[1].max = Math.max(last_y2max, y2max);
+						                }
+						            }
 					                
 					                // Max plot frequency: 10 ms * number of plot windows
 					                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
@@ -489,6 +551,7 @@ window.plotID = 0;
             "extensions/thirdparty/flot/jquery.flot.resize.js",
             "extensions/thirdparty/flot/jquery.flot.selection.js",
             "extensions/thirdparty/flot/jquery.flot.crosshair.js",
+            "extensions/thirdparty/flot/jquery.flot.axislabels.js",
             "extensions/thirdparty/flot/jquery.flot.cursors.js"
         ],
         settings: [
@@ -519,6 +582,11 @@ window.plotID = 0;
                 type: "calculated",
                 description: _t('Fill only if you chose "Column of datasource" above.')
             },
+			{
+				name: "legendX",
+				display_name: _t("Legend on X axis"),
+				type: "text"
+			},
             {
                 name: "x_stop",
                 display_name: _t("X stop value"),
@@ -547,6 +615,21 @@ window.plotID = 0;
                 description: _t("Two values separated by a comma. This range will be automatically extended if necessary, but it will not be reduced.")
             },
             {
+                name: "offset_y",
+                display_name: _t("Offset"),
+                type: "option",
+                options: [
+                    {
+                        name: _t("0"),
+                        value: "0"
+                    },
+                    {
+                        name: _t("Mean value"),
+                        value: "mean_value"
+                    }
+                ]
+            },
+            {
                 name: "y2value",
                 display_name: _t("Right Y axis values"),
                 type: "calculated",
@@ -558,6 +641,21 @@ window.plotID = 0;
                 type: "text",
                 default_value: "-10,10",
                 description: _t("Two values separated by a comma. This range will be automatically extended if necessary, but it will not be reduced.")
+            },
+            {
+                name: "offset_y2",
+                display_name: _t("Offset"),
+                type: "option",
+                options: [
+                    {
+                        name: _t("0"),
+                        value: "0"
+                    },
+                    {
+                        name: _t("Mean value"),
+                        value: "mean_value"
+                    }
+                ]
             },
 			{
 				name: "include_legend",

@@ -217,6 +217,8 @@ translations["Comma-separated for multiple plots, left variables first, then rig
 translations["Height Blocks"] = "Hauteur en nombre de blocs";
 translations["A height block is around 60 pixels"] = "La hauteur d'un bloc est environ 60 pixels";
 translations["Pausable"] = "Pausable";
+translations["Mean value"] = "Valeur moyenne";
+translations["Legend on X axis"] = "Légende sur l'axe des abscisses";
 
 // extensions/pointer.widgets.js
 translations["Pointer"] = "Pointeur";
