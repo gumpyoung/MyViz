@@ -3,9 +3,9 @@ window.textareaID = 0;
     var textAreaWidget = function (settings) {
 	    var textdata = [];
 	    var pausedata = [];
+        var currentSettings = settings;
 	    var pause = false;
 	    var resume = false;
-        var currentSettings = settings;
         var thistextareaID = "textarea-" + window.textareaID++;
         var nbLines = 0;
         var numLines = 0;
@@ -49,8 +49,35 @@ window.textareaID = 0;
 				$("#labelpauseresume-" + thistextareaID).html(_t("Play"));
 			}
 			else {
+				textdata = textdata.concat(pausedata);
+				
+				for (var i = 0; i < pausedata.length; i++) {
+					nbLines++;
+					numLines++;
+					if (nbLines > Number(currentSettings.nblines_window)) {
+						// Remove first line in case there are more lines than specified
+						$("#line" + currentFirstLineNumber).remove();
+						currentFirstLineNumber++;
+						nbLines--;
+					}
+					textAreaElement.append('<span id="line' + numLines + '"><br />' + pausedata[i] + '</span>');
+				}
+				
+				nbLines++;
+				numLines++;
+				if (nbLines > Number(currentSettings.nblines_window)) {
+					// Remove first line in case there are more lines than specified
+					$("#line" + currentFirstLineNumber).remove();
+					currentFirstLineNumber++;
+					nbLines--;
+				}
+				textAreaElement[0].scrollTop = textAreaElement[0].scrollHeight;
+				
+				pausedata = [];
+				resume = false;
+
 				pause = false;
-				resume = true;
+				//resume = true;
 				$("#pauseresume-" + thistextareaID).removeClass("icon-play");
 				$("#pauseresume-" + thistextareaID).addClass("icon-pause");
 				$("#labelpauseresume-" + thistextareaID).html(_t("Pause"));
@@ -71,24 +98,29 @@ window.textareaID = 0;
 
         var rendered = false;
 
-        function createTextArea() {
+        function createTextArea(mySettings) {
             if (!rendered) {
                 return;
             }
 
             textAreaElement.empty();
-        }
+			initiallyactive = (_.isUndefined(mySettings.initiallyactive) ? true : mySettings.initiallyactive);
+			if (!initiallyactive) {
+				pauseText();
+			}
+		}
 
         this.render = function (element) {
             rendered = true;
             $(element).append(titleElement).append(textAreaElement).append(saveElements);
-            createTextArea();
+            createTextArea(currentSettings);
         };
 
         this.onSettingsChanged = function (newSettings) {
             if (newSettings.nblines_window != currentSettings.nblines_window 
-            	|| newSettings.value != currentSettings.value) {
-                createTextArea();
+            	|| newSettings.value != currentSettings.value
+            	|| newSettings.initiallyactive != currentSettings.initiallyactive) {
+                createTextArea(newSettings);
             }
 
 			currentSettings = newSettings;
@@ -103,38 +135,38 @@ window.textareaID = 0;
 				pausedata.push(newValue);
 			}
 			else if (resume) {
-				resume = false;
-				textdata = textdata.concat(pausedata);
-				textdata.push(newValue);
-				
-				for (var i = 0; i < pausedata.length; i++) {
-					nbLines++;
-					numLines++;
-					if (nbLines > Number(currentSettings.nblines_window)) {
-						// Remove first line in case there are more lines than specified
-						$("#line" + currentFirstLineNumber).remove();
-						currentFirstLineNumber++;
-						nbLines--;
-					}
-					textAreaElement.append('<span id="line' + numLines + '"><br />' + pausedata[i] + '</span>');
-				}
-				/*textAreaElement.append("<br />");
-				textAreaElement.append(pausedata.join("<br />"));
-				textAreaElement.append("<br />" + newValue);
-				textAreaElement[0].scrollTop = textAreaElement[0].scrollHeight;*/
-				
-				nbLines++;
-				numLines++;
-				if (nbLines > Number(currentSettings.nblines_window)) {
-					// Remove first line in case there are more lines than specified
-					$("#line" + currentFirstLineNumber).remove();
-					currentFirstLineNumber++;
-					nbLines--;
-				}
-				textAreaElement.append('<span id="line' + numLines + '"><br />' + newValue + '</span>');
-				textAreaElement[0].scrollTop = textAreaElement[0].scrollHeight;
-				
-				pausedata = [];
+				// resume = false;
+				// textdata = textdata.concat(pausedata);
+				// textdata.push(newValue);
+// 				
+				// for (var i = 0; i < pausedata.length; i++) {
+					// nbLines++;
+					// numLines++;
+					// if (nbLines > Number(currentSettings.nblines_window)) {
+						// // Remove first line in case there are more lines than specified
+						// $("#line" + currentFirstLineNumber).remove();
+						// currentFirstLineNumber++;
+						// nbLines--;
+					// }
+					// textAreaElement.append('<span id="line' + numLines + '"><br />' + pausedata[i] + '</span>');
+				// }
+				// /*textAreaElement.append("<br />");
+				// textAreaElement.append(pausedata.join("<br />"));
+				// textAreaElement.append("<br />" + newValue);
+				// textAreaElement[0].scrollTop = textAreaElement[0].scrollHeight;*/
+// 				
+				// nbLines++;
+				// numLines++;
+				// if (nbLines > Number(currentSettings.nblines_window)) {
+					// // Remove first line in case there are more lines than specified
+					// $("#line" + currentFirstLineNumber).remove();
+					// currentFirstLineNumber++;
+					// nbLines--;
+				// }
+				// textAreaElement.append('<span id="line' + numLines + '"><br />' + newValue + '</span>');
+				// textAreaElement[0].scrollTop = textAreaElement[0].scrollHeight;
+// 				
+				// pausedata = [];
 			}
 			else {
 				textdata.push(newValue);
@@ -156,7 +188,10 @@ window.textareaID = 0;
         };
 
         this.getHeight = function () {
-            return 3;
+        	// The height depends on the number or <br> or <br /> in the title
+        	// Number of <br
+        	var count = ((titleElement[0].innerHTML).match(/<br/g) || []).length;
+            return 3 + count/3;
         };
 
         this.onSettingsChanged(settings);
@@ -183,6 +218,13 @@ window.textareaID = 0;
                 display_name: _t("Value"),
                 type: "calculated",
                 multi_input: "true"
+            },
+            {
+                name: "initiallyactive",
+                display_name: _t("Initially active"),
+				type: "boolean",
+                default_value: true,
+                description: _t('"No" means that it is initially in "Pause" mode.')
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

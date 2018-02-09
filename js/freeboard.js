@@ -541,6 +541,9 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 						var jsonObject = JSON.parse(textFile.result);
 
 
+						// For plot widget
+						numberOfPlotWindows = 0;
+						
 						self.loadDashboard(jsonObject);
 						self.setEditing(false);
 					});

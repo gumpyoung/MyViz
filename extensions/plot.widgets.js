@@ -514,8 +514,9 @@ window.plotID = 0;
 						                }
 						            }
 					                
-					                // Max plot frequency: 10 ms * number of plot windows
-					                if ((lastDate - lastPlot) > (0.01 * numberOfPlotWindows)) {
+					                // Max plot frequency: 50 ms * number of plot windows
+					                plotRefreshPeriod = (_.isUndefined(currentSettings.refreshperiod) ? 50/1000 : currentSettings.refreshperiod / 1000);
+					                if ((lastDate - lastPlot) > (plotRefreshPeriod * numberOfPlotWindows)) {
 					                	if (!pause) {
 							                plotObject.setupGrid();
 							                plotObject.draw();
@@ -680,8 +681,14 @@ window.plotID = 0;
                 display_name: _t("Pausable"),
 				type: "boolean",
                 default_value: false
+            },
+            {
+                name: "refreshperiod",
+                display_name: _t("Refresh Period"),
+				type: "number",
+                default_value: 50,
+                description: _t("In ms. Increase this value in case of rendering problems.")
             }
-
         ],
         newInstance: function (settings, newInstanceCallback) {
             newInstanceCallback(new plotWidget(settings));
