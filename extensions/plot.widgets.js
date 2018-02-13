@@ -598,8 +598,9 @@ window.plotID = 0;
                 name: "time_window",
                 display_name: _t("Time Window"),
                 type: "text",
+                suffix: _t("seconds"),
                 default_value: 10,
-                description: _t("Length (in seconds) of sliding time window")
+                description: _t("Length of sliding time window")
             },
             {
                 name: "value",
@@ -686,8 +687,9 @@ window.plotID = 0;
                 name: "refreshperiod",
                 display_name: _t("Refresh Period"),
 				type: "number",
+				suffix: _t("milliseconds"),
                 default_value: 50,
-                description: _t("In ms. Increase this value in case of rendering problems.")
+                description: _t("Increase this value in case of rendering problems.")
             }
         ],
         newInstance: function (settings, newInstanceCallback) {

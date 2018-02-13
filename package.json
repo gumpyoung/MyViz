@@ -52,6 +52,7 @@
     "arch": "^2.1.0",
     "binarysearch": "^1.0.0",
     "brace-expansion": "^1.1.8",
+    "csvtojson": "^1.1.9",
     "nan": "^2.8.0",
     "node-dir": "^0.1.17",
     "nw-dialog": "^1.0.7",

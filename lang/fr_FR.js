@@ -88,6 +88,10 @@ translations["Variable"] = "Variable";
 translations["Variable corresponding to the color (in hexadecimal)"] = "Variable correspondant à la couleur (en hexadécimal)";
 translations["Initial value of the color"] = "Valeur initiale de la couleur";
 
+// extensions/csv.datasources.js
+translations["CSV File"] = "Fichier CSV";
+translations["Click into this text input in order to select the file."] = "Cliquez dans cette zone d'entrée textuelle pour choisir le fichier";
+
 // extensions/dweetio.datasources.js
 translations["Thing Name"] = "Nom de l'objet";
 translations["Example: salty-dog-1"] = "Exemple: salty-dog-1";
@@ -131,12 +135,12 @@ translations["Identification of DC Motor parameters"] = "Identification des para
 translations["Time (X axis)"] = "Temps (axe X)";
 translations["Current"] = "Courant";
 translations["Angular speed"] = "Vitesse de rotation";
-translations["Current window (ms)"] = "Fenêtre en courant (ms)";
+translations["Current window"] = "Fenêtre en courant";
 translations["Length of identification window for the current"] = "Longueur de la fenêtre d'identification en courant";
-translations["Steady state start time on speed (ms)"] = "Début du régime permanent sur la vitesse (ms)";
+translations["Steady state start time on speed"] = "Début du régime permanent sur la vitesse";
 translations["Take a margin so that you are sure that the speed has reached the steady state"] = "Prenez une marge pour être sûr qu'après cet instant la vitesse a atteint le régime permanent";
-translations["Motor voltage during current try (V)"] = "Tension moteur essai en courant (V)";
-translations["Motor voltage during speed try (V)"] = "Tension moteur essai en vitesse (V)";
+translations["Motor voltage during current try"] = "Tension moteur essai en courant";
+translations["Motor voltage during speed try"] = "Tension moteur essai en vitesse";
 translations["Gear ratio"] = "Rapport de réduction";
 
 // extensions/indicator.widgets.js
@@ -183,6 +187,13 @@ translations["Refresh Every"] = "Rafraîchir toutes les";
 translations["seconds"] = "secondes";
 translations["Leave blank if the image doesn't need to be refreshed"] = "Laisser vide si l'image ne doit pas être rafraîchie";
 
+// extensions/pie.widgets.js
+translations["Pie Graph"] = "Graphe en Camembert";
+translations["Variables"] = "Variables";
+translations["Include Label"] = "Inclure les labels";
+translations["Include Legend"] = "Inclure la légende";
+translations["Comma-separated texts"] = "Textes séparés par des virgules";
+
 // extensions/playback.datasources.js
 translations["Data File URL"] = "URL du fichier de données";
 translations["A link to a JSON array of data."] = "Lien vers un tableau de données JSON";
@@ -205,7 +216,7 @@ translations['Fill only if you chose "Column of datasource" above.'] = 'Remplir 
 translations["X stop value"] = "Valeur de fin en X";
 translations['X value at which the plot should stop. Put "inf" for continuous plot.'] = 'Valeur de X à laquelle arrêter le tracé. Mettre "inf" pour un tracé continu.';
 translations["Time Window"] = "Fenêtre temporelle";
-translations["Length (in seconds) of sliding time window"] = "Longueur (en secondes) de la fenêtre temporelle glissante";
+translations["Length of sliding time window"] = "Longueur de la fenêtre temporelle glissante";
 translations["Left Y axis values"] = "Valeur de l'axe Y gauche";
 translations["Left Y axis minimum range"] = "Intervalle minimum sur l'axe Y gauche";
 translations["Right Y axis values"] = "Valeur de l'axe Y droit";
@@ -218,7 +229,7 @@ translations["Height Blocks"] = "Hauteur en nombre de blocs";
 translations["A height block is around 60 pixels"] = "La hauteur d'un bloc est environ 60 pixels";
 translations["Pausable"] = "Pausable";
 translations["Refresh Period"] = "Période de rafraîchissement";
-translations["In ms. Increase this value in case of rendering problems."] = "En ms. Augmenter cette valeur si votre ordinateur n'est pas assez rapide";
+translations["Increase this value in case of rendering problems."] = "Augmenter cette valeur si votre ordinateur n'est pas assez rapide";
 translations["Mean value"] = "Valeur moyenne";
 translations["Legend on X axis"] = "Légende sur l'axe des abscisses";
 

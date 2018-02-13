@@ -1712,17 +1712,34 @@ PluginEditor = function(jsEditor, valueEditor)
 						}
 						else
 						{
-							var input = $('<input type="text">').appendTo(valueCell).change(function()
-							{
-								if(settingDef.type == "number")
+							if(settingDef.type == "file") {
+								// var input = $('<input type="file">').appendTo(valueCell).change(function()
+								// {
+									// newSettings.settings[settingDef.name] = $(this).val();
+								// });
+								var input = $('<input id="testinput" type="text">').appendTo(valueCell).click(function()
 								{
-									newSettings.settings[settingDef.name] = Number($(this).val());
-								}
-								else
+									var dialog = require('nw-dialog');
+									dialog.setContext(document); // work in client
+									dialog.openFileDialog(function(result) {
+									    input.val(result);
+									    newSettings.settings[settingDef.name] = input.val();
+									});
+								});
+							}
+							else {
+								var input = $('<input type="text">').appendTo(valueCell).change(function()
 								{
-									newSettings.settings[settingDef.name] = $(this).val();
-								}
-							});
+									if(settingDef.type == "number")
+									{
+										newSettings.settings[settingDef.name] = Number($(this).val());
+									}
+									else
+									{
+										newSettings.settings[settingDef.name] = $(this).val();
+									}
+								});
+							}
 
 							if(settingDef.name in currentSettingsValues)
 							{
