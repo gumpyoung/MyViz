@@ -91,6 +91,7 @@ translations["Initial value of the color"] = "Valeur initiale de la couleur";
 // extensions/csv.datasources.js
 translations["CSV File"] = "Fichier CSV";
 translations["Click into this text input in order to select the file."] = "Cliquez dans cette zone d'entrée textuelle pour choisir le fichier";
+translations["CSV file has a header"] = "Le fichier CSV a un en-tête";
 
 // extensions/dweetio.datasources.js
 translations["Thing Name"] = "Nom de l'objet";
@@ -192,6 +193,7 @@ translations["Pie Graph"] = "Graphe en Camembert";
 translations["Variables"] = "Variables";
 translations["Include Label"] = "Inclure les labels";
 translations["Include Legend"] = "Inclure la légende";
+translations["Legend / Labels"] = "Légende / Labels";
 translations["Comma-separated texts"] = "Textes séparés par des virgules";
 
 // extensions/playback.datasources.js

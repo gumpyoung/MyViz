@@ -6,7 +6,7 @@
 
 		this.updateNow = function () {
 			var csvFilePath = currentSettings.datafile;
-			csv()
+			csv({noheader:!currentSettings.has_header})
 			.fromFile(csvFilePath)
 			.on('json',function(jsonObj){
 				updateCallback(jsonObj);
@@ -31,6 +31,12 @@
 				"display_name": _t("CSV File"),
 				"type": "file",
 				"description": _t("Click into this text input in order to select the file.")
+			},
+			{
+				name: "has_header",
+				display_name: _t("CSV file has a header"),
+				type: "boolean",
+                default_value: true
 			}
 		],
 		newInstance: function (settings, newInstanceCallback, updateCallback) {

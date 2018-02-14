@@ -19,7 +19,7 @@ window.pieID = 0;
 	    var initialDate = new Date();
 
         var currentSettings = settings;
-	    var legendArray = (_.isUndefined(currentSettings.legendStr) || !currentSettings.include_legend ? [] : (currentSettings.legendStr).split(","));
+	    var legendArray = (_.isUndefined(currentSettings.legendStr) ? [] : (currentSettings.legendStr).split(","));
         
         function createPie(mySettings) {
             if (!rendered) {
@@ -36,7 +36,10 @@ window.pieID = 0;
 			                show: mySettings.include_label,
 			            }
 	                }
-	            }
+	            },
+			    legend: {
+			        show: mySettings.include_legend
+			    }
 	        };
 	        	        
 			pieCreated = true;
@@ -61,7 +64,7 @@ window.pieID = 0;
             	|| newSettings.include_label != currentSettings.include_label
             	) {
             	pieCreated = false;
-                legendArray = (_.isUndefined(newSettings.legendStr) || !newSettings.include_legend ? [] : (newSettings.legendStr).split(","));
+                legendArray = (_.isUndefined(newSettings.legendStr) ? [] : (newSettings.legendStr).split(","));
                 //rendered = false;
                 piedata = [];
                 createPie(newSettings);
@@ -134,7 +137,7 @@ window.pieID = 0;
 			},
 			{
 				name: "legendStr",
-				display_name: _t("Legend"),
+				display_name: _t("Legend / Labels"),
 				type: "text",
 				description: _t("Comma-separated texts")
 			},
