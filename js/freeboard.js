@@ -33,10 +33,7 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 
 		var now = new Date();
 		self.last_updated(now.toLocaleTimeString());
-		
-		// Added so that the datasource can get its own name inside the plugin
-		return self.name();
-	};
+	}
 
 	this.type = ko.observable();
 	this.type.subscribe(function(newValue)
@@ -70,7 +67,7 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 		}
 	});
 
-	this.last_updated = ko.observable(_t("never"));
+	this.last_updated = ko.observable("never");
 	this.last_error = ko.observable();
 
 	this.serialize = function()
@@ -80,20 +77,20 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 			type    : self.type(),
 			settings: self.settings()
 		};
-	};
+	}
 
 	this.deserialize = function(object)
 	{
 		self.settings(object.settings);
 		self.name(object.name);
 		self.type(object.type);
-	};
+	}
 
 	this.getDataRepresentation = function(dataPath)
 	{
 		var valueFunction = new Function("data", "return " + dataPath + ";");
 		return valueFunction.call(undefined, self.latestData());
-	};
+	}
 
 	this.updateNow = function()
 	{
@@ -101,29 +98,13 @@ DatasourceModel = function(theFreeboardModel, datasourcePlugins) {
 		{
 			self.datasourceInstance.updateNow();
 		}
-	};
-
-	this.stop = function()
-	{
-		if(!_.isUndefined(self.datasourceInstance) && _.isFunction(self.datasourceInstance.updateNow))
-		{
-			self.datasourceInstance.stop();
-		}
-	};
-
-	this.start = function()
-	{
-		if(!_.isUndefined(self.datasourceInstance) && _.isFunction(self.datasourceInstance.updateNow))
-		{
-			self.datasourceInstance.stop();
-		}
-	};
+	}
 
 	this.dispose = function()
 	{
 		disposeDatasourceInstance();
-	};
-};
+	}
+}
 
 DeveloperConsole = function(theFreeboardModel)
 {
@@ -218,8 +199,8 @@ DeveloperConsole = function(theFreeboardModel)
 		{
 			showDeveloperConsole();
 		}
-	};
-};
+	}
+}
 
 function DialogBox(contentElement, title, okTitle, cancelTitle, okCallback)
 {
@@ -261,8 +242,6 @@ function DialogBox(contentElement, title, okTitle, cancelTitle, okCallback)
 			{
 				closeModal();
 			}
-			var barHeight = 40 + $("#admin-menu").outerHeight();
-			$("#admin-bar").height(barHeight);
 		});
 	}
 
@@ -318,7 +297,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 				widget.processDatasourceUpdate(datasourceName);
 			});
 		});
-	};
+	}
 
 	this._datasourceTypes = ko.observable();
 	this.datasourceTypes = ko.computed({
@@ -382,7 +361,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			self.plugins.push(pluginSource);
 		}
-	};
+	}
 
 	this.serialize = function()
 	{
@@ -409,7 +388,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			datasources : datasources,
 			columns     : freeboardUI.getUserColumns()
 		};
-	};
+	}
 
 	this.deserialize = function(object, finishedCallback)
 	{
@@ -457,7 +436,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			{
 				finishedCallback();
 			}
-			self.setEditing(false);
+
 			freeboardUI.processResize(true);
 		}
 
@@ -479,7 +458,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			finishLoad();
 		}
-	};
+	}
 
 	this.clearDashboard = function()
 	{
@@ -498,7 +477,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		self.plugins.removeAll();
 		self.datasources.removeAll();
 		self.panes.removeAll();
-	};
+	}
 
 	this.loadDashboard = function(dashboardData, callback)
 	{
@@ -514,7 +493,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 
         freeboard.emit("dashboard_loaded");
 		});
-	};
+	}
 
 	this.loadDashboardFromLocalFile = function()
 	{
@@ -531,8 +510,6 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 				{
 					var file = files[0];
 					var reader = new FileReader();
-					dashboardFile = file.name;
-					document.title = "MyViz - " + dashboardFile;
 
 					reader.addEventListener("load", function(fileReaderEvent)
 					{
@@ -541,9 +518,6 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 						var jsonObject = JSON.parse(textFile.result);
 
 
-						// For plot widget
-						numberOfPlotWindows = 0;
-						
 						self.loadDashboard(jsonObject);
 						self.setEditing(false);
 					});
@@ -558,7 +532,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		{
 			alert('Unable to load a file in this browser.');
 		}
-	};
+	}
 
 	this.saveDashboardClicked = function(){
 		var target = $(event.currentTarget);
@@ -569,137 +543,73 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 			$(event.currentTarget).siblings('label').fadeOut('slow');
 		}
 		target.data('siblings-shown', !siblingsShown);
-	};
+	}
 
 	this.saveDashboard = function(_thisref, event)
 	{
-	    var file = 'my-settings-file.json';
-	    var filePath = path.join(gui.App.dataPath, file);
-		fs.readFile(filePath, function(err, data) {
-	        if (err) {
-	            console.info("There was an error attempting to read your data.");
-	            return;
-	        } 
-	        else {
-	        	var mySettings = JSON.parse(data);
-	            // console.log(mySettings);
-	            // console.log(mySettings.language);
-	            // console.log(mySettings.theme);
-	            // console.log(mySettings.lastdir);
-	            
-				var toSave = JSON.stringify(self.serialize(), null, '\t');
-		        var node        = document.createElement('input');
-		        node.type       = 'file';
-		        node.id         = 'save-file-dialog';
-		        // console.log(mySettings.lastdir);
-		        if ((dashboardFile.replace(/\\/g,"/")).lastIndexOf('/') >= 0) {
-		        	node.setAttribute('nwsaveas', dashboardFile);
-		       	}
-		       	else {
-		       		node.setAttribute('nwsaveas', mySettings.lastdir + "/" + dashboardFile);
-		       	}
-		        node.setAttribute('accept', '.json');
-		        node.setAttribute('style', 'display: none;');
-		        node.setAttribute('nwworkingdir', mySettings.lastdir);
-		        document.body.appendChild(node);
-		        node.addEventListener('change', function() {
-		        	// console.log(node.value);
-		        	var pathWithSlahes = (node.value).replace(/\\/g,"/");
-		        	// console.log(pathWithSlahes);
-		        	// console.log(pathWithSlahes.substring(0, pathWithSlahes.lastIndexOf('/')));
-		        	saveSetting("lastdir",pathWithSlahes.substring(0, pathWithSlahes.lastIndexOf('/')));
-					fs.writeFile(node.value, toSave, function(err) {
-			            if(err) {
-			                console.log(err);
-			            }
-			            else {
-			            	dashboardFile = node.value;
-			            	document.title = "MyViz - " + dashboardFile;
-			            }
-		 				node.remove();
-		       		});
-		        });
-		        node.click();
-	        }
-		});
-				
-			
-		// var pretty = $(event.currentTarget).data('pretty');
-		// var contentType = 'application/octet-stream';
-		// var a = document.createElement('a');
-		// if(pretty){
-			// var toSave = JSON.stringify(self.serialize(), null, '\t');
-			// console.log(toSave);
-			// var blob = new Blob([JSON.stringify(self.serialize(), null, '\t')], {'type': contentType});
-		// }else{
-			// var blob = new Blob([JSON.stringify(self.serialize())], {'type': contentType});
-		// }
-		// document.body.appendChild(a);
-		// a.href = window.URL.createObjectURL(blob);
-		// a.download = dashboardFile;
-		// document.title = "MyViz - " + dashboardFile;
-		// a.target="_self";
-		// a.click();
-	};
+		var pretty = $(event.currentTarget).data('pretty');
+		var contentType = 'application/octet-stream';
+		var a = document.createElement('a');
+		if(pretty){
+			var blob = new Blob([JSON.stringify(self.serialize(), null, '\t')], {'type': contentType});
+		}else{
+			var blob = new Blob([JSON.stringify(self.serialize())], {'type': contentType});
+		}
+		document.body.appendChild(a);
+		a.href = window.URL.createObjectURL(blob);
+		a.download = "dashboard.json";
+		a.target="_self";
+		a.click();
+	}
 
 	this.addDatasource = function(datasource)
 	{
 		self.datasources.push(datasource);
-	};
+	}
 
 	this.deleteDatasource = function(datasource)
 	{
 		delete self.datasourceData[datasource.name()];
 		datasource.dispose();
 		self.datasources.remove(datasource);
-	};
-
-	this.stopDatasource = function(datasource)
-	{
-		datasource.stop();
-	};
-
-	this.startDatasource = function(datasource)
-	{
-		datasource.start();
-	};
+	}
 
 	this.createPane = function()
 	{
 		var newPane = new PaneModel(self, widgetPlugins);
 		self.addPane(newPane);
-	};
+	}
 
 	this.addGridColumnLeft = function()
 	{
 		freeboardUI.addGridColumnLeft();
-	};
+	}
 
 	this.addGridColumnRight = function()
 	{
 		freeboardUI.addGridColumnRight();
-	};
+	}
 
 	this.subGridColumnLeft = function()
 	{
 		freeboardUI.subGridColumnLeft();
-	};
+	}
 
 	this.subGridColumnRight = function()
 	{
 		freeboardUI.subGridColumnRight();
-	};
+	}
 
 	this.addPane = function(pane)
 	{
 		self.panes.push(pane);
-	};
+	}
 
 	this.deletePane = function(pane)
 	{
 		pane.dispose();
 		self.panes.remove(pane);
-	};
+	}
 
 	this.deleteWidget = function(widget)
 	{
@@ -709,7 +619,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		});
 
 		widget.dispose();
-	};
+	}
 
 	this.setEditing = function(editing, animate)
 	{
@@ -727,9 +637,7 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		}
 
 		var animateLength = (animate) ? 250 : 0;
-		//var barHeight = $("#admin-bar").outerHeight();
-		var barHeight = 40 + $("#admin-menu").outerHeight();
-		$("#admin-bar").height(barHeight);
+		var barHeight = $("#admin-bar").outerHeight();
 
 		if(!editing)
 		{
@@ -753,20 +661,20 @@ function FreeboardModel(datasourcePlugins, widgetPlugins, freeboardUI)
 		}
 
 		freeboardUI.showPaneEditIcons(editing, animate);
-	};
+	}
 
 	this.toggleEditing = function()
 	{
 		var editing = !self.isEditing();
 		self.setEditing(editing);
-	};
+	}
 }
 
 function FreeboardUI()
 {
 	var PANE_MARGIN = 10;
 	var PANE_WIDTH = 300;
-	var MIN_COLUMNS = 4;
+	var MIN_COLUMNS = 3;
 	var COLUMN_WIDTH = PANE_MARGIN + PANE_WIDTH + PANE_MARGIN;
 
 	var userColumns = MIN_COLUMNS;
@@ -792,7 +700,7 @@ function FreeboardUI()
 					.attr("data-col", newPosition.col);
 
 				paneModel.processSizeChange();
-			};
+			}
 		}
 
 		updateGridWidth(Math.min(maxDisplayableColumns, userColumns));
@@ -869,7 +777,7 @@ function FreeboardUI()
 	function updateGridColumnControls()
 	{
 		var col_controls = $(".column-tool");
-		var available_width = $("#board-content").width() + 4; // +4: resize problems without it
+		var available_width = $("#board-content").width();
 		var max_columns = Math.floor(available_width / COLUMN_WIDTH);
 
 		if(grid.cols <= MIN_COLUMNS)
@@ -893,7 +801,7 @@ function FreeboardUI()
 
 	function getMaxDisplayableColumnCount()
 	{
-		var available_width = $("#board-content").width() + 4; // +4: resize problems without it
+		var available_width = $("#board-content").width();
 		return Math.floor(available_width / COLUMN_WIDTH);
 	}
 
@@ -961,11 +869,11 @@ function FreeboardUI()
 				}
 			}).data("gridster");
 
-			processResize(false);
+			processResize(false)
 
 			grid.disable();
 		}
-	};
+	}
 
 	function addPane(element, viewModel, isEditing)
 	{
@@ -1200,11 +1108,11 @@ function FreeboardUI()
 		{
 			setUserColumns(numCols);
 		}
-	};
+	}
 }
 
 JSEditor = function () {
-	var assetRoot = "";
+	var assetRoot = ""
 
 	function setAssetRoot(_assetRoot) {
 		assetRoot = _assetRoot;
@@ -1262,10 +1170,10 @@ JSEditor = function () {
 			displayJSEditor(value, callback);
 		},
 		setAssetRoot: function (assetRoot) {
-			setAssetRoot(assetRoot);
+			setAssetRoot(assetRoot)
 		}
-	};
-};
+	}
+}
 
 function PaneModel(theFreeboardModel, widgetPlugins) {
 	var self = this;
@@ -1285,17 +1193,17 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 
 	this.addWidget = function (widget) {
 		this.widgets.push(widget);
-	};
+	}
 
 	this.widgetCanMoveUp = function (widget) {
 		return (self.widgets.indexOf(widget) >= 1);
-	};
+	}
 
 	this.widgetCanMoveDown = function (widget) {
 		var i = self.widgets.indexOf(widget);
 
 		return (i < self.widgets().length - 1);
-	};
+	}
 
 	this.moveWidgetUp = function (widget) {
 		if (self.widgetCanMoveUp(widget)) {
@@ -1303,7 +1211,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			var array = self.widgets();
 			self.widgets.splice(i - 1, 2, array[i], array[i - 1]);
 		}
-	};
+	}
 
 	this.moveWidgetDown = function (widget) {
 		if (self.widgetCanMoveDown(widget)) {
@@ -1311,7 +1219,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			var array = self.widgets();
 			self.widgets.splice(i, 2, array[i + 1], array[i]);
 		}
-	};
+	}
 
 	this.processSizeChange = function()
 	{
@@ -1322,7 +1230,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 				widget.processSizeChange();
 			});
 		}, 1000);
-	};
+	}
 
 	this.getCalculatedHeight = function () {
 		var sumHeights = _.reduce(self.widgets(), function (memo, widget) {
@@ -1337,7 +1245,7 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 		var rows = Math.ceil((sumHeights + 20) / 30);
 
 		return Math.max(4, rows);
-	};
+	}
 
 	this.serialize = function () {
 		var widgets = [];
@@ -1351,10 +1259,10 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			width: self.width(),
 			row: self.row,
 			col: self.col,
-			col_width: self.col_width(),
+			col_width: Number(self.col_width()),
 			widgets: widgets
 		};
-	};
+	}
 
 	this.deserialize = function (object) {
 		self.title(object.title);
@@ -1369,13 +1277,13 @@ function PaneModel(theFreeboardModel, widgetPlugins) {
 			widget.deserialize(widgetConfig);
 			self.widgets.push(widget);
 		});
-	};
+	}
 
 	this.dispose = function () {
 		_.each(self.widgets(), function (widget) {
 			widget.dispose();
 		});
-	};
+	}
 }
 
 PluginEditor = function(jsEditor, valueEditor)
@@ -1712,34 +1620,17 @@ PluginEditor = function(jsEditor, valueEditor)
 						}
 						else
 						{
-							if(settingDef.type == "file") {
-								// var input = $('<input type="file">').appendTo(valueCell).change(function()
-								// {
-									// newSettings.settings[settingDef.name] = $(this).val();
-								// });
-								var input = $('<input id="testinput" type="text">').appendTo(valueCell).click(function()
+							var input = $('<input type="text">').appendTo(valueCell).change(function()
+							{
+								if(settingDef.type == "number")
 								{
-									var dialog = require('nw-dialog');
-									dialog.setContext(document); // work in client
-									dialog.openFileDialog(function(result) {
-									    input.val(result);
-									    newSettings.settings[settingDef.name] = input.val();
-									});
-								});
-							}
-							else {
-								var input = $('<input type="text">').appendTo(valueCell).change(function()
+									newSettings.settings[settingDef.name] = Number($(this).val());
+								}
+								else
 								{
-									if(settingDef.type == "number")
-									{
-										newSettings.settings[settingDef.name] = Number($(this).val());
-									}
-									else
-									{
-										newSettings.settings[settingDef.name] = $(this).val();
-									}
-								});
-							}
+									newSettings.settings[settingDef.name] = $(this).val();
+								}
+							});
 
 							if(settingDef.name in currentSettingsValues)
 							{
@@ -1820,7 +1711,7 @@ PluginEditor = function(jsEditor, valueEditor)
 		}
 
 
-		new DialogBox(form, title, _t("Save"), _t("Cancel"), function()
+		new DialogBox(form, title, "Save", "Cancel", function()
 		{
 			$(".validation-error").remove();
 
@@ -1858,10 +1749,10 @@ PluginEditor = function(jsEditor, valueEditor)
 
 		if(pluginTypeNames.length > 1)
 		{
-			var typeRow = createSettingRow("plugin-types", _t("Type"));
+			var typeRow = createSettingRow("plugin-types", "Type");
 			typeSelect = $('<select></select>').appendTo($('<div class="styled-select"></div>').appendTo(typeRow));
 
-			typeSelect.append($(_t("<option>Select a type...</option>")).attr("value", "undefined"));
+			typeSelect.append($("<option>Select a type...</option>").attr("value", "undefined"));
 
 			_.each(pluginTypes, function(pluginType)
 			{
@@ -1922,7 +1813,7 @@ PluginEditor = function(jsEditor, valueEditor)
 				typeSelect.val(currentTypeName).trigger("change");
 			}
 		}
-	};
+	}
 
 	// Public API
 	return {
@@ -1936,8 +1827,8 @@ PluginEditor = function(jsEditor, valueEditor)
 		{
 			createPluginEditor(title, pluginTypes, currentInstanceName, currentTypeName, currentSettingsValues, settingsSavedCallback);
 		}
-	};
-};
+	}
+}
 
 ValueEditor = function(theFreeboardModel)
 {
@@ -2110,9 +2001,7 @@ ValueEditor = function(theFreeboardModel)
 
 		_autocompleteFromDatasource(inputString, theFreeboardModel.datasources(), expectsType);
 
-		var sorted_autocompleteOptions = _.sortBy(_autocompleteOptions, 'value');
-
-		if(sorted_autocompleteOptions.length > 0)
+		if(_autocompleteOptions.length > 0)
 		{
 			if(!dropdown)
 			{
@@ -2129,7 +2018,7 @@ ValueEditor = function(theFreeboardModel)
 			var selected = true;
 			selectedOptionIndex = 0;
 
-			_.each(sorted_autocompleteOptions, function(option, index)
+			_.each(_autocompleteOptions, function(option, index)
 			{
 				var li = _renderAutocompleteDropdownOption(element, inputString, option, index);
 				if(selected)
@@ -2285,8 +2174,8 @@ ValueEditor = function(theFreeboardModel)
 			}
 		},
 		EXPECTED_TYPE : EXPECTED_TYPE
-	};
-};
+	}
+}
 
 function WidgetModel(theFreeboardModel, widgetPlugins) {
 	function disposeWidgetInstance() {
@@ -2353,17 +2242,17 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				self.processCalculatedSetting(settingName);
 			});
 		}
-	};
+	}
 
 	this.callValueFunction = function (theFunction) {
 		return theFunction.call(undefined, theFreeboardModel.datasourceData);
-	};
+	}
 
 	this.processSizeChange = function () {
 		if (!_.isUndefined(self.widgetInstance) && _.isFunction(self.widgetInstance.onSizeChanged)) {
 			self.widgetInstance.onSizeChanged();
 		}
-	};
+	}
 
 	this.processCalculatedSetting = function (settingName) {
 		if (_.isFunction(self.calculatedSettingScripts[settingName])) {
@@ -2390,7 +2279,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				}
 			}
 		}
-	};
+	}
 
 	this.updateCalculatedSettings = function () {
 		self.datasourceRefreshNotifications = {};
@@ -2455,7 +2344,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 				}
 			}
 		});
-	};
+	}
 
 	this._heightUpdate = ko.observable();
 	this.height = ko.computed({
@@ -2477,11 +2366,11 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 			self.widgetInstance.render(element);
 			self.updateCalculatedSettings();
 		}
-	};
+	}
 
 	this.dispose = function () {
 
-	};
+	}
 
 	this.serialize = function () {
 		return {
@@ -2489,13 +2378,13 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 			type: self.type(),
 			settings: self.settings()
 		};
-	};
+	}
 
 	this.deserialize = function (object) {
 		self.title(object.title);
 		self.settings(object.settings);
 		self.type(object.type);
-	};
+	}
 }
 
 // ┌────────────────────────────────────────────────────────────────────┐ \\
@@ -2519,14 +2408,14 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 		{
 			p.addEventListener('DOMAttrModified', function()
 			{
-				flag = true;
+				flag = true
 			}, false);
 		}
 		else if(p.attachEvent)
 		{
 			p.attachEvent('onDOMAttrModified', function()
 			{
-				flag = true;
+				flag = true
 			});
 		}
 		else
@@ -2668,7 +2557,7 @@ function WidgetModel(theFreeboardModel, widgetPlugins) {
 		}
 
 		return this;
-	};
+	}
 })(jQuery);
 
 (function(jQuery) {
@@ -2710,25 +2599,14 @@ var freeboard = (function()
 	var pluginEditor = new PluginEditor(jsEditor, valueEditor);
 
 	var developerConsole = new DeveloperConsole(theFreeboardModel);
-	var currentStyle;
-    if (theme == "light") {
-		currentStyle = {
-			values: {
-				"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
-				"color"      : "#3f3f3f",
-				"font-weight": 100
-			}
-		};
-    }
-    else {
-		currentStyle = {
-			values: {
-				"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
-				"color"      : "#d3d4d4",
-				"font-weight": 100
-			}
-		};
-	}
+
+	var currentStyle = {
+		values: {
+			"font-family": '"HelveticaNeue-UltraLight", "Helvetica Neue Ultra Light", "Helvetica Neue", sans-serif',
+			"color"      : "#d3d4d4",
+			"font-weight": 100
+		}
+	};
 
 	ko.bindingHandlers.pluginEditor = {
 		init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2742,24 +2620,24 @@ var freeboard = (function()
 			if(options.type == 'datasource')
 			{
 				types = datasourcePlugins;
-				title = _t("Datasource");
+				title = "Datasource";
 			}
 			else if(options.type == 'widget')
 			{
 				types = widgetPlugins;
-				title = _t("Widget");
+				title = "Widget";
 			}
 			else if(options.type == 'pane')
 			{
-				title = _t("Pane");
+				title = "Pane";
 			}
 
 			$(element).click(function(event)
 			{
 				if(options.operation == 'delete')
 				{
-					var phraseElement = $(_t('<p>Are you sure you want to delete this ') + title + '?</p>');
-					new DialogBox(phraseElement, _t("Confirm Delete"), _t("Yes"), _t("No"), function()
+					var phraseElement = $('<p>Are you sure you want to delete this ' + title + '?</p>');
+					new DialogBox(phraseElement, "Confirm Delete", "Yes", "No", function()
 					{
 
 						if(options.type == 'datasource')
@@ -2783,35 +2661,6 @@ var freeboard = (function()
 
 					if(options.type == 'datasource')
 					{
-						// Scan serial ports
-						if (typeof(require) !== "undefined") {
-							var com = require('serialport');
-						    com.list(function (err, ports) {
-								for (var i=0; i<comDescription.length; i++) {
-									comDescription.pop();
-								}
-						        ports.forEach(function(port) {
-									var exists = false;
-									for (var i=0; i<comDescription.length; i++) {
-										if (port.comName === comDescription[i].value) {
-											exists = true;
-										}
-									}
-									if (!exists) {
-							        	comDescription.push(
-												{	
-													'name': port.comName + " - " + port.manufacturer,
-													'value': port.comName
-												}
-										);
-									}
-						            // console.log(port.comName);
-						            // console.log(port.pnpId);
-						            // console.log(port.manufacturer);
-						        });
-						    });
-						}
-						
 						if(options.operation == 'add')
 						{
 							settings = {};
@@ -2850,19 +2699,19 @@ var freeboard = (function()
 								settings: [
 									{
 										name        : "title",
-										display_name: _t("Title"),
+										display_name: "Title",
 										type        : "text"
 									},
 									{
 										name : "col_width",
-										display_name : _t("Columns"),
+										display_name : "Columns",
 										type : "integer",
 										default_value : 1,
 										required : true
 									}
 								]
 							}
-						};
+						}
 					}
 
 					pluginEditor.createPluginEditor(title, types, instanceType, settings, function(newSettings)
@@ -2915,7 +2764,7 @@ var freeboard = (function()
 				}
 			});
 		}
-	};
+	}
 
 	ko.virtualElements.allowedBindings.datasourceTypeSettings = true;
 	ko.bindingHandlers.datasourceTypeSettings = {
@@ -2923,7 +2772,7 @@ var freeboard = (function()
 		{
 			processPluginSettings(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 		}
-	};
+	}
 
 	ko.bindingHandlers.pane = {
 		init  : function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2944,7 +2793,7 @@ var freeboard = (function()
 			}
 			freeboardUI.updatePane(element, viewModel);
 		}
-	};
+	}
 
 	ko.bindingHandlers.widget = {
 		init  : function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)
@@ -2962,7 +2811,7 @@ var freeboard = (function()
 				viewModel.render(element);
 			}
 		}
-	};
+	}
 
 	function getParameterByName(name)
 	{
@@ -3036,14 +2885,6 @@ var freeboard = (function()
 		{
 			theFreeboardModel.loadDashboard(configuration, callback);
 		},
-		loadDashboardFromLocalFile       : function()
-		{
-			theFreeboardModel.loadDashboardFromLocalFile();
-		},
-		saveDashboard       : function()
-		{
-			theFreeboardModel.saveDashboard();
-		},
 		serialize           : function()
 		{
 			return theFreeboardModel.serialize();
@@ -3066,7 +2907,7 @@ var freeboard = (function()
             // Add a required setting called name to the beginning
             plugin.settings.unshift({
                 name : "name",
-                display_name : _t("Name"),
+                display_name : "Name",
                 type : "text",
                 required : true
             });
@@ -3143,24 +2984,6 @@ var freeboard = (function()
                 return null;
             }
         },
-        getDatasourceType : function(datasourceName)
-        {
-            var datasources = theFreeboardModel.datasources();
-
-            // Find the datasource with the name specified
-            var datasource = _.find(datasources, function(datasourceModel){
-                return (datasourceModel.name() === datasourceName);
-            });
-
-            if(datasource)
-            {
-                return datasource.type();
-            }
-            else
-            {
-                return null;
-            }
-        },
         setDatasourceSettings : function(datasourceName, settings)
         {
             var datasources = theFreeboardModel.datasources();
@@ -3178,40 +3001,6 @@ var freeboard = (function()
 
             var combinedSettings = _.defaults(settings, datasource.settings());
             datasource.settings(combinedSettings);
-        },
-        getDatasourceData : function(datasourceName)
-        {
-            var datasources = theFreeboardModel.datasources();
-
-            // Find the datasource with the name specified
-            var datasource = _.find(datasources, function(datasourceModel){
-                return (datasourceModel.name() === datasourceName);
-            });
-
-            if(datasource) {
-				return datasource.latestData();
-            }
-            else {
-                return null;
-            }
-        },
-        setDatasourceData : function(datasourceName, key, data)
-        {
-            var datasources = theFreeboardModel.datasources();
-
-            // Find the datasource with the name specified
-            var datasource = _.find(datasources, function(datasourceModel){
-                return (datasourceModel.name() === datasourceName);
-            });
-
-            if(!datasource)
-            {
-                console.log("Datasource not found");
-                return;
-            }
-
-            datasource.latestData()[key] = data;
-            datasource.updateNow();
         },
 		getStyleString      : function(name)
 		{
