@@ -1,3 +1,3 @@
 var translations = [];
 
-exports.translations = translations;
+//exports.translations = translations;

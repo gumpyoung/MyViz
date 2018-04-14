@@ -12,13 +12,22 @@ window.buttonLoadDashboardID = 0;
         var currentSettings = settings;
         
         
- 		function loadDashboard() {
+ 		function loadDashboardFile() {
 			const fs = require('fs');
 			var jsonText = fs.readFileSync(currentSettings.dashboard);
 			var jsonObject = JSON.parse(jsonText);
 			freeboard.loadDashboard(jsonObject);
 			freeboard.setEditing(false);
  		};
+
+        function loadDashboard(){
+                $.getJSON(currentSettings.dashboard, function(data) {
+                                                    freeboard.loadDashboard(data, function() {
+                                                        freeboard.setEditing(true);
+                                                        freeboard.setEditing(false);
+                                                    });
+                                                });            
+        }
  		        
         function createButtonLoadDashboard(mySettings) {
             if (!rendered) {
