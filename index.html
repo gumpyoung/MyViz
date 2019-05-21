@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>MyViz</title>
+    <title>Dashboard</title>
 	<meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -489,6 +489,7 @@
 	        		"extensions_mobiles/accelerometer.datasources.js",
 	        		"extensions/button.widgets.js",
 	        		"extensions/buttonloaddashboard.widgets.js",
+	        		"extensions/buttonURLRequest.widgets.js",
 	        		"extensions/clock.datasources.js",
 	        		"extensions/closedloop.widgets.js",
 	        		"extensions/colorwheel.widgets.js",
@@ -518,16 +519,17 @@
 	                function(){
 	                    $(function()
 	                    { //DOM Ready
-	                        freeboard.initialize(true);
-	
 	                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
 	                        if (hashpattern !== null) {
+		                        freeboard.initialize(false);	
 	                            $.getJSON(hashpattern[2], function(data) {
 	                                freeboard.loadDashboard(data, function() {
 	                                    freeboard.setEditing(true);
 	                                    freeboard.setEditing(false);
 	                                });
 	                            });
+	                        } else {
+		                        freeboard.initialize(true);		                        	
 	                        }	
 	                    });
 	                });
@@ -547,7 +549,7 @@
     <div id="admin-bar">
         <div id="admin-menu">
             <div id="board-tools">
-                <h1 id="board-logo" class="title bordered">MyViz</h1>
+                <h1 id="board-logo" class="title bordered">RMS</h1>
                 <div id="board-actions">
                     <ul class="board-toolbar vertical">
                         <li data-bind="click: loadDashboardFromLocalFile"><i id="full-screen-icon" class="icon-folder-open icon-white"></i><label id="full-screen"><span id="load">Load Dashboard</span></label></li>
